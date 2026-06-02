@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "景点详情",
+  "usingComponents": {
+    "star-rating": "/components/star-rating/star-rating"
+  }
+}

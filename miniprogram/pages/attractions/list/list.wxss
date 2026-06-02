@@ -1,0 +1,103 @@
+/* pages/attractions/list/list.wxss - 景点列表样式 */
+
+/* 搜索 */
+.search-section {
+  padding: 16rpx 0 20rpx;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border-radius: 40rpx;
+  padding: 16rpx 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.05);
+}
+
+.search-icon {
+  font-size: 30rpx;
+  margin-right: 14rpx;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+}
+
+.search-clear {
+  font-size: 28rpx;
+  color: var(--text-hint);
+  padding: 4rpx 12rpx;
+}
+
+/* 分类筛选 */
+.category-filter {
+  white-space: nowrap;
+  padding-bottom: 16rpx;
+  margin-bottom: 4rpx;
+}
+
+.filter-chip {
+  display: inline-block;
+  padding: 14rpx 28rpx;
+  margin-right: 16rpx;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  background: #FFFFFF;
+  color: var(--text-secondary);
+  box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.04);
+  transition: all 0.2s;
+}
+
+.filter-chip.active {
+  background: var(--primary);
+  color: #FFFFFF;
+}
+
+/* 排序栏 */
+.sort-bar {
+  display: flex;
+  padding: 16rpx 0;
+  margin-bottom: 16rpx;
+  border-bottom: 1rpx solid var(--border);
+}
+
+.sort-item {
+  font-size: 26rpx;
+  color: var(--text-hint);
+  margin-right: 40rpx;
+  padding: 6rpx 0;
+  position: relative;
+}
+
+.sort-item.active {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.sort-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2rpx;
+  left: 0;
+  right: 0;
+  height: 4rpx;
+  background: var(--primary);
+  border-radius: 2rpx;
+}
+
+/* 景点列表 */
+.attraction-list {
+  padding-top: 8rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  padding: 160rpx 0;
+}
+
+.empty-hint {
+  font-size: 24rpx;
+  color: var(--text-hint);
+  margin-top: 12rpx;
+}

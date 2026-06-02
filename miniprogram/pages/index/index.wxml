@@ -1,0 +1,75 @@
+<!-- pages/index/index.wxml - 首页 -->
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar" bindtap="onSearchTap">
+    <view class="search-input">
+      <text class="search-icon">🔍</text>
+      <text class="search-placeholder">搜索景点、路线...</text>
+    </view>
+  </view>
+
+  <!-- 轮播Banner -->
+  <swiper class="banner-swiper" indicator-dots indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#FFFFFF" autoplay circular interval="4000">
+    <swiper-item wx:for="{{banners}}" wx:key="id">
+      <image class="banner-image" src="{{item.image}}" mode="aspectFill" bindtap="onBannerTap" data-id="{{item.id}}" data-type="{{item.type}}"/>
+      <view class="banner-info">
+        <text class="banner-title">{{item.title}}</text>
+        <text class="banner-desc">{{item.desc}}</text>
+      </view>
+    </swiper-item>
+  </swiper>
+
+  <!-- 分类导航 -->
+  <view class="category-nav">
+    <view class="category-item" wx:for="{{categories}}" wx:key="id" bindtap="onCategoryTap" data-category="{{item.id}}">
+      <view class="category-icon-wrap">
+        <text class="category-icon">{{item.icon}}</text>
+      </view>
+      <text class="category-name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 热门景点 -->
+  <view class="page-section">
+    <view class="section-title">
+      <text class="title">热门景点</text>
+      <text class="more" bindtap="onMoreAttractions">更多 ›</text>
+    </view>
+    <scroll-view class="hot-attractions-scroll" scroll-x enable-flex>
+      <view class="hot-attraction-item" wx:for="{{hotAttractions}}" wx:key="_id" bindtap="onAttractionTap" data-id="{{item._id}}">
+        <image class="hot-image" src="{{item.images[0]}}" mode="aspectFill" lazy-load/>
+        <view class="hot-info">
+          <text class="hot-name text-ellipsis">{{item.name}}</text>
+          <view class="hot-meta">
+            <star-rating rating="{{item.rating}}" size="small" readonly="{{true}}"/>
+            <text class="hot-distance" wx:if="{{item.distance}}">{{item.distance}}km</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 推荐路线 -->
+  <view class="page-section">
+    <view class="section-title">
+      <text class="title">推荐路线</text>
+      <text class="more" bindtap="onMoreRoutes">更多 ›</text>
+    </view>
+    <view class="route-list">
+      <route-card wx:for="{{recommendRoutes}}" wx:key="_id" route="{{item}}" bindtap="onRouteTap" data-id="{{item._id}}"/>
+    </view>
+  </view>
+
+  <!-- 精选景点 -->
+  <view class="page-section">
+    <view class="section-title">
+      <text class="title">精选景点</text>
+    </view>
+    <view class="attraction-grid">
+      <attraction-card wx:for="{{featuredAttractions}}" wx:key="_id" attraction="{{item}}" bindtap="onAttractionTap" data-id="{{item._id}}"/>
+    </view>
+  </view>
+
+  <!-- 底部安全区 -->
+  <view class="safe-bottom" style="height: 40rpx;"></view>
+</view>

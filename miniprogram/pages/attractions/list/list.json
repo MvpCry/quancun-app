@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "景点列表",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 100,
+  "usingComponents": {
+    "attraction-card": "/components/attraction-card/attraction-card"
+  }
+}

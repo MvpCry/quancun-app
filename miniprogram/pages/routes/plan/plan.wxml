@@ -1,0 +1,107 @@
+<!-- pages/routes/plan/plan.wxml - 路线规划页（核心功能） -->
+<view class="plan-page">
+  <!-- 地图区域 -->
+  <view class="plan-map-wrap">
+    <map-route
+      id="planMapRoute"
+      stops="{{mapStops}}"
+      height="{{mapHeight}}"
+      showLocation="{{true}}"
+      showStops="{{plannedStops.length > 0}}"
+      currentIndex="{{currentStopIndex}}"
+      bindstopchange="onStopChange"
+    />
+    <!-- 加载提示 -->
+    <view class="map-loading" wx:if="{{routeCalculating}}">
+      <text>正在计算最优路线...</text>
+    </view>
+  </view>
+
+  <!-- 底部操作区 -->
+  <view class="plan-bottom safe-bottom">
+    <!-- 未规划状态：显示已选景点列表 -->
+    <view class="plan-panel" wx:if="{{!routeCalculated}}">
+      <view class="panel-header">
+        <text class="panel-title">选择景点（{{selectedAttractions.length}}个）</text>
+        <text class="panel-action" bindtap="onAddAttraction">+ 添加景点</text>
+      </view>
+
+      <scroll-view class="selected-list" scroll-y wx:if="{{selectedAttractions.length > 0}}">
+        <view class="selected-item" wx:for="{{selectedAttractions}}" wx:key="_id">
+          <view class="selected-order">{{index + 1}}</view>
+          <view class="selected-info">
+            <text class="selected-name">{{item.name}}</text>
+            <text class="selected-address text-ellipsis">{{item.address}}</text>
+          </view>
+          <view class="selected-actions">
+            <text class="selected-delete" bindtap="onRemoveAttraction" data-index="{{index}}">✕</text>
+            <text class="selected-drag">☰</text>
+          </view>
+        </view>
+      </scroll-view>
+
+      <view class="empty-selected" wx:if="{{selectedAttractions.length === 0}}">
+        <text class="empty-icon">🗺️</text>
+        <text class="empty-text">请添加要游览的景点</text>
+        <text class="empty-hint">至少选择2个景点才能规划路线</text>
+      </view>
+
+      <view class="panel-footer">
+        <button class="btn btn-primary btn-block" bindtap="onPlanRoute" disabled="{{selectedAttractions.length < 2}}">
+          {{selectedAttractions.length < 2 ? '至少选择2个景点' : '开始智能规划路线'}}
+        </button>
+      </view>
+    </view>
+
+    <!-- 已规划状态：显示路线详情 -->
+    <view class="plan-panel" wx:if="{{routeCalculated}}">
+      <view class="panel-header">
+        <text class="panel-title">最优路线</text>
+        <text class="panel-action" bindtap="onResetRoute">重新规划</text>
+      </view>
+
+      <view class="route-summary">
+        <view class="summary-item">
+          <text class="summary-value">{{plannedStops.length}}</text>
+          <text class="summary-label">景点数</text>
+        </view>
+        <view class="summary-divider"></view>
+        <view class="summary-item">
+          <text class="summary-value">{{totalDistance}}</text>
+          <text class="summary-label">总距离(km)</text>
+        </view>
+        <view class="summary-divider"></view>
+        <view class="summary-item">
+          <text class="summary-value">{{estimatedTime}}</text>
+          <text class="summary-label">预计耗时(h)</text>
+        </view>
+      </view>
+
+      <!-- 有序景点列表 -->
+      <scroll-view class="planned-stops" scroll-y>
+        <view class="planned-stop {{index === currentStopIndex ? 'current' : ''}}"
+          wx:for="{{plannedStops}}" wx:key="id"
+          data-index="{{index}}"
+          bindtap="onPlannedStopTap">
+          <view class="stop-marker">
+            <view class="stop-dot {{index === 0 ? 'start' : ''}} {{index === plannedStops.length - 1 ? 'end' : ''}}"></view>
+            <view class="stop-line" wx:if="{{index < plannedStops.length - 1}}"></view>
+          </view>
+          <view class="stop-content">
+            <text class="stop-title">{{item.name}}</text>
+            <text class="stop-meta" wx:if="{{item.distance}}">距上一站 {{item.distance}}km</text>
+          </view>
+          <view class="stop-order">{{index + 1}}</view>
+        </view>
+      </scroll-view>
+
+      <!-- 保存路线 -->
+      <view class="panel-footer">
+        <view class="footer-row">
+          <input class="route-name-input" placeholder="给路线起个名字..." value="{{routeName}}" bindinput="onRouteNameInput"/>
+        </view>
+        <button class="btn btn-primary btn-block" bindtap="onSaveRoute">保存路线</button>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,92 @@
+<!-- pages/routes/detail/detail.wxml - 路线详情页 -->
+<view class="container">
+  <!-- 路线地图 -->
+  <view class="detail-map-section" wx:if="{{route.attractions && route.attractions.length > 0}}">
+    <map-route
+      id="detailMapRoute"
+      stops="{{mapStops}}"
+      height="450"
+      showLocation="{{true}}"
+      showStops="{{true}}"
+      currentIndex="{{currentStopIndex}}"
+      bindstopchange="onStopChange"
+    />
+  </view>
+
+  <!-- 路线信息 -->
+  <view class="route-header card">
+    <view class="card-body">
+      <text class="route-name">{{route.name}}</text>
+      <view class="route-stats">
+        <view class="stat-item">
+          <text class="stat-value">{{route.attractionCount || 0}}</text>
+          <text class="stat-label">景点</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-value">{{route.totalDistance || '--'}}</text>
+          <text class="stat-label">公里</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-value">{{route.estimatedTime || '--'}}</text>
+          <text class="stat-label">小时</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-value">{{route.likeCount || 0}}</text>
+          <text class="stat-label">收藏</text>
+        </view>
+      </view>
+
+      <view class="route-tags" wx:if="{{route.tags && route.tags.length > 0}}">
+        <text class="tag tag-primary" wx:for="{{route.tags}}" wx:key="*this">{{item}}</text>
+      </view>
+
+      <text class="route-desc">{{route.description}}</text>
+    </view>
+  </view>
+
+  <!-- 景点列表（有序） -->
+  <view class="stops-card card">
+    <view class="card-header">
+      <text class="card-title">途经景点</text>
+    </view>
+    <view class="stops-list">
+      <view class="stop-row {{index === currentStopIndex ? 'active' : ''}}"
+        wx:for="{{route.attractions}}" wx:key="attractionId"
+        data-index="{{index}}"
+        bindtap="onStopRowTap">
+        <view class="stop-indicator">
+          <view class="stop-marker-dot {{index === 0 ? 'start' : ''}} {{index === route.attractions.length - 1 ? 'end' : ''}}">
+            <text>{{index + 1}}</text>
+          </view>
+          <view class="stop-marker-line" wx:if="{{index < route.attractions.length - 1}}"></view>
+        </view>
+        <view class="stop-content-wrap">
+          <text class="stop-title">{{item.name}}</text>
+          <text class="stop-distance" wx:if="{{item.distanceFromPrev}}">距上站 {{item.distanceFromPrev}}km</text>
+        </view>
+        <text class="stop-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-buttons">
+    <button class="btn btn-accent btn-block" bindtap="onNavigateAll">🧭 开始导航</button>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="detail-bottom-bar safe-bottom">
+    <view class="bottom-action" bindtap="onToggleFavorite">
+      <text>{{isFavorited ? '❤️' : '🤍'}}</text>
+      <text class="bottom-label">收藏</text>
+    </view>
+    <view class="bottom-action" bindtap="onShare">
+      <text>📤</text>
+      <text class="bottom-label">分享</text>
+    </view>
+    <button class="btn btn-primary flex-1" bindtap="onNavigateAll">开始导航</button>
+  </view>
+</view>

@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "旅游路线",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 100,
+  "usingComponents": {
+    "route-card": "/components/route-card/route-card"
+  }
+}

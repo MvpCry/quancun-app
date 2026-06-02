@@ -1,0 +1,22 @@
+<!-- components/attraction-card/attraction-card.wxml - 景点卡片 -->
+<view class="attraction-card" bindtap="onTap">
+  <view class="card-image-wrap">
+    <image class="card-image" src="{{attraction.coverImage || attraction.images[0]}}" mode="aspectFill" lazy-load/>
+    <view class="card-tag" wx:if="{{attraction.categoryName}}">{{attraction.categoryName}}</view>
+    <view class="card-favorite" wx:if="{{showFavorite}}" catchtap="onFavorite">
+      <text>{{attraction.isFavorited ? '❤️' : '🤍'}}</text>
+    </view>
+  </view>
+  <view class="card-info">
+    <text class="card-name text-ellipsis">{{attraction.name}}</text>
+    <view class="card-meta">
+      <star-rating rating="{{attraction.rating}}" size="small" readonly="{{true}}"/>
+      <text class="card-review-count">{{attraction.reviewCount || 0}}条评论</text>
+    </view>
+    <view class="card-footer">
+      <text class="card-address text-ellipsis">📍 {{attraction.address || '暂无地址'}}</text>
+      <text class="card-price" wx:if="{{attraction.ticketPrice > 0}}">¥{{attraction.ticketPrice}}</text>
+      <text class="card-price free" wx:else>免费</text>
+    </view>
+  </view>
+</view>

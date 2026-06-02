@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "路线详情",
+  "usingComponents": {
+    "map-route": "/components/map-route/map-route"
+  }
+}

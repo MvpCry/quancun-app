@@ -1,0 +1,281 @@
+/* pages/attractions/detail/detail.wxss - 景点详情样式 */
+/* 布局顺序：名称 → 评分 → 开放时间 → 图片轮播 → 简介 → 地图 → 评论 */
+
+.container {
+  padding: 0 24rpx;
+  padding-bottom: 140rpx;
+}
+
+/* ========== 1. 名称 ========== */
+.name-section {
+  padding: 32rpx 0 16rpx;
+}
+
+.detail-name {
+  font-size: 42rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+/* ========== 2. 评分 ========== */
+.rating-section {
+  display: flex;
+  align-items: center;
+  padding-bottom: 24rpx;
+  border-bottom: 1rpx solid var(--border);
+}
+
+.rating-count {
+  font-size: 26rpx;
+  color: var(--text-hint);
+  margin-left: 16rpx;
+}
+
+/* ========== 3. 开放时间 ========== */
+.time-section {
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid var(--border);
+  margin-bottom: 24rpx;
+}
+
+.time-row {
+  display: flex;
+  align-items: center;
+  padding: 10rpx 0;
+}
+
+.time-icon {
+  font-size: 28rpx;
+  width: 48rpx;
+  text-align: center;
+  margin-right: 12rpx;
+}
+
+.time-label {
+  font-size: 26rpx;
+  color: var(--text-hint);
+  width: 120rpx;
+  flex-shrink: 0;
+}
+
+.time-value {
+  font-size: 28rpx;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.time-value.price {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 30rpx;
+}
+
+.time-value.address-text {
+  font-size: 26rpx;
+}
+
+/* ========== 4. 图片轮播 ========== */
+.swiper-section {
+  position: relative;
+  margin-bottom: 24rpx;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.detail-swiper {
+  width: 100%;
+  height: 420rpx;
+}
+
+.detail-image {
+  width: 100%;
+  height: 100%;
+}
+
+.image-count {
+  position: absolute;
+  right: 20rpx;
+  bottom: 20rpx;
+  background: rgba(0, 0, 0, 0.5);
+  color: #FFFFFF;
+  font-size: 22rpx;
+  padding: 6rpx 18rpx;
+  border-radius: 24rpx;
+  z-index: 10;
+}
+
+/* ========== 5. 简介 ========== */
+.intro-section {
+  margin-bottom: 24rpx;
+}
+
+.intro-section .card-header {
+  padding: 24rpx 24rpx 0;
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  position: relative;
+  padding-left: 18rpx;
+}
+
+.card-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6rpx;
+  height: 28rpx;
+  background: var(--primary);
+  border-radius: 3rpx;
+}
+
+.intro-text {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  line-height: 1.9;
+  text-indent: 2em;
+  white-space: pre-wrap;
+}
+
+/* ========== 6. 地图 ========== */
+.map-section {
+  margin-bottom: 24rpx;
+}
+
+.map-section .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 24rpx 0;
+}
+
+.nav-btn {
+  font-size: 26rpx;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.map-wrap {
+  padding: 16rpx 24rpx 24rpx;
+}
+
+.detail-map {
+  width: 100%;
+  height: 300rpx;
+  border-radius: var(--radius);
+}
+
+/* ========== 7. 评论 ========== */
+.review-section {
+  margin-bottom: 24rpx;
+}
+
+.review-section .card-header {
+  padding: 24rpx 24rpx 0;
+}
+
+.review-list {
+  padding: 8rpx 24rpx 24rpx;
+}
+
+.review-item {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #F5F5F5;
+}
+
+.review-item:last-child {
+  border-bottom: none;
+}
+
+.review-user {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.review-avatar {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  margin-right: 14rpx;
+  background: #F0F0F0;
+}
+
+.review-user-info {
+  flex: 1;
+}
+
+.review-name {
+  font-size: 26rpx;
+  font-weight: 500;
+  display: block;
+}
+
+.review-time {
+  font-size: 22rpx;
+  color: var(--text-hint);
+}
+
+.review-content {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.no-reviews {
+  text-align: center;
+  padding: 40rpx 0;
+}
+
+.no-review-text {
+  font-size: 26rpx;
+  color: var(--text-hint);
+}
+
+/* ========== 底部操作栏 ========== */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  padding: 16rpx 24rpx;
+  background: #FFFFFF;
+  box-shadow: 0 -2rpx 16rpx rgba(0,0,0,0.06);
+  gap: 16rpx;
+  z-index: 100;
+}
+
+.bottom-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4rpx 12rpx;
+}
+
+.bottom-icon {
+  font-size: 32rpx;
+}
+
+.bottom-label {
+  font-size: 20rpx;
+  color: var(--text-hint);
+}
+
+.bottom-btn {
+  flex: 1;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  border-radius: 44rpx;
+  text-align: center;
+}
+
+.bottom-btn.btn-primary {
+  background: var(--primary);
+  color: #FFFFFF;
+}

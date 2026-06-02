@@ -1,0 +1,42 @@
+<!-- components/route-card/route-card.wxml - 路线卡片 -->
+<view class="route-card" bindtap="onTap">
+  <view class="route-cover-wrap">
+    <image class="route-cover" src="{{route.coverImage}}" mode="aspectFill" lazy-load/>
+    <view class="route-cover-mask"></view>
+    <view class="route-cover-info">
+      <text class="route-name-on-cover">{{route.name}}</text>
+      <view class="route-tags">
+        <text class="route-tag" wx:for="{{route.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+      </view>
+    </view>
+  </view>
+  <view class="route-body">
+    <text class="route-desc text-ellipsis-2">{{route.description}}</text>
+    <view class="route-meta">
+      <view class="route-meta-item">
+        <text class="route-meta-icon">📍</text>
+        <text>{{route.attractionCount || 0}}个景点</text>
+      </view>
+      <view class="route-meta-item">
+        <text class="route-meta-icon">📏</text>
+        <text>{{route.totalDistance || '--'}}km</text>
+      </view>
+      <view class="route-meta-item">
+        <text class="route-meta-icon">⏱️</text>
+        <text>{{route.estimatedTime || '--'}}h</text>
+      </view>
+      <view class="route-meta-item">
+        <text class="route-meta-icon">❤️</text>
+        <text>{{route.likeCount || 0}}</text>
+      </view>
+    </view>
+    <!-- 路线景点预览 -->
+    <view class="route-attractions-preview" wx:if="{{route.attractions && route.attractions.length > 0}}">
+      <view class="route-stop" wx:for="{{route.attractions}}" wx:for-item="stop" wx:key="attractionId">
+        <view class="stop-dot"></view>
+        <text class="stop-name text-ellipsis">{{stop.name}}</text>
+        <view class="stop-line" wx:if="{{index < route.attractions.length - 1}}"></view>
+      </view>
+    </view>
+  </view>
+</view>

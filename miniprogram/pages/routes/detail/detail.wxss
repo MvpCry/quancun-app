@@ -1,0 +1,179 @@
+/* pages/routes/detail/detail.wxss - 路线详情样式 */
+
+/* 地图 */
+.detail-map-section {
+  margin: 0 -24rpx 24rpx;
+  border-radius: 0 0 var(--radius) var(--radius);
+  overflow: hidden;
+}
+
+/* 路线信息 */
+.route-header {
+  margin-bottom: 24rpx;
+}
+
+.route-name {
+  font-size: 36rpx;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.route-stats {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  background: #F8FFF8;
+  border-radius: var(--radius);
+  margin-bottom: 16rpx;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--primary);
+  display: block;
+}
+
+.stat-label {
+  font-size: 22rpx;
+  color: var(--text-hint);
+}
+
+.stat-divider {
+  width: 1rpx;
+  height: 40rpx;
+  background: var(--border);
+}
+
+.route-tags {
+  margin-bottom: 14rpx;
+}
+
+.route-desc {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* 景点卡片 */
+.stops-card .card-header {
+  padding: 24rpx 24rpx 0;
+}
+
+.stops-list {
+  padding: 8rpx 24rpx 24rpx;
+}
+
+.stop-row {
+  display: flex;
+  align-items: center;
+  padding: 18rpx 0;
+  position: relative;
+}
+
+.stop-row.active {
+  background: #F1F8E9;
+  margin: 0 -24rpx;
+  padding: 18rpx 24rpx;
+  border-radius: 8rpx;
+}
+
+.stop-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  min-height: 60rpx;
+}
+
+.stop-marker-dot {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  font-weight: 600;
+  box-shadow: 0 2rpx 8rpx rgba(46,125,50,0.25);
+}
+
+.stop-marker-dot.start {
+  background: var(--accent);
+}
+
+.stop-marker-dot.end {
+  background: var(--primary);
+}
+
+.stop-marker-line {
+  width: 2rpx;
+  flex: 1;
+  background: #DDDDDD;
+  margin: 4rpx 0;
+  min-height: 32rpx;
+}
+
+.stop-content-wrap {
+  flex: 1;
+}
+
+.stop-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.stop-distance {
+  font-size: 22rpx;
+  color: var(--text-hint);
+}
+
+.stop-arrow {
+  font-size: 36rpx;
+  color: var(--text-hint);
+}
+
+/* 操作按钮 */
+.action-buttons {
+  padding: 8rpx 0;
+  margin-bottom: 120rpx;
+}
+
+/* 底部操作栏 */
+.detail-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  padding: 16rpx 24rpx;
+  background: #FFFFFF;
+  box-shadow: 0 -2rpx 16rpx rgba(0,0,0,0.06);
+  gap: 16rpx;
+  z-index: 100;
+}
+
+.bottom-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 36rpx;
+  padding: 4rpx 12rpx;
+}
+
+.bottom-label {
+  font-size: 20rpx;
+  color: var(--text-hint);
+}

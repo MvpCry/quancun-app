@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "去俺村",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#F5F5F5",
+  "usingComponents": {
+    "attraction-card": "/components/attraction-card/attraction-card",
+    "route-card": "/components/route-card/route-card",
+    "star-rating": "/components/star-rating/star-rating"
+  }
+}

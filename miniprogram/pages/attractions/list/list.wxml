@@ -1,0 +1,68 @@
+<!-- pages/attractions/list/list.wxml - 景点列表页 -->
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-section">
+    <view class="search-bar">
+      <text class="search-icon">🔍</text>
+      <input class="search-input" placeholder="搜索景点名称..." value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" confirm-type="search"/>
+      <text class="search-clear" wx:if="{{keyword}}" bindtap="onClearSearch">✕</text>
+    </view>
+  </view>
+
+  <!-- 分类筛选 -->
+  <scroll-view class="category-filter" scroll-x enable-flex>
+    <view class="filter-chip {{activeCategory === '' ? 'active' : ''}}" bindtap="onCategoryChange" data-category="">全部</view>
+    <view class="filter-chip {{activeCategory === item.id ? 'active' : ''}}"
+      wx:for="{{categories}}" wx:key="id"
+      bindtap="onCategoryChange"
+      data-category="{{item.id}}">
+      <text>{{item.icon}} {{item.name}}</text>
+    </view>
+  </scroll-view>
+
+  <!-- 排序栏 -->
+  <view class="sort-bar">
+    <view class="sort-item {{sortBy === 'rating' ? 'active' : ''}}" bindtap="onSortChange" data-sort="rating">
+      评分最高
+    </view>
+    <view class="sort-item {{sortBy === 'reviewCount' ? 'active' : ''}}" bindtap="onSortChange" data-sort="reviewCount">
+      最热门
+    </view>
+    <view class="sort-item {{sortBy === 'createTime' ? 'active' : ''}}" bindtap="onSortChange" data-sort="createTime">
+      最新
+    </view>
+    <view class="sort-item {{sortBy === 'distance' ? 'active' : ''}}" bindtap="onSortChange" data-sort="distance">
+      离我最近
+    </view>
+  </view>
+
+  <!-- 景点列表 -->
+  <view class="attraction-list" wx:if="{{attractions.length > 0}}">
+    <attraction-card
+      wx:for="{{attractions}}" wx:key="_id"
+      attraction="{{item}}"
+      showFavorite="{{true}}"
+      bindtap="onAttractionTap"
+      bindfavorite="onFavoriteTap"
+      data-id="{{item._id}}"
+    />
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && attractions.length === 0}}">
+    <text class="empty-icon">🏞️</text>
+    <text class="empty-text">暂无景点信息</text>
+    <text class="empty-hint">试试其他分类或搜索关键词</text>
+  </view>
+
+  <!-- 加载更多 -->
+  <view class="load-more" wx:if="{{hasMore && attractions.length > 0}}">
+    <text wx:if="{{loadingMore}}">正在加载...</text>
+    <text wx:else bindtap="loadMore">点击加载更多</text>
+  </view>
+  <view class="load-more" wx:if="{{!hasMore && attractions.length > 0}}">
+    <text>— 已经到底了 —</text>
+  </view>
+
+  <view class="safe-bottom" style="height: 40rpx;"></view>
+</view>

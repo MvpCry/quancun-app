@@ -1,0 +1,40 @@
+<!-- components/map-route/map-route.wxml - 地图路线组件 -->
+<view class="map-route-container">
+  <map
+    id="routeMap"
+    class="route-map"
+    style="width: 100%; height: {{height}}px;"
+    latitude="{{centerLat}}"
+    longitude="{{centerLng}}"
+    scale="{{scale}}"
+    markers="{{markers}}"
+    polyline="{{polylines}}"
+    show-location="{{showLocation}}"
+    bindmarkertap="onMarkerTap"
+    bindregionchange="onRegionChange"
+  >
+    <!-- 地图上的自定义覆盖物 -->
+    <cover-view class="map-controls" slot="callout">
+      <cover-view class="map-control-item" bindtap="onZoomIn">
+        <cover-view class="control-icon">+</cover-view>
+      </cover-view>
+      <cover-view class="map-control-item" bindtap="onZoomOut">
+        <cover-view class="control-icon">−</cover-view>
+      </cover-view>
+      <cover-view class="map-control-item" bindtap="onRecenter">
+        <cover-view class="control-icon">📍</cover-view>
+      </cover-view>
+    </cover-view>
+  </map>
+
+  <!-- 底部景点滑动选择器 -->
+  <scroll-view class="stop-selector" scroll-x enable-flex wx:if="{{stops.length > 0 && showStops}}">
+    <view class="stop-chip {{stop.selected ? 'selected' : ''}} {{index === currentStopIndex ? 'current' : ''}}"
+      wx:for="{{stops}}" wx:key="id"
+      data-index="{{index}}"
+      bindtap="onStopChipTap">
+      <view class="stop-chip-order">{{index + 1}}</view>
+      <text class="stop-chip-name">{{stop.name}}</text>
+    </view>
+  </scroll-view>
+</view>

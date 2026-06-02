@@ -1,0 +1,13 @@
+<!-- components/star-rating/star-rating.wxml - 星级评分 -->
+<view class="star-rating {{size}}">
+  <block wx:for="{{5}}" wx:key="*this">
+    <text
+      class="star {{index < displayRating ? 'star-active' : 'star-inactive'}} {{readonly ? '' : 'star-tappable'}}"
+      data-index="{{index}}"
+      bindtap="onStarTap"
+      catchtouchmove="onTouchMove"
+      style="font-size: {{starSize}}rpx;"
+    >★</text>
+  </block>
+  <text class="rating-text" wx:if="{{showText}}">{{ratingText}}</text>
+</view>

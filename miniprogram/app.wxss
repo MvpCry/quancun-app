@@ -1,0 +1,225 @@
+/* 去俺村 - 全局样式 */
+
+/* ========== 颜色变量 ========== */
+page {
+  --primary: #2E7D32;
+  --primary-light: #4CAF50;
+  --primary-dark: #1B5E20;
+  --accent: #FF9800;
+  --accent-light: #FFB74D;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-hint: #999999;
+  --bg-page: #F5F5F5;
+  --bg-white: #FFFFFF;
+  --border: #E8E8E8;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --radius: 12rpx;
+
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  background-color: var(--bg-page);
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+/* ========== 通用布局 ========== */
+.container {
+  padding: 24rpx;
+  min-height: 100vh;
+}
+
+.page-section {
+  margin-bottom: 32rpx;
+}
+
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  margin-bottom: 20rpx;
+}
+
+.section-title .title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  position: relative;
+  padding-left: 20rpx;
+}
+
+.section-title .title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6rpx;
+  height: 32rpx;
+  background: var(--primary);
+  border-radius: 3rpx;
+}
+
+.section-title .more {
+  font-size: 26rpx;
+  color: var(--text-hint);
+}
+
+/* ========== 卡片样式 ========== */
+.card {
+  background: var(--bg-white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 24rpx;
+}
+
+.card-body {
+  padding: 24rpx;
+}
+
+/* ========== 标签样式 ========== */
+.tag {
+  display: inline-block;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  margin-right: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+.tag-primary {
+  background: rgba(46, 125, 50, 0.1);
+  color: var(--primary);
+}
+
+.tag-accent {
+  background: rgba(255, 152, 0, 0.1);
+  color: var(--accent);
+}
+
+.tag-default {
+  background: #F0F0F0;
+  color: var(--text-secondary);
+}
+
+/* ========== 按钮样式 ========== */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 44rpx;
+  font-size: 28rpx;
+  padding: 20rpx 40rpx;
+  border: none;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #FFFFFF;
+}
+
+.btn-primary:active {
+  background: var(--primary-dark);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 2rpx solid var(--primary);
+}
+
+.btn-accent {
+  background: var(--accent);
+  color: #FFFFFF;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-small {
+  padding: 12rpx 28rpx;
+  font-size: 24rpx;
+}
+
+/* ========== 文本样式 ========== */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-hint { color: var(--text-hint); }
+.text-accent { color: var(--accent); }
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.text-ellipsis-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* ========== 间距辅助 ========== */
+.mt-8 { margin-top: 8rpx; }
+.mt-16 { margin-top: 16rpx; }
+.mt-24 { margin-top: 24rpx; }
+.mt-32 { margin-top: 32rpx; }
+.mb-16 { margin-bottom: 16rpx; }
+.mb-24 { margin-bottom: 24rpx; }
+.p-24 { padding: 24rpx; }
+
+/* ========== Flex布局 ========== */
+.flex-row {
+  display: flex;
+  align-items: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.flex-1 { flex: 1; }
+
+/* ========== 空状态 ========== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+
+.empty-state .empty-icon {
+  font-size: 100rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-state .empty-text {
+  font-size: 28rpx;
+  color: var(--text-hint);
+}
+
+/* ========== 加载更多 ========== */
+.load-more {
+  text-align: center;
+  padding: 32rpx;
+  color: var(--text-hint);
+  font-size: 26rpx;
+}
+
+/* ========== 安全区域 ========== */
+.safe-bottom {
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}

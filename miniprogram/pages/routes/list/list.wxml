@@ -1,0 +1,45 @@
+<!-- pages/routes/list/list.wxml - 路线列表页 -->
+<view class="container">
+  <!-- 顶部标签筛选 -->
+  <view class="section-header">
+    <text class="section-header-title">探索路线</text>
+    <text class="section-header-desc">精选乡村旅游路线，一键出发</text>
+  </view>
+
+  <!-- 标签筛选 -->
+  <scroll-view class="tag-filter" scroll-x enable-flex>
+    <view class="tag-chip {{activeTag === '' ? 'active' : ''}}" bindtap="onTagChange" data-tag="">全部</view>
+    <view class="tag-chip {{activeTag === item.id ? 'active' : ''}}"
+      wx:for="{{routeTags}}" wx:key="id"
+      bindtap="onTagChange"
+      data-tag="{{item.id}}">
+      {{item.name}}
+    </view>
+  </scroll-view>
+
+  <!-- 路线列表 -->
+  <view class="route-list" wx:if="{{routes.length > 0}}">
+    <route-card wx:for="{{routes}}" wx:key="_id" route="{{item}}" bindtap="onRouteTap" data-id="{{item._id}}"/>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && routes.length === 0}}">
+    <text class="empty-icon">🗺️</text>
+    <text class="empty-text">暂无路线</text>
+    <button class="btn btn-primary btn-small mt-24" bindtap="onCreateRoute">去创建路线</button>
+  </view>
+
+  <!-- 加载更多 -->
+  <view class="load-more" wx:if="{{hasMore && routes.length > 0}}">
+    <text wx:if="{{loadingMore}}">正在加载...</text>
+    <text wx:else bindtap="loadMore">点击加载更多</text>
+  </view>
+
+  <!-- 创建路线悬浮按钮 -->
+  <view class="fab" bindtap="onCreateRoute">
+    <text class="fab-icon">+</text>
+    <text class="fab-text">规划路线</text>
+  </view>
+
+  <view class="safe-bottom" style="height: 120rpx;"></view>
+</view>

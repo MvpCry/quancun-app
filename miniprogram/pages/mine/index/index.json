@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "我的",
+  "usingComponents": {
+    "attraction-card": "/components/attraction-card/attraction-card",
+    "route-card": "/components/route-card/route-card",
+    "star-rating": "/components/star-rating/star-rating"
+  }
+}

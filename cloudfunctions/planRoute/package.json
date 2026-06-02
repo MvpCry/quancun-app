@@ -1,0 +1,9 @@
+{
+  "name": "planRoute",
+  "version": "1.0.0",
+  "description": "智能路线规划云函数",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

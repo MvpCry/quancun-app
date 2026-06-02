@@ -1,0 +1,110 @@
+<!-- pages/attractions/detail/detail.wxml - 景点详情页 -->
+<!-- 布局顺序：名称 → 评分 → 开放时间 → 图片轮播 → 简介 → 地图 → 评论 -->
+<view class="container">
+  <!-- ========== 1. 名称 ========== -->
+  <view class="name-section">
+    <text class="detail-name">{{attraction.name}}</text>
+  </view>
+
+  <!-- ========== 2. 评分 ========== -->
+  <view class="rating-section">
+    <star-rating rating="{{attraction.rating}}" size="large" showText="{{true}}" readonly="{{true}}"/>
+    <text class="rating-count">({{attraction.reviewCount || 0}}条评价)</text>
+  </view>
+
+  <!-- ========== 3. 开放时间 ========== -->
+  <view class="time-section">
+    <view class="time-row">
+      <text class="time-icon">🕐</text>
+      <text class="time-label">开放时间</text>
+      <text class="time-value">{{attraction.openTime || '暂无'}}</text>
+    </view>
+    <view class="time-row">
+      <text class="time-icon">🎫</text>
+      <text class="time-label">门票</text>
+      <text class="time-value price">{{attraction.ticketPrice > 0 ? '¥' + attraction.ticketPrice : '免费'}}</text>
+    </view>
+    <view class="time-row">
+      <text class="time-icon">📍</text>
+      <text class="time-label">地址</text>
+      <text class="time-value address-text">{{attraction.address || '暂无'}}</text>
+    </view>
+  </view>
+
+  <!-- ========== 4. 图片轮播 ========== -->
+  <view class="swiper-section">
+    <swiper class="detail-swiper" indicator-dots indicator-active-color="#FFFFFF" autoplay circular bindchange="onSwiperChange">
+      <swiper-item wx:for="{{attraction.images}}" wx:key="*this">
+        <image class="detail-image" src="{{item}}" mode="aspectFill" bindtap="onPreviewImage" data-url="{{item}}"/>
+      </swiper-item>
+    </swiper>
+    <view class="image-count" wx:if="{{attraction.images && attraction.images.length > 1}}">
+      {{currentImageIndex + 1}}/{{attraction.images.length}}
+    </view>
+  </view>
+
+  <!-- ========== 5. 简介 ========== -->
+  <view class="intro-section card">
+    <view class="card-header">
+      <text class="card-title">景点简介</text>
+    </view>
+    <view class="card-body">
+      <text class="intro-text">{{attraction.introduction || '暂无简介'}}</text>
+    </view>
+  </view>
+
+  <!-- ========== 6. 地图位置 ========== -->
+  <view class="map-section card">
+    <view class="card-header">
+      <text class="card-title">景点位置</text>
+      <text class="nav-btn" bindtap="onNavigate">🧭 导航前往</text>
+    </view>
+    <view class="map-wrap" bindtap="onOpenMap">
+      <map
+        id="detailMap"
+        class="detail-map"
+        latitude="{{attraction.location.latitude}}"
+        longitude="{{attraction.location.longitude}}"
+        markers="{{markers}}"
+        scale="15"
+        show-location="{{true}}"
+      />
+    </view>
+  </view>
+
+  <!-- ========== 7. 评论 ========== -->
+  <view class="review-section card">
+    <view class="card-header">
+      <text class="card-title">游客评价 ({{totalReviews}})</text>
+    </view>
+    <view class="review-list" wx:if="{{reviews.length > 0}}">
+      <view class="review-item" wx:for="{{reviews}}" wx:key="_id">
+        <view class="review-user">
+          <image class="review-avatar" src="{{item.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"/>
+          <view class="review-user-info">
+            <text class="review-name">{{item.userName}}</text>
+            <text class="review-time">{{item.createTime}}</text>
+          </view>
+          <star-rating rating="{{item.rating}}" size="small" readonly="{{true}}"/>
+        </view>
+        <text class="review-content">{{item.content}}</text>
+      </view>
+    </view>
+    <view class="no-reviews" wx:else>
+      <text class="no-review-text">暂无评价</text>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar safe-bottom">
+    <view class="bottom-action" bindtap="onAddToRoute">
+      <text class="bottom-icon">📍</text>
+      <text class="bottom-label">加入路线</text>
+    </view>
+    <view class="bottom-action" bindtap="onNavigate">
+      <text class="bottom-icon">🧭</text>
+      <text class="bottom-label">导航</text>
+    </view>
+    <button class="bottom-btn btn-primary" bindtap="onAddToRoute">加入路线规划</button>
+  </view>
+</view>

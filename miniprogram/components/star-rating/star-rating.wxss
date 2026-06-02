@@ -1,0 +1,41 @@
+/* components/star-rating/star-rating.wxss */
+.star-rating {
+  display: inline-flex;
+  align-items: center;
+}
+
+.star {
+  margin-right: 4rpx;
+  transition: color 0.15s;
+}
+
+.star-active {
+  color: #FF9800;
+}
+
+.star-inactive {
+  color: #E0E0E0;
+}
+
+.star-tappable {
+  cursor: pointer;
+}
+
+.rating-text {
+  margin-left: 10rpx;
+  font-size: 24rpx;
+  color: var(--text-hint);
+}
+
+/* 尺寸 */
+.small .star {
+  font-size: 24rpx;
+}
+
+.medium .star {
+  font-size: 32rpx;
+}
+
+.large .star {
+  font-size: 40rpx;
+}

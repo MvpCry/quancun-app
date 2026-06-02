@@ -1,5 +1,5 @@
 // pages/index/index.js - 首页
-var defaultData = require('../../data/defaultData.js');
+// 数据通过 app.fetchAttractions/fetchRoutes 获取，自动与底部Tab模块同步缓存
 
 Page({
   data: {
@@ -8,66 +8,99 @@ Page({
     hotAttractions: [],
     recommendRoutes: [],
     featuredAttractions: [],
-    loading: true
+    loading: true,
+    loadError: false
   },
 
   onLoad: function () {
-    var app = getApp();  // ← 移到 onLoad 内部
+    var app = getApp();
     this.setData({ categories: app.globalData.categories });
-    this.loadLocalData();
-    this.tryCloudLoad();
+    this.loadData();
   },
 
-  // 从本地数据加载（立即显示，不等待云函数）
-  loadLocalData: function () {
-    var attractions = defaultData.defaultAttractions;
-    var routes = defaultData.defaultRoutes;
-
-    this.setData({
-      banners: defaultData.buildBanners(attractions),
-      hotAttractions: attractions,
-      recommendRoutes: routes,
-      featuredAttractions: attractions,
-      loading: false
-    });
+  onShow: function () {
+    // 每次显示时从缓存刷新（其他页面可能更新了数据）
+    this.refreshFromCache();
   },
 
-  // 后台尝试云函数（有数据则更新）
-  tryCloudLoad: function () {
-    if (typeof wx.cloud === 'undefined') return;
+  // ========== 主加载：云优先 ==========
+  loadData: async function () {
     var that = this;
+    var app = getApp();
 
-    wx.cloud.callFunction({
-      name: 'getAttractions',
-      data: { action: 'list', sortBy: 'rating', limit: 6 },
-      success: function (res) {
-        if (res.result && res.result.list && res.result.list.length > 0) {
-          that.setData({ hotAttractions: res.result.list, featuredAttractions: res.result.list });
-        }
-      },
-      fail: function () {}
-    });
+    that.setData({ loading: true, loadError: false });
 
-    wx.cloud.callFunction({
-      name: 'getRoutes',
-      data: { action: 'recommend', limit: 3 },
-      success: function (res) {
-        if (res.result && res.result.list && res.result.list.length > 0) {
-          that.setData({ recommendRoutes: res.result.list });
-        }
-      },
-      fail: function () {}
+    try {
+      // 并行加载景点和路线（共享 app 缓存，Tab 页面直接复用）
+      var attractionPromise = app.fetchAttractions({ sortBy: 'rating', pageSize: 6 });
+      var routePromise = app.fetchRoutes({ action: 'recommend', limit: 3 });
+
+      var results = await Promise.all([attractionPromise, routePromise]);
+      var attractionResult = results[0];
+      var routeResult = results[1];
+
+      var attractions = attractionResult ? attractionResult.list : [];
+      var routes = routeResult ? routeResult.list : [];
+
+      // 构建 Banner（从景点数据中取前几个）
+      var banners = that.buildBanners(attractions);
+
+      that.setData({
+        banners: banners,
+        hotAttractions: attractions,
+        recommendRoutes: routes,
+        featuredAttractions: attractions,   // 精选 = 热门景点（可后续区分）
+        loading: false
+      });
+    } catch (err) {
+      console.error('首页加载失败:', err);
+      that.setData({ loading: false, loadError: true });
+      // 兜底：尝试从全局缓存读取
+      that.refreshFromCache();
+    }
+  },
+
+  // ========== 从全局缓存刷新（onShow 触发） ==========
+  refreshFromCache: function () {
+    var app = getApp();
+    var attractions = app.globalData.cachedAttractions;
+    var routes = app.globalData.cachedRoutes;
+
+    if (attractions && attractions.length > 0) {
+      this.setData({
+        hotAttractions: attractions,
+        featuredAttractions: attractions,
+        banners: this.buildBanners(attractions)
+      });
+    }
+    if (routes && routes.length > 0) {
+      this.setData({ recommendRoutes: routes });
+    }
+  },
+
+  // ========== 构建 Banner ==========
+  buildBanners: function (attractions) {
+    if (!attractions || attractions.length === 0) return [];
+    return attractions.slice(0, 4).map(function (item) {
+      return {
+        id: item._id,
+        type: 'attraction',
+        image: item.images && item.images[0] ? item.images[0] : (item.coverImage || ''),
+        title: item.name || '',
+        desc: item.introduction ? item.introduction.substring(0, 30) + '...' : (item.description || '').substring(0, 30) + '...'
+      };
     });
   },
 
   onPullDownRefresh: function () {
-    this.loadLocalData();
-    wx.stopPullDownRefresh();
+    var app = getApp();
+    app.refreshCache('all');  // 清除缓存，强制重新拉取
+    this.loadData().then(function () {
+      wx.stopPullDownRefresh();
+    });
   },
 
-  getDefaultBanners: function () {
-    return defaultData.buildBanners(defaultData.defaultAttractions);
-  },
+  // ========== 交互事件 ==========
 
   onSearchTap: function () {
     wx.navigateTo({ url: '/pages/attractions/list/list?focusSearch=1' });

@@ -1,5 +1,4 @@
-// pages/routes/detail/detail.js - 路线详情页（直接本地加载）
-var defaultData = require('../../data/defaultData.js');
+// pages/routes/detail/detail.js - 路线详情页（云优先 + 本地回退）
 
 Page({
   data: {
@@ -17,28 +16,63 @@ Page({
       return;
     }
     this.setData({ routeId: options.id });
-    this.showRoute(options.id);
+    this.loadRoute(options.id);
   },
 
-  // 直接从本地数据加载（不等待云函数）
-  showRoute: function (id) {
-    var list = defaultData.defaultRoutes;
-    var found = null;
-    for (var i = 0; i < list.length; i++) {
-      if (list[i]._id === id) {
-        found = list[i];
-        break;
+  // ========== 主加载：云优先 ==========
+  loadRoute: async function (id) {
+    var that = this;
+
+    that.setData({ loading: true });
+
+    // 1. 尝试云函数获取详情
+    if (wx.cloud) {
+      try {
+        var res = await wx.cloud.callFunction({
+          name: 'getRoutes',
+          data: { action: 'detail', id: id }
+        });
+
+        if (res.result && res.result.route) {
+          that.renderRoute(res.result.route);
+          return;
+        }
+      } catch (err) {
+        console.error('云函数获取路线详情失败:', err);
       }
     }
 
-    if (!found) {
-      this.setData({ loading: false });
-      wx.showToast({ title: '路线不存在', icon: 'none' });
-      return;
+    // 2. 尝试从全局缓存查找
+    var app = getApp();
+    var cached = app.globalData.cachedRoutes;
+    if (cached) {
+      for (var i = 0; i < cached.length; i++) {
+        if (cached[i]._id === id) {
+          that.renderRoute(cached[i]);
+          return;
+        }
+      }
     }
 
+    // 3. 回退本地数据
+    var defaultData = require('../../../data/defaultData.js');
+    var list = defaultData.defaultRoutes;
+    for (var j = 0; j < list.length; j++) {
+      if (list[j]._id === id) {
+        that.renderRoute(list[j]);
+        return;
+      }
+    }
+
+    // 4. 未找到
+    that.setData({ loading: false });
+    wx.showToast({ title: '路线不存在', icon: 'none' });
+  },
+
+  // 渲染路线数据
+  renderRoute: function (route) {
     // 构建地图数据
-    var mapStops = (found.attractions || []).map(function (stop, index) {
+    var mapStops = (route.attractions || []).map(function (stop, index) {
       return {
         id: stop.attractionId,
         name: stop.name,
@@ -49,45 +83,17 @@ Page({
     });
 
     this.setData({
-      route: found,
+      route: route,
       mapStops: mapStops,
-      attractionCount: found.attractions ? found.attractions.length : 0,
+      attractionCount: route.attractions ? route.attractions.length : 0,
+      isFavorited: route.isFavorited || false,
       loading: false
     });
 
-    wx.setNavigationBarTitle({ title: found.name || '路线详情' });
-
-    // 后台尝试云函数更新
-    this.tryCloudUpdate(id);
+    wx.setNavigationBarTitle({ title: route.name || '路线详情' });
   },
 
-  tryCloudUpdate: function (id) {
-    if (typeof wx.cloud === 'undefined') return;
-    var that = this;
-    wx.cloud.callFunction({
-      name: 'getRoutes',
-      data: { action: 'detail', id: id },
-      success: function (res) {
-        if (res.result && res.result.route) {
-          var route = res.result.route;
-          var mapStops = (route.attractions || []).map(function (stop) {
-            return {
-              id: stop.attractionId,
-              name: stop.name,
-              latitude: stop.location ? stop.location.latitude : 30.5,
-              longitude: stop.location ? stop.location.longitude : 114.3
-            };
-          });
-          that.setData({
-            route: route,
-            mapStops: mapStops,
-            attractionCount: route.attractions ? route.attractions.length : 0
-          });
-        }
-      },
-      fail: function () {}
-    });
-  },
+  // ========== 交互事件 ==========
 
   onStopChange: function (e) {
     this.setData({ currentStopIndex: e.detail.index });
@@ -106,8 +112,40 @@ Page({
     }
   },
 
+  // 收藏/取消收藏
   onToggleFavorite: function () {
-    wx.showToast({ title: '请先配置云开发环境', icon: 'none' });
+    var app = getApp();
+    if (!app.checkLogin()) return;
+
+    var that = this;
+    var isFav = !that.data.isFavorited;
+
+    if (!wx.cloud) {
+      // 无云函数时本地切换
+      that.setData({ isFavorited: isFav });
+      wx.showToast({ title: isFav ? '已收藏' : '已取消收藏', icon: 'success' });
+      return;
+    }
+
+    wx.cloud.callFunction({
+      name: 'toggleFavorite',
+      data: {
+        type: 'route',
+        targetId: that.data.routeId,
+        isFavorited: isFav
+      },
+      success: function () {
+        that.setData({ isFavorited: isFav });
+        wx.showToast({ title: isFav ? '已收藏' : '已取消收藏', icon: 'success' });
+      },
+      fail: function () {
+        wx.showToast({ title: '操作失败，请重试', icon: 'none' });
+      }
+    });
+  },
+
+  onShareTap: function () {
+    // 触发分享
   },
 
   onNavigateAll: function () {

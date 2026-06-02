@@ -1,185 +1,231 @@
-// pages/routes/plan/plan.js - 路线规划页逻辑（核心）
-const app = getApp();
+// pages/routes/plan/plan.js - 路线规划页（核心）
+// Bug修复：移除景点使用 stable index + filter；增加本地数据回退
 
 Page({
   data: {
-    // 已选景点
     selectedAttractions: [],
-    // 是否已计算路线
     routeCalculated: false,
     routeCalculating: false,
-    // 规划后的有序景点
     plannedStops: [],
-    // 地图显示用
     mapStops: [],
-    // 地图高度
     mapHeight: 500,
-    // 当前选中景点
     currentStopIndex: 0,
-    // 路线统计
     totalDistance: 0,
     estimatedTime: 0,
-    // 路线名称
     routeName: '',
-    // 系统信息
     systemInfo: {}
   },
 
   onLoad: function (options) {
-    // 获取系统信息用于计算地图高度
-    const sysInfo = wx.getSystemInfoSync();
+    var sysInfo = wx.getSystemInfoSync();
     this.setData({
       systemInfo: sysInfo,
       mapHeight: Math.floor(sysInfo.windowHeight * 0.45)
     });
 
-    // 加载已选景点（从缓存或跳转参数）
     this.loadSelectedAttractions();
   },
 
   onShow: function () {
-    // 每次显示时重新加载（可能从景点选择页返回）
     this.loadSelectedAttractions();
   },
 
-  // 加载已选景点
-  loadSelectedAttractions: function () {
-    const selectedIds = wx.getStorageSync('selectedAttractionIds') || [];
+  // ========== 加载已选景点 ==========
+  loadSelectedAttractions: async function () {
+    var that = this;
+    var selectedIds = wx.getStorageSync('selectedAttractionIds') || [];
 
     if (selectedIds.length === 0) {
-      this.setData({ selectedAttractions: [] });
+      that.setData({ selectedAttractions: [] });
       return;
     }
 
-    // 从云函数获取景点详情
-    wx.showLoading({ title: '加载中...' });
-
-    wx.cloud.callFunction({
-      name: 'getAttractions',
-      data: {
-        action: 'byIds',
-        ids: selectedIds
-      }
-    }).then(res => {
-      wx.hideLoading();
-      if (res.result && res.result.list) {
-        this.setData({
-          selectedAttractions: res.result.list
+    // 1. 尝试云函数获取景点详情
+    if (wx.cloud) {
+      try {
+        var res = await wx.cloud.callFunction({
+          name: 'getAttractions',
+          data: { action: 'byIds', ids: selectedIds }
         });
+
+        if (res.result && res.result.list) {
+          that.setData({ selectedAttractions: res.result.list });
+          return;
+        }
+      } catch (err) {
+        console.error('加载景点失败:', err);
       }
-    }).catch(err => {
-      wx.hideLoading();
-      console.error('加载景点失败:', err);
-    });
+    }
+
+    // 2. 从全局缓存查找
+    var app = getApp();
+    var cached = app.globalData.cachedAttractions;
+    if (cached) {
+      var foundList = selectedIds.map(function (id) {
+        for (var i = 0; i < cached.length; i++) {
+          if (cached[i]._id === id) return cached[i];
+        }
+        return null;
+      }).filter(Boolean);
+
+      if (foundList.length > 0) {
+        that.setData({ selectedAttractions: foundList });
+        return;
+      }
+    }
+
+    // 3. 回退本地数据
+    var defaultData = require('../../../data/defaultData.js');
+    var localList = selectedIds.map(function (id) {
+      for (var j = 0; j < defaultData.defaultAttractions.length; j++) {
+        if (defaultData.defaultAttractions[j]._id === id) return defaultData.defaultAttractions[j];
+      }
+      return null;
+    }).filter(Boolean);
+
+    that.setData({ selectedAttractions: localList });
   },
 
-  // 添加景点（跳转到景点列表选择）
+  // ========== 操作景点 ==========
+
+  // 添加景点（跳转景点列表选择模式）
   onAddAttraction: function () {
-    // 将当前已选ID传入景点列表页
-    const currentIds = this.data.selectedAttractions.map(a => a._id);
+    var currentIds = this.data.selectedAttractions.map(function (a) { return a._id; });
     wx.setStorageSync('selectedAttractionIds', currentIds);
-    wx.navigateTo({
-      url: '/pages/attractions/list/list?mode=select'
-    });
+    wx.navigateTo({ url: '/pages/attractions/list/list?mode=select' });
   },
 
-  // 移除景点
+  // 移除景点 【Bug修复：使用稳定方法避免 splice 后下标错位】
   onRemoveAttraction: function (e) {
-    const index = e.currentTarget.dataset.index;
-    const selectedAttractions = [...this.data.selectedAttractions];
-    selectedAttractions.splice(index, 1);
+    var index = e.currentTarget.dataset.index;
+    var selectedAttractions = this.data.selectedAttractions.slice();
+    var removedId = selectedAttractions[index] ? selectedAttractions[index]._id : null;
 
-    this.setData({ selectedAttractions });
+    // 从数组中移除对应项
+    var newAttractions = selectedAttractions.filter(function (_, i) { return i !== index; });
+
+    this.setData({ selectedAttractions: newAttractions });
 
     // 更新缓存
-    const ids = selectedAttractions.map(a => a._id);
+    var ids = newAttractions.map(function (a) { return a._id; });
     wx.setStorageSync('selectedAttractionIds', ids);
 
-    // 如果已规划路线，也移除对应景点
-    if (this.data.routeCalculated) {
-      const plannedStops = this.data.plannedStops.filter(
-        stop => stop.id !== this.data.selectedAttractions[index]?._id
-      );
+    // 如果已规划路线，同步移除对应景点
+    if (this.data.routeCalculated && removedId) {
+      var plannedStops = this.data.plannedStops.filter(function (stop) {
+        return (stop.attractionId || stop.id) !== removedId;
+      });
       this.setData({
-        plannedStops,
-        mapStops: plannedStops.map((s, i) => ({ ...s, order: i }))
+        plannedStops: plannedStops,
+        mapStops: plannedStops.map(function (s, i) {
+          return {
+            id: s.attractionId || s.id,
+            name: s.name,
+            latitude: s.location.latitude,
+            longitude: s.location.longitude,
+            distance: s.distanceFromPrev
+          };
+        })
       });
     }
   },
 
-  // 智能路线规划（核心算法）
+  // ========== 智能路线规划 ==========
   onPlanRoute: async function () {
-    if (this.data.selectedAttractions.length < 2) {
+    var that = this;
+
+    if (that.data.selectedAttractions.length < 2) {
       wx.showToast({ title: '至少选择2个景点', icon: 'none' });
       return;
     }
 
-    this.setData({ routeCalculating: true });
+    that.setData({ routeCalculating: true });
 
-    try {
-      // 获取用户当前位置
-      let currentLocation = null;
+    // 1. 尝试云函数智能规划
+    if (wx.cloud) {
       try {
-        const locRes = await wx.getLocation({ type: 'gcj02' });
-        currentLocation = {
-          latitude: locRes.latitude,
-          longitude: locRes.longitude
-        };
-      } catch (e) {
-        // 用户拒绝位置授权也继续规划
-        console.log('未获取到位置');
-      }
-
-      // 调用云函数计算最优路线
-      const res = await wx.cloud.callFunction({
-        name: 'planRoute',
-        data: {
-          attractionIds: this.data.selectedAttractions.map(a => a._id),
-          startLocation: currentLocation
+        var currentLocation = null;
+        try {
+          var locRes = await wx.getLocation({ type: 'gcj02' });
+          currentLocation = {
+            latitude: locRes.latitude,
+            longitude: locRes.longitude
+          };
+        } catch (e) {
+          // 无位置授权也继续
         }
-      });
 
-      this.setData({ routeCalculating: false });
-
-      if (res.result && res.result.plannedStops) {
-        const plannedStops = res.result.plannedStops;
-        const totalDistance = res.result.totalDistance || 0;
-        const estimatedTime = res.result.estimatedTime || 0;
-
-        // 构建地图数据
-        const mapStops = plannedStops.map((stop, index) => ({
-          id: stop.attractionId || stop.id,
-          name: stop.name,
-          latitude: stop.location.latitude,
-          longitude: stop.location.longitude,
-          distance: stop.distanceFromPrev,
-          icon: stop.icon || ''
-        }));
-
-        this.setData({
-          routeCalculated: true,
-          plannedStops,
-          mapStops,
-          totalDistance: totalDistance.toFixed(1),
-          estimatedTime: estimatedTime.toFixed(1),
-          currentStopIndex: 0,
-          routeName: ''
+        var res = await wx.cloud.callFunction({
+          name: 'planRoute',
+          data: {
+            attractionIds: that.data.selectedAttractions.map(function (a) { return a._id; }),
+            startLocation: currentLocation
+          }
         });
 
-        // 通知地图组件更新
-        const mapRoute = this.selectComponent('#planMapRoute');
-        if (mapRoute) {
-          setTimeout(() => {
-            mapRoute.updateRoute(mapStops);
-          }, 300);
+        that.setData({ routeCalculating: false });
+
+        if (res.result && res.result.plannedStops) {
+          that.applyPlanResult(res.result.plannedStops, res.result.totalDistance || 0, res.result.estimatedTime || 0);
+          return;
         }
 
-        wx.showToast({ title: '路线规划完成', icon: 'success' });
+        if (res.result && res.result.error) {
+          wx.showToast({ title: res.result.error, icon: 'none' });
+          that.setData({ routeCalculating: false });
+          return;
+        }
+      } catch (err) {
+        console.error('路线规划失败:', err);
       }
-    } catch (err) {
-      console.error('路线规划失败:', err);
-      this.setData({ routeCalculating: false });
-      wx.showToast({ title: '规划失败，请重试', icon: 'none' });
+    }
+
+    // 2. 回退：本地简单排序（按选择顺序，不做邻居贪心）
+    that.setData({ routeCalculating: false });
+    var stops = that.data.selectedAttractions.map(function (a, i) {
+      return {
+        id: a._id,
+        name: a.name,
+        location: a.location || { latitude: 0, longitude: 0 },
+        distanceFromPrev: 0
+      };
+    });
+
+    that.applyPlanResult(stops, 0, 0);
+    wx.showToast({ title: '已按选择顺序排列（请配置云开发以启用智能规划）', icon: 'none' });
+  },
+
+  // 应用规划结果
+  applyPlanResult: function (plannedStops, totalDistance, estimatedTime) {
+    var that = this;
+
+    var mapStops = plannedStops.map(function (stop, index) {
+      return {
+        id: stop.attractionId || stop.id,
+        name: stop.name,
+        latitude: (stop.location && stop.location.latitude) || 0,
+        longitude: (stop.location && stop.location.longitude) || 0,
+        distance: stop.distanceFromPrev,
+        icon: stop.icon || ''
+      };
+    });
+
+    that.setData({
+      routeCalculated: true,
+      plannedStops: plannedStops,
+      mapStops: mapStops,
+      totalDistance: totalDistance ? parseFloat(totalDistance).toFixed(1) : '0.0',
+      estimatedTime: estimatedTime ? parseFloat(estimatedTime).toFixed(1) : '0.0',
+      currentStopIndex: 0,
+      routeName: ''
+    });
+
+    // 通知地图组件
+    var mapRoute = that.selectComponent('#planMapRoute');
+    if (mapRoute) {
+      setTimeout(function () {
+        mapRoute.updateRoute(mapStops);
+      }, 300);
     }
   },
 
@@ -188,15 +234,12 @@ Page({
     this.setData({ currentStopIndex: e.detail.index });
   },
 
-  // 点击已规划景点
   onPlannedStopTap: function (e) {
-    const index = e.currentTarget.dataset.index;
+    var index = e.currentTarget.dataset.index;
     this.setData({ currentStopIndex: index });
 
-    const mapRoute = this.selectComponent('#planMapRoute');
-    if (mapRoute) {
-      mapRoute.focusOnStop(index);
-    }
+    var mapRoute = this.selectComponent('#planMapRoute');
+    if (mapRoute) mapRoute.focusOnStop(index);
   },
 
   // 重新规划
@@ -211,35 +254,42 @@ Page({
     });
   },
 
-  // 路线名称输入
   onRouteNameInput: function (e) {
     this.setData({ routeName: e.detail.value });
   },
 
-  // 保存路线
+  // ========== 保存路线 ==========
   onSaveRoute: async function () {
+    var app = getApp();
     if (!app.checkLogin()) return;
 
-    const routeName = this.data.routeName.trim();
+    var routeName = this.data.routeName.trim();
     if (!routeName) {
       wx.showToast({ title: '请输入路线名称', icon: 'none' });
+      return;
+    }
+
+    if (!wx.cloud) {
+      wx.showToast({ title: '请先配置云开发环境', icon: 'none' });
       return;
     }
 
     wx.showLoading({ title: '保存中...' });
 
     try {
-      const res = await wx.cloud.callFunction({
+      var res = await wx.cloud.callFunction({
         name: 'saveRoute',
         data: {
           name: routeName,
-          description: `${routeName} - ${this.data.plannedStops.length}个景点`,
-          attractions: this.data.plannedStops.map((stop, index) => ({
-            attractionId: stop.attractionId || stop.id,
-            order: index,
-            name: stop.name,
-            location: stop.location
-          })),
+          description: routeName + ' - ' + this.data.plannedStops.length + '个景点',
+          attractions: this.data.plannedStops.map(function (stop, index) {
+            return {
+              attractionId: stop.attractionId || stop.id,
+              order: index,
+              name: stop.name,
+              location: stop.location
+            };
+          }),
           totalDistance: parseFloat(this.data.totalDistance),
           estimatedTime: parseFloat(this.data.estimatedTime),
           tags: []
@@ -249,17 +299,19 @@ Page({
       wx.hideLoading();
 
       if (res.result && res.result.success) {
-        wx.showToast({ title: '路线保存成功', icon: 'success' });
+        // 清除全局路线缓存（下次加载时刷新）
+        app.refreshCache('routes');
 
-        // 清除缓存
+        wx.showToast({ title: '路线保存成功', icon: 'success' });
         wx.removeStorageSync('selectedAttractionIds');
 
-        // 跳转到路线详情
-        setTimeout(() => {
+        setTimeout(function () {
           wx.redirectTo({
-            url: `/pages/routes/detail/detail?id=${res.result.routeId}`
+            url: '/pages/routes/detail/detail?id=' + res.result.routeId
           });
         }, 1500);
+      } else {
+        wx.showToast({ title: (res.result && res.result.error) || '保存失败', icon: 'none' });
       }
     } catch (err) {
       wx.hideLoading();

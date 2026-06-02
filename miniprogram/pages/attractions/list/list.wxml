@@ -1,10 +1,17 @@
 <!-- pages/attractions/list/list.wxml - 景点列表页 -->
 <view class="container">
-  <!-- 搜索栏 -->
-  <view class="search-section">
+  <!-- 选择模式顶部栏 -->
+  <view class="select-top-bar" wx:if="{{selectMode}}">
+    <text class="select-cancel" bindtap="onCancelSelect">取消</text>
+    <text class="select-title">选择景点 (已选{{selectedIds.length}}个)</text>
+    <text class="select-confirm" bindtap="onConfirmSelect">完成</text>
+  </view>
+
+  <!-- 搜索栏（选择模式下隐藏） -->
+  <view class="search-section" wx:if="{{!selectMode}}">
     <view class="search-bar">
       <text class="search-icon">🔍</text>
-      <input class="search-input" placeholder="搜索景点名称..." value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" confirm-type="search"/>
+      <input class="search-input" placeholder="搜索景点名称..." value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" confirm-type="search" focus="{{focusSearch}}"/>
       <text class="search-clear" wx:if="{{keyword}}" bindtap="onClearSearch">✕</text>
     </view>
   </view>
@@ -20,8 +27,8 @@
     </view>
   </scroll-view>
 
-  <!-- 排序栏 -->
-  <view class="sort-bar">
+  <!-- 排序栏（选择模式下隐藏） -->
+  <view class="sort-bar" wx:if="{{!selectMode}}">
     <view class="sort-item {{sortBy === 'rating' ? 'active' : ''}}" bindtap="onSortChange" data-sort="rating">
       评分最高
     </view>
@@ -38,14 +45,23 @@
 
   <!-- 景点列表 -->
   <view class="attraction-list" wx:if="{{attractions.length > 0}}">
-    <attraction-card
-      wx:for="{{attractions}}" wx:key="_id"
-      attraction="{{item}}"
-      showFavorite="{{true}}"
-      bindtap="onAttractionTap"
-      bindfavorite="onFavoriteTap"
-      data-id="{{item._id}}"
-    />
+    <view class="attraction-row {{selectMode ? 'selectable' : ''}}" wx:for="{{attractions}}" wx:key="_id" bindtap="onAttractionTap" data-id="{{item._id}}">
+      <!-- 选择模式：勾选框 -->
+      <view class="select-check" wx:if="{{selectMode}}">
+        <view class="checkbox {{item._selected ? 'checked' : ''}}">
+          <text wx:if="{{item._selected}}">✓</text>
+        </view>
+      </view>
+
+      <!-- 景点卡片 -->
+      <attraction-card
+        attraction="{{item}}"
+        showFavorite="{{!selectMode}}"
+        data-id="{{item._id}}"
+        bindtap="onAttractionTap"
+        bindfavorite="onFavoriteTap"
+      />
+    </view>
   </view>
 
   <!-- 空状态 -->
@@ -64,5 +80,12 @@
     <text>— 已经到底了 —</text>
   </view>
 
-  <view class="safe-bottom" style="height: 40rpx;"></view>
+  <!-- 选择模式底部栏 -->
+  <view class="select-bottom-bar safe-bottom" wx:if="{{selectMode}}">
+    <button class="btn btn-primary btn-block" bindtap="onConfirmSelect" disabled="{{selectedIds.length < 2}}">
+      {{selectedIds.length < 2 ? '请至少选择2个景点 (已选' + selectedIds.length + '个)' : '完成选择，开始规划 (' + selectedIds.length + '个景点)'}}
+    </button>
+  </view>
+
+  <view class="safe-bottom" style="height: 40rpx;" wx:if="{{!selectMode}}"></view>
 </view>

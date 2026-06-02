@@ -5,7 +5,9 @@ Component({
       type: Number,
       value: 0,
       observer: function (newVal) {
-        this.updateDisplay(newVal);
+        // 容错：非数字或 NaN 时使用 0
+        var r = (typeof newVal === 'number' && !isNaN(newVal)) ? newVal : 0;
+        this.updateDisplay(r);
       }
     },
     maxRating: {

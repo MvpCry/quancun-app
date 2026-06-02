@@ -1,6 +1,5 @@
 // pages/attractions/detail/detail.js
-// 直接显示数据，不依赖云函数
-var defaultData = require('../../data/defaultData.js');
+// 数据优先从云数据库获取，回退到本地默认数据
 
 Page({
   data: {
@@ -19,45 +18,87 @@ Page({
       return;
     }
     this.setData({ attractionId: options.id });
-    this.showAttraction(options.id);
+    this.loadAttraction(options.id);
+
+    // 记录浏览历史
+    this.recordHistory(options.id);
   },
 
-  // 显示景点（直接从本地数据取）
-  showAttraction: function (id) {
-    var list = defaultData.defaultAttractions;
-    var found = null;
+  // ========== 主加载：云优先 ==========
+  loadAttraction: async function (id) {
+    var that = this;
 
-    for (var i = 0; i < list.length; i++) {
-      if (list[i]._id === id) {
-        found = list[i];
-        break;
+    that.setData({ loading: true });
+
+    // 1. 尝试云函数获取详情
+    if (wx.cloud) {
+      try {
+        var res = await wx.cloud.callFunction({
+          name: 'getAttractionDetail',
+          data: { id: id }
+        });
+
+        if (res.result && res.result.attraction) {
+          var attraction = res.result.attraction;
+          // 确保兼容字段
+          if (!attraction.introduction) {
+            attraction.introduction = attraction.description || '';
+          }
+
+          that.renderAttraction(attraction, res.result.recentReviews || []);
+          return;
+        }
+      } catch (err) {
+        console.error('云函数获取景点详情失败:', err);
       }
     }
 
-    if (!found) {
-      this.setData({ loading: false });
-      wx.showToast({ title: '景点不存在', icon: 'none' });
-      return;
+    // 2. 尝试从全局缓存查找
+    var app = getApp();
+    var cached = app.globalData.cachedAttractions;
+    if (cached) {
+      for (var i = 0; i < cached.length; i++) {
+        if (cached[i]._id === id) {
+          var found = cached[i];
+          if (!found.introduction) found.introduction = found.description || '';
+          that.renderAttraction(found, []);
+          return;
+        }
+      }
     }
 
-    // 兼容字段：确保 introduction 存在
-    if (!found.introduction) {
-      found.introduction = found.description || '';
+    // 3. 回退本地数据
+    var defaultData = require('../../../data/defaultData.js');
+    var list = defaultData.defaultAttractions;
+    for (var j = 0; j < list.length; j++) {
+      if (list[j]._id === id) {
+        var localFound = list[j];
+        if (!localFound.introduction) localFound.introduction = localFound.description || '';
+        that.renderAttraction(localFound, defaultData.defaultReviews);
+        return;
+      }
     }
 
+    // 4. 未找到
+    that.setData({ loading: false });
+    wx.showToast({ title: '景点不存在', icon: 'none' });
+  },
+
+  // 渲染景点数据
+  renderAttraction: function (attraction, reviews) {
     // 构建地图标记
     var markers = [];
-    if (found.location && found.location.latitude) {
+    if (attraction.location && attraction.location.latitude) {
       markers.push({
         id: 0,
-        latitude: found.location.latitude,
-        longitude: found.location.longitude,
-        title: found.name,
+        latitude: attraction.location.latitude,
+        longitude: attraction.location.longitude,
+        title: attraction.name,
         iconPath: '/images/marker-attraction.png',
         width: 36,
         height: 48,
         callout: {
-          content: found.name,
+          content: attraction.name,
           color: '#333',
           fontSize: 13,
           borderRadius: 8,
@@ -68,32 +109,29 @@ Page({
     }
 
     this.setData({
-      attraction: found,
+      attraction: attraction,
       markers: markers,
-      reviews: defaultData.defaultReviews,
-      totalReviews: defaultData.defaultReviews.length,
+      reviews: reviews.length > 0 ? reviews : (attraction.reviews || []),
+      totalReviews: attraction.reviewCount || (reviews ? reviews.length : 0),
       loading: false
     });
 
-    wx.setNavigationBarTitle({ title: found.name || '景点详情' });
-
-    // 后台尝试云函数更新（可选，有则更新无则忽略）
-    this.tryCloudUpdate(id);
+    wx.setNavigationBarTitle({ title: attraction.name || '景点详情' });
   },
 
-  // 后台尝试云函数（不阻塞页面显示）
-  tryCloudUpdate: function (id) {
-    if (typeof wx.cloud === 'undefined') return;
-    wx.cloud.callFunction({
-      name: 'getAttractionDetail',
-      data: { id: id },
-      success: function (res) {
-        // 云函数有数据时可以更新，但不影响已显示的内容
-        console.log('云函数返回:', res);
-      },
-      fail: function () {}
-    });
+  // 记录浏览历史
+  recordHistory: function (id) {
+    var history = wx.getStorageSync('browseHistory') || [];
+    // 去重
+    var idx = history.indexOf(id);
+    if (idx >= 0) history.splice(idx, 1);
+    history.unshift(id);
+    // 最多保留20条
+    if (history.length > 20) history.pop();
+    wx.setStorageSync('browseHistory', history);
   },
+
+  // ========== 交互事件 ==========
 
   onSwiperChange: function (e) {
     this.setData({ currentImageIndex: e.detail.current });

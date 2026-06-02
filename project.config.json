@@ -52,8 +52,8 @@
     "disableSWC": true
   },
   "compileType": "miniprogram",
-  "libVersion": "3.3.4",
-  "appid": "wx3b63de350199ebda",
+  "libVersion": "3.16.1",
+  "appid": "wx644f729c7ed85c04",
   "projectname": "去俺村",
   "cloudfunctionRoot": "cloudfunctions/",
   "condition": {},

@@ -1,5 +1,5 @@
 // pages/mine/index/index.js - 我的页面逻辑
-const app = getApp();
+// 修复：getApp() 移到 onLoad 内部，避免模块顶层调用
 
 Page({
   data: {
@@ -8,7 +8,6 @@ Page({
     favoriteCount: 0,
     myRouteCount: 0,
     myReviewCount: 0,
-    // 当前展开的tab（favorites/routes/reviews/history）
     activeTab: '',
     tabList: []
   },
@@ -22,7 +21,6 @@ Page({
     if (this.data.isLogin) {
       this.loadUserStats();
     }
-    // 如果正在展示某个tab，刷新数据
     if (this.data.activeTab) {
       this.loadTabData(this.data.activeTab);
     }
@@ -30,8 +28,10 @@ Page({
 
   // 检查登录状态
   checkLoginState: function () {
-    const userInfo = wx.getStorageSync('userInfo');
-    if (userInfo && app.globalData.isLogin) {
+    var app = getApp();
+    var userInfo = wx.getStorageSync('userInfo');
+
+    if (userInfo && (app.globalData.isLogin || userInfo.nickName)) {
       this.setData({
         isLogin: true,
         userInfo: userInfo
@@ -46,8 +46,10 @@ Page({
 
   // 加载用户统计
   loadUserStats: async function () {
+    if (!wx.cloud) return;
+
     try {
-      const res = await wx.cloud.callFunction({
+      var res = await wx.cloud.callFunction({
         name: 'getProfile',
         data: { action: 'stats' }
       });
@@ -63,29 +65,34 @@ Page({
     }
   },
 
-  // 登录
+  // 登录（兼容新版微信）
   onLogin: function () {
-    app.getUserProfile();
-    // 延迟检查登录状态
-    setTimeout(() => {
-      this.checkLoginState();
-      if (this.data.isLogin) {
-        this.loadUserStats();
+    var app = getApp();
+    var that = this;
+
+    app.getUserProfile(function (userInfo) {
+      that.checkLoginState();
+      if (that.data.isLogin) {
+        that.loadUserStats();
       }
-    }, 800);
+    });
   },
 
   // 退出登录
   onLogout: function () {
+    var that = this;
+    var app = getApp();
+
     wx.showModal({
       title: '提示',
       content: '确定要退出登录吗？',
-      success: res => {
-        if (res.confirm) {
+      success: function (modalRes) {
+        if (modalRes.confirm) {
           wx.removeStorageSync('userInfo');
           app.globalData.userInfo = null;
           app.globalData.isLogin = false;
-          this.setData({
+          app.refreshCache('all');
+          that.setData({
             isLogin: false,
             userInfo: {},
             favoriteCount: 0,
@@ -100,7 +107,7 @@ Page({
 
   // 点击功能tab
   onTabTap: function (e) {
-    const tab = e.currentTarget.dataset.tab;
+    var tab = e.currentTarget.dataset.tab;
     this.setData({ activeTab: tab });
     this.loadTabData(tab);
   },
@@ -112,12 +119,17 @@ Page({
 
   // 加载tab数据
   loadTabData: async function (tab) {
+    if (!wx.cloud) {
+      this.setData({ tabList: [] });
+      return;
+    }
+
     wx.showLoading({ title: '加载中...' });
 
     try {
       switch (tab) {
-        case 'favorites':
-          const favRes = await wx.cloud.callFunction({
+        case 'favorites': {
+          var favRes = await wx.cloud.callFunction({
             name: 'getFavorites',
             data: { action: 'list' }
           });
@@ -125,9 +137,10 @@ Page({
             tabList: (favRes.result && favRes.result.list) || []
           });
           break;
+        }
 
-        case 'routes':
-          const routeRes = await wx.cloud.callFunction({
+        case 'routes': {
+          var routeRes = await wx.cloud.callFunction({
             name: 'getRoutes',
             data: { action: 'myRoutes' }
           });
@@ -135,9 +148,10 @@ Page({
             tabList: (routeRes.result && routeRes.result.list) || []
           });
           break;
+        }
 
-        case 'reviews':
-          const reviewRes = await wx.cloud.callFunction({
+        case 'reviews': {
+          var reviewRes = await wx.cloud.callFunction({
             name: 'getReviews',
             data: { action: 'myReviews' }
           });
@@ -145,11 +159,12 @@ Page({
             tabList: (reviewRes.result && reviewRes.result.list) || []
           });
           break;
+        }
 
-        case 'history':
-          const history = wx.getStorageSync('browseHistory') || [];
+        case 'history': {
+          var history = wx.getStorageSync('browseHistory') || [];
           if (history.length > 0) {
-            const historyRes = await wx.cloud.callFunction({
+            var historyRes = await wx.cloud.callFunction({
               name: 'getAttractions',
               data: { action: 'byIds', ids: history }
             });
@@ -160,6 +175,7 @@ Page({
             this.setData({ tabList: [] });
           }
           break;
+        }
       }
     } catch (err) {
       console.error('加载数据失败:', err);
@@ -171,28 +187,28 @@ Page({
 
   // 收藏项点击
   onFavItemTap: function (e) {
-    const item = e.currentTarget.dataset.item;
+    var item = e.currentTarget.dataset.item;
     if (item.favType === 'attraction' || item.type === 'attraction') {
       wx.navigateTo({
-        url: `/pages/attractions/detail/detail?id=${item.targetId || item._id}`
+        url: '/pages/attractions/detail/detail?id=' + (item.targetId || item._id)
       });
     } else {
       wx.navigateTo({
-        url: `/pages/routes/detail/detail?id=${item.targetId || item._id}`
+        url: '/pages/routes/detail/detail?id=' + (item.targetId || item._id)
       });
     }
   },
 
   // 路线点击
   onRouteTap: function (e) {
-    const id = e.detail.id || e.currentTarget.dataset.id;
-    wx.navigateTo({ url: `/pages/routes/detail/detail?id=${id}` });
+    var id = e.detail ? e.detail.id : e.currentTarget.dataset.id;
+    wx.navigateTo({ url: '/pages/routes/detail/detail?id=' + id });
   },
 
   // 景点点击
   onAttractionTap: function (e) {
-    const id = e.detail.id || e.currentTarget.dataset.id;
-    wx.navigateTo({ url: `/pages/attractions/detail/detail?id=${id}` });
+    var id = e.detail ? e.detail.id : e.currentTarget.dataset.id;
+    wx.navigateTo({ url: '/pages/attractions/detail/detail?id=' + id });
   },
 
   // 创建路线
@@ -202,8 +218,8 @@ Page({
 
   // 导航跳转
   onNavigateTo: function (e) {
-    const url = e.currentTarget.dataset.url;
-    wx.navigateTo({ url });
+    var url = e.currentTarget.dataset.url;
+    wx.navigateTo({ url: url });
   },
 
   // 关于
@@ -221,9 +237,8 @@ Page({
       title: '意见反馈',
       editable: true,
       placeholderText: '请输入你的建议或遇到的问题...',
-      success: res => {
+      success: function (res) {
         if (res.confirm && res.content) {
-          // 可以通过云函数保存反馈
           wx.showToast({ title: '感谢反馈！', icon: 'success' });
         }
       }

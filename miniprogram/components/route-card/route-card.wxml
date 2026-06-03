@@ -1,7 +1,7 @@
 <!-- components/route-card/route-card.wxml - 路线卡片 -->
 <view class="route-card" bindtap="onTap">
   <view class="route-cover-wrap">
-    <image class="route-cover" src="{{route.coverImage}}" mode="aspectFill" lazy-load/>
+    <image class="route-cover" src="{{route.coverImage}}" mode="aspectFill" binderror="onCoverError"/>
     <view class="route-cover-mask"></view>
     <view class="route-cover-info">
       <text class="route-name-on-cover">{{route.name}}</text>

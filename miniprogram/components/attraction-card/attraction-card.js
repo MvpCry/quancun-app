@@ -29,6 +29,10 @@ Component({
       this.triggerEvent('tap', { id: this.data.attraction._id });
     },
 
+    onCoverError: function () {
+      // WebP 解码失败兜底
+    },
+
     onFavorite: function () {
       const app = getApp();
       if (!app.checkLogin()) return;

@@ -1,10 +1,14 @@
 // pages/routes/detail/detail.js - 路线详情页（云优先 + 本地回退）
+// v1.2: 接入腾讯地图真实驾车路线展示
+
+var mapService = require('../../../utils/map-service.js');
 
 Page({
   data: {
     routeId: '',
     route: { attractions: [] },
     mapStops: [],
+    routePolylines: [],
     currentStopIndex: 0,
     isFavorited: false,
     loading: true
@@ -91,6 +95,35 @@ Page({
     });
 
     wx.setNavigationBarTitle({ title: route.name || '路线详情' });
+
+    // 尝试获取腾讯地图真实驾车路线
+    this.fetchRoutePolylines(mapStops);
+  },
+
+  // 获取驾车路线 polyline 展示真实路线
+  fetchRoutePolylines: async function (mapStops) {
+    if (mapStops.length < 2) return;
+
+    try {
+      var segments = [];
+      for (var i = 0; i < mapStops.length - 1; i++) {
+        var route = await mapService.drivingRoute(
+          { latitude: mapStops[i].latitude, longitude: mapStops[i].longitude },
+          { latitude: mapStops[i + 1].latitude, longitude: mapStops[i + 1].longitude }
+        );
+        segments.push(route ? route.polyline : []);
+      }
+
+      this.setData({ routePolylines: segments });
+
+      // 通知地图组件更新
+      var mapRoute = this.selectComponent('#detailMapRoute');
+      if (mapRoute) {
+        mapRoute.updateRoute(this.data.mapStops, segments);
+      }
+    } catch (err) {
+      console.error('获取驾车路线失败:', err);
+    }
   },
 
   // ========== 交互事件 ==========

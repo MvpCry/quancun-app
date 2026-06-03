@@ -137,6 +137,13 @@ Page({
     wx.switchTab({ url: '/pages/routes/list/list' });
   },
 
+  // 图片加载失败兜底
+  onImageError: function (e) {
+    // 真机 WebP 解码失败时，不会自动显示空白
+    // 此处记录日志，如需替换可在 setData 中改成默认图
+    console.warn('图片加载失败:', e.detail.errMsg);
+  },
+
   onShareAppMessage: function () {
     return { title: '去俺村 - 发现最美乡村旅游路线', path: '/pages/index/index' };
   }

@@ -115,6 +115,14 @@
   margin-right: 12rpx;
 }
 
+.menu-desc {
+  font-size: 22rpx;
+  color: var(--text-hint);
+  margin-right: 16rpx;
+  flex: 1;
+  text-align: right;
+}
+
 .menu-arrow {
   font-size: 32rpx;
   color: var(--text-hint);

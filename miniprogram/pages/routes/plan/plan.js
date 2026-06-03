@@ -1,5 +1,8 @@
 // pages/routes/plan/plan.js - 路线规划页（核心）
 // Bug修复：移除景点使用 stable index + filter；增加本地数据回退
+// v1.2: 接入腾讯地图真实驾车距离
+
+var mapService = require('../../../utils/map-service.js');
 
 Page({
   data: {
@@ -130,7 +133,7 @@ Page({
     }
   },
 
-  // ========== 智能路线规划 ==========
+  // ========== 智能路线规划 (v1.2：云→腾讯地图→本地) ==========
   onPlanRoute: async function () {
     var that = this;
 
@@ -141,63 +144,213 @@ Page({
 
     that.setData({ routeCalculating: true });
 
-    // 1. 尝试云函数智能规划
-    if (wx.cloud) {
-      try {
-        var currentLocation = null;
-        try {
-          var locRes = await wx.getLocation({ type: 'gcj02' });
-          currentLocation = {
-            latitude: locRes.latitude,
-            longitude: locRes.longitude
-          };
-        } catch (e) {
-          // 无位置授权也继续
+    // 整个规划流程硬性12秒超时保护
+    try {
+      await that.withTimeout(that.doPlanRoute(), 12000);
+    } catch (e) {
+      console.error('规划超时或失败:', e.message || e);
+    }
+
+    // 如果规划没有结果，回退本地
+    if (!that.data.routeCalculated) {
+      that.setData({ routeCalculating: false });
+      var stops = that.data.selectedAttractions.map(function (a, i) {
+        return {
+          id: a._id,
+          name: a.name,
+          location: a.location || { latitude: 0, longitude: 0 },
+          distanceFromPrev: 0
+        };
+      });
+      that.applyPlanResult(stops, 0, 0, []);
+    }
+  },
+
+  // 实际规划逻辑（被 onPlanRoute 超时保护包裹）
+  doPlanRoute: async function () {
+    var that = this;
+    var currentLocation = null;
+
+    // 并行获取定位（3秒超时）
+    try {
+      var locRes = await that.withTimeout(wx.getLocation({ type: 'gcj02' }), 3000);
+      currentLocation = { latitude: locRes.latitude, longitude: locRes.longitude };
+    } catch (e) {
+      // 无定位也继续
+    }
+
+    // 尝试腾讯地图距离矩阵 + 本地Haversine回退（不浪费时间去试云函数）
+    var mapPlanResult = await that.planWithMapService(currentLocation);
+    if (mapPlanResult) {
+      that.setData({ routeCalculating: false });
+      that.applyPlanResult(
+        mapPlanResult.stops,
+        mapPlanResult.totalDistance,
+        mapPlanResult.totalDuration,
+        mapPlanResult.routePolylines || []
+      );
+    }
+  },
+
+  // ========== 腾讯地图服务规划（真实驾车距离） ==========
+  planWithMapService: async function (startLocation) {
+    var that = this;
+    var attractions = this.data.selectedAttractions;
+
+    var points = attractions.map(function (a) {
+      return {
+        latitude: (a.location && a.location.latitude) || 0,
+        longitude: (a.location && a.location.longitude) || 0
+      };
+    });
+
+    // 构建完整坐标列表（起点 + 所有景点）
+    var allPoints = [];
+    if (startLocation) {
+      allPoints.push(startLocation);
+    }
+    allPoints = allPoints.concat(points);
+
+    var numPoints = allPoints.length;
+
+    // 步骤1: 构建距离矩阵（优先用腾讯地图，失败用本地直线距离）
+    var matrix;
+    var useRealDist = false;
+    try {
+      matrix = await mapService.distanceMatrix(allPoints, allPoints, 'driving');
+      useRealDist = true;
+    } catch (e) {
+      console.warn('距离矩阵API不可用，使用本地直线距离:', e.message || e.code);
+      matrix = that.buildLocalMatrix(allPoints);
+      useRealDist = false;
+    }
+
+    if (!matrix || matrix.length === 0) return null;
+
+    // 步骤2: 最近邻贪心算法优化路线
+    var visited = new Array(numPoints).fill(false);
+    var order = [];
+    var totalDistanceM = 0;
+    var totalDurationS = 0;
+
+    if (startLocation) {
+      visited[0] = true;  // 起点标记已访问
+    } else {
+      visited[0] = true;
+      order.push(0);
+    }
+
+    while (order.length < points.length) {
+      var lastIdx;
+      if (startLocation) {
+        lastIdx = order.length > 0 ? order[order.length - 1] + 1 : 0;
+      } else {
+        lastIdx = order.length > 0 ? order[order.length - 1] : 0;
+      }
+
+      var nearestIdx = -1;
+      var nearestDist = Infinity;
+      var nearestDur = 0;
+
+      for (var i = 0; i < numPoints; i++) {
+        if (visited[i]) continue;
+        if (startLocation && i === 0) continue;
+
+        var el = matrix[lastIdx] && matrix[lastIdx].elements && matrix[lastIdx].elements[i];
+        var d = el ? el.distance : Infinity;
+        if (d < nearestDist) {
+          nearestDist = d;
+          nearestDur = el ? el.duration : 0;
+          nearestIdx = i;
         }
+      }
 
-        var res = await wx.cloud.callFunction({
-          name: 'planRoute',
-          data: {
-            attractionIds: that.data.selectedAttractions.map(function (a) { return a._id; }),
-            startLocation: currentLocation
-          }
-        });
-
-        that.setData({ routeCalculating: false });
-
-        if (res.result && res.result.plannedStops) {
-          that.applyPlanResult(res.result.plannedStops, res.result.totalDistance || 0, res.result.estimatedTime || 0);
-          return;
-        }
-
-        if (res.result && res.result.error) {
-          wx.showToast({ title: res.result.error, icon: 'none' });
-          that.setData({ routeCalculating: false });
-          return;
-        }
-      } catch (err) {
-        console.error('路线规划失败:', err);
+      if (nearestIdx >= 0) {
+        visited[nearestIdx] = true;
+        order.push(startLocation ? nearestIdx - 1 : nearestIdx);
+        totalDistanceM += nearestDist;
+        totalDurationS += nearestDur;
+      } else {
+        break;
       }
     }
 
-    // 2. 回退：本地简单排序（按选择顺序，不做邻居贪心）
-    that.setData({ routeCalculating: false });
-    var stops = that.data.selectedAttractions.map(function (a, i) {
+    if (order.length < 2) return null;
+
+    // 步骤3: 获取驾车路线 polyline（仅当API可用时，节省配额）
+    var plannedPoints = order.map(function (idx) { return points[idx]; });
+    var routePolylines = [];
+
+    if (useRealDist) {
+      try {
+        var routeResults = await mapService.multiDrivingRoutes(plannedPoints);
+        routePolylines = routeResults.map(function (r) {
+          return r ? r.polyline : [];
+        });
+      } catch (e) {
+        console.warn('获取驾车路线失败（将继续使用直线展示）:', e.message || e.code);
+      }
+    }
+
+    // 构建 stops
+    var stops = order.map(function (idx, i) {
+      var a = attractions[idx];
+      var prevDist = 0;
+      if (i > 0) {
+        var fromIdx = startLocation ? order[i - 1] + 1 : order[i - 1];
+        var toIdx = startLocation ? idx + 1 : idx;
+        if (matrix[fromIdx] && matrix[fromIdx].elements) {
+          prevDist = matrix[fromIdx].elements[toIdx] ? matrix[fromIdx].elements[toIdx].distance : 0;
+        }
+      }
+
       return {
         id: a._id,
         name: a.name,
         location: a.location || { latitude: 0, longitude: 0 },
-        distanceFromPrev: 0
+        distanceFromPrev: prevDist
       };
     });
 
-    that.applyPlanResult(stops, 0, 0);
-    wx.showToast({ title: '已按选择顺序排列（请配置云开发以启用智能规划）', icon: 'none' });
+    return {
+      stops: stops,
+      totalDistance: (totalDistanceM / 1000).toFixed(1),
+      totalDuration: useRealDist ? (totalDurationS / 3600).toFixed(1) : '0.0',
+      routePolylines: routePolylines
+    };
+  },
+
+  // 本地距离矩阵（Haversine 公式，不需要 API Key）
+  buildLocalMatrix: function (points) {
+    var n = points.length;
+    var rows = [];
+    for (var i = 0; i < n; i++) {
+      var elements = [];
+      for (var j = 0; j < n; j++) {
+        var d = this.haversineDistance(points[i], points[j]);
+        elements.push({ distance: d, duration: 0 });
+      }
+      rows.push({ elements: elements });
+    }
+    return rows;
+  },
+
+  // Haversine 球面距离（米）
+  haversineDistance: function (p1, p2) {
+    var R = 6371000;
+    var dLat = (p2.latitude - p1.latitude) * Math.PI / 180;
+    var dLon = (p2.longitude - p1.longitude) * Math.PI / 180;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(p1.latitude * Math.PI / 180) * Math.cos(p2.latitude * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return Math.round(R * c);
   },
 
   // 应用规划结果
-  applyPlanResult: function (plannedStops, totalDistance, estimatedTime) {
+  applyPlanResult: function (plannedStops, totalDistance, estimatedTime, routePolylines) {
     var that = this;
+    routePolylines = routePolylines || [];
 
     var mapStops = plannedStops.map(function (stop, index) {
       return {
@@ -214,6 +367,7 @@ Page({
       routeCalculated: true,
       plannedStops: plannedStops,
       mapStops: mapStops,
+      routePolylines: routePolylines,
       totalDistance: totalDistance ? parseFloat(totalDistance).toFixed(1) : '0.0',
       estimatedTime: estimatedTime ? parseFloat(estimatedTime).toFixed(1) : '0.0',
       currentStopIndex: 0,
@@ -224,7 +378,7 @@ Page({
     var mapRoute = that.selectComponent('#planMapRoute');
     if (mapRoute) {
       setTimeout(function () {
-        mapRoute.updateRoute(mapStops);
+        mapRoute.updateRoute(mapStops, routePolylines);
       }, 300);
     }
   },
@@ -325,5 +479,22 @@ Page({
       title: '去俺村 - 智能规划你的旅游路线',
       path: '/pages/routes/plan/plan'
     };
+  },
+
+  // 工具：给 Promise 加超时保护，超时后自动 reject
+  withTimeout: function (promise, ms) {
+    return new Promise(function (resolve, reject) {
+      var timer = setTimeout(function () {
+        reject({ code: -1, message: '操作超时(' + ms + 'ms)', isTimeout: true });
+      }, ms);
+
+      promise.then(function (res) {
+        clearTimeout(timer);
+        resolve(res);
+      }).catch(function (err) {
+        clearTimeout(timer);
+        reject(err);
+      });
+    });
   }
 });

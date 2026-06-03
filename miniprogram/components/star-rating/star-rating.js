@@ -46,11 +46,13 @@ Component({
 
   methods: {
     updateDisplay: function (rating) {
-      const displayRating = Math.round(rating * 2) / 2; // 支持半星
-      const ratingTexts = ['', '很差', '一般', '不错', '很好', '超棒'];
+      // 容错：非数值类型统一转 0
+      var r = (typeof rating === 'number' && !isNaN(rating)) ? rating : 0;
+      var displayRating = Math.round(r * 2) / 2;
+      var ratingTexts = ['', '很差', '一般', '不错', '很好', '超棒'];
       this.setData({
-        displayRating,
-        ratingText: ratingTexts[Math.ceil(rating)] || ''
+        displayRating: displayRating,
+        ratingText: ratingTexts[Math.ceil(r)] || ''
       });
     },
 

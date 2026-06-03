@@ -1,4 +1,5 @@
 // components/map-route/map-route.js
+// v1.2: 支持腾讯地图真实驾车路线 polyline
 Component({
   properties: {
     // 景点列表 [{id, name, latitude, longitude, icon}]
@@ -7,7 +8,18 @@ Component({
       value: [],
       observer: function (newVal) {
         if (newVal && newVal.length > 0) {
-          this.buildMapData(newVal);
+          this.buildMapData(newVal, this.data.routePolylines);
+        }
+      }
+    },
+    // 驾车路线 polyline 数据 [[{latitude, longitude}, ...], ...]
+    // 每个元素是一段路线的点数组，与 stops 顺序对应
+    routePolylines: {
+      type: Array,
+      value: [],
+      observer: function (newVal) {
+        if (this.data.stops.length > 0) {
+          this.buildMapData(this.data.stops, newVal || []);
         }
       }
     },
@@ -47,7 +59,7 @@ Component({
   lifetimes: {
     attached: function () {
       if (this.data.stops.length > 0) {
-        this.buildMapData(this.data.stops);
+        this.buildMapData(this.data.stops, this.data.routePolylines);
       }
     },
 
@@ -59,8 +71,9 @@ Component({
 
   methods: {
     // 构建地图数据
-    buildMapData: function (stops) {
+    buildMapData: function (stops, routePolylines) {
       if (!stops || stops.length === 0) return;
+      routePolylines = routePolylines || [];
 
       // 构建 markers
       const markers = stops.map((stop, index) => ({
@@ -94,21 +107,40 @@ Component({
         }
       }));
 
-      // 构建 polyline
-      const points = stops.map(stop => ({
-        latitude: stop.latitude,
-        longitude: stop.longitude
-      }));
+      // 构建 polylines
+      var polylines = [];
 
-      const polylines = [{
-        points: points,
-        color: '#2E7D32',
-        width: 6,
-        borderColor: '#FFFFFF',
-        borderWidth: 2,
-        arrowLine: true,
-        dottedLine: false
-      }];
+      // 如果有真实驾车路线数据，使用驾车路线
+      if (routePolylines.length > 0) {
+        for (var r = 0; r < routePolylines.length; r++) {
+          if (routePolylines[r] && routePolylines[r].length > 0) {
+            polylines.push({
+              points: routePolylines[r],
+              color: '#2E7D32',
+              width: 8,
+              borderColor: '#1B5E20',
+              borderWidth: 2,
+              arrowLine: true,
+              dottedLine: false
+            });
+          }
+        }
+      } else {
+        // 回退：直线连线
+        var linePoints = stops.map(function (s) {
+          return { latitude: s.latitude, longitude: s.longitude };
+        });
+
+        polylines = [{
+          points: linePoints,
+          color: '#2E7D32CC',
+          width: 4,
+          borderColor: '#FFFFFF',
+          borderWidth: 2,
+          arrowLine: true,
+          dottedLine: true
+        }];
+      }
 
       // 计算中心点
       const centerLat = stops.reduce((sum, s) => sum + s.latitude, 0) / stops.length;
@@ -138,10 +170,13 @@ Component({
       });
 
       // 延迟执行 includePoints 让所有点都在视野内
+      var includePts = stops.map(function (s) {
+        return { latitude: s.latitude, longitude: s.longitude };
+      });
       setTimeout(() => {
         if (this.data.mapCtx) {
           this.data.mapCtx.includePoints({
-            points: points,
+            points: includePts,
             padding: [60, 40, 60, 40]
           });
         }
@@ -199,9 +234,9 @@ Component({
       this.buildMapData(this.data.stops);
     },
 
-    // 外部调用：更新路线
-    updateRoute: function (stops) {
-      this.buildMapData(stops);
+    // 外部调用：更新路线（支持 polyline）
+    updateRoute: function (stops, routePolylines) {
+      this.buildMapData(stops, routePolylines || []);
     }
   }
 });

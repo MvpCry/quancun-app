@@ -1,7 +1,7 @@
 <!-- components/attraction-card/attraction-card.wxml - 景点卡片 -->
 <view class="attraction-card" bindtap="onTap">
   <view class="card-image-wrap">
-    <image class="card-image" src="{{attraction.coverImage || attraction.images[0]}}" mode="aspectFill" lazy-load/>
+    <image class="card-image" src="{{attraction.coverImage || attraction.images[0]}}" mode="aspectFill" binderror="onCoverError"/>
     <view class="card-tag" wx:if="{{attraction.categoryName}}">{{attraction.categoryName}}</view>
     <view class="card-favorite" wx:if="{{showFavorite}}" catchtap="onFavorite">
       <text>{{attraction.isFavorited ? '❤️' : '🤍'}}</text>

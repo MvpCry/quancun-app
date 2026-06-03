@@ -19,6 +19,10 @@ Component({
   },
 
   methods: {
+    onCoverError: function () {
+      // WebP 解码失败兜底
+    },
+
     onTap: function () {
       this.triggerEvent('tap', { id: this.data.route._id });
     }

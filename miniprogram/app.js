@@ -56,6 +56,24 @@ App({
   //  云函数数据获取（首页 + Tab 页共用）
   // =============================================
 
+  // 带超时的云函数调用（云函数未部署时快速失败，不卡死）
+  callCloud: function (name, data, timeoutMs) {
+    var that = this;
+    timeoutMs = timeoutMs || 8000;
+    return new Promise(function (resolve, reject) {
+      var timer = setTimeout(function () {
+        reject({ code: -1, message: '云函数超时', isTimeout: true });
+      }, timeoutMs);
+      wx.cloud.callFunction({ name: name, data: data }).then(function (res) {
+        clearTimeout(timer);
+        resolve(res);
+      }).catch(function (err) {
+        clearTimeout(timer);
+        reject(err);
+      });
+    });
+  },
+
   /**
    * 获取景点列表（带缓存）
    * @param {Object} params - { category, keyword, sortBy, page, pageSize }
@@ -80,20 +98,19 @@ App({
     // 云函数可用 → 从云数据库拉取
     if (wx.cloud) {
       try {
-        var res = await wx.cloud.callFunction({
-          name: 'getAttractions',
-          data: {
-            action: 'list',
-            category: params.category || undefined,
-            keyword: params.keyword || undefined,
-            sortBy: params.sortBy || 'rating',
-            page: params.page || 1,
-            pageSize: params.pageSize || 50
-          }
+        var res = await that.callCloud('getAttractions', {
+          action: 'list',
+          category: params.category || undefined,
+          keyword: params.keyword || undefined,
+          sortBy: params.sortBy || 'rating',
+          page: params.page || 1,
+          pageSize: params.pageSize || 50
         });
 
         if (res.result && res.result.list && res.result.list.length > 0) {
-          var list = res.result.list;
+          var list = res.result.list.map(function (item) {
+            return that.fixImagePaths(item);
+          });
           // 无筛选时更新全局缓存
           if (!params.category && !params.keyword && !params.page) {
             that.globalData.cachedAttractions = list;
@@ -138,19 +155,20 @@ App({
     // 云函数可用 → 从云数据库拉取
     if (wx.cloud) {
       try {
-        var res = await wx.cloud.callFunction({
-          name: 'getRoutes',
-          data: {
-            action: params.action || 'list',
-            tag: params.tag || undefined,
-            page: params.page || 1,
-            pageSize: params.pageSize || 50,
-            limit: params.limit || 10
-          }
+        var res = await that.callCloud('getRoutes', {
+          action: params.action || 'list',
+          tag: params.tag || undefined,
+          page: params.page || 1,
+          pageSize: params.pageSize || 50,
+          limit: params.limit || 10
         });
 
         if (res.result && res.result.list && res.result.list.length > 0) {
-          var list = res.result.list;
+          var list = res.result.list.map(function (item) {
+            // 修正封面图路径
+            if (item.coverImage) item.coverImage = item.coverImage.replace('.webp', '.jpg');
+            return item;
+          });
           // 无筛选时更新全局缓存
           if (!params.tag && !params.page && params.action !== 'myRoutes') {
             that.globalData.cachedRoutes = list;
@@ -376,6 +394,22 @@ App({
         // importDefaultData 云函数未部署时不弹窗
       }
     });
+  },
+
+  // 修正云数据库中的旧 .webp 路径为 .jpg（客户端兼容）
+  fixImagePaths: function (item) {
+    if (!item) return item;
+    // 修正 images 数组
+    if (item.images && Array.isArray(item.images)) {
+      item.images = item.images.map(function (url) {
+        return url.replace('.webp', '.jpg');
+      });
+    }
+    // 修正 coverImage
+    if (item.coverImage) {
+      item.coverImage = item.coverImage.replace('.webp', '.jpg');
+    }
+    return item;
   },
 
   doImportData: function () {

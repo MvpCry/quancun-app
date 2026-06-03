@@ -243,5 +243,56 @@ Page({
         }
       }
     });
+  },
+
+  // 数据同步（更新云数据库中的坐标）
+  onSyncData: function () {
+    var that = this;
+    if (!wx.cloud) {
+      wx.showToast({ title: '云开发不可用', icon: 'none' });
+      return;
+    }
+
+    wx.showModal({
+      title: '数据同步',
+      content: '将更新云数据库中景点坐标和路线数据为最新版本，不会影响你的收藏和评论。确定同步吗？',
+      confirmText: '同步',
+      success: function (res) {
+        if (res.confirm) {
+          wx.showLoading({ title: '同步中...' });
+          wx.cloud.callFunction({
+            name: 'importDefaultData',
+            data: { action: 'updateCoordinates' },
+            success: function (cfRes) {
+              wx.hideLoading();
+              if (cfRes.result && cfRes.result.success) {
+                // 清除缓存，强制刷新
+                var app = getApp();
+                app.refreshCache('all');
+                wx.showModal({
+                  title: '同步成功',
+                  content: '景点坐标和路线距离已更新！\n\n请下拉刷新首页查看最新数据。',
+                  showCancel: false
+                });
+              } else {
+                wx.showToast({
+                  title: (cfRes.result && cfRes.result.message) || '同步失败',
+                  icon: 'none'
+                });
+              }
+            },
+            fail: function (err) {
+              wx.hideLoading();
+              console.error('同步失败:', err);
+              wx.showModal({
+                title: '同步失败',
+                content: '请先在微信开发者工具中：\n\n右键 cloudfunctions/importDefaultData 文件夹\n→ 选择"上传并部署：云端安装依赖"\n\n部署成功后再试一次。',
+                showCancel: false
+              });
+            }
+          });
+        }
+      }
+    });
   }
 });

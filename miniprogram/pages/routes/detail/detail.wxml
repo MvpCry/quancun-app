@@ -5,6 +5,7 @@
     <map-route
       id="detailMapRoute"
       stops="{{mapStops}}"
+      routePolylines="{{routePolylines}}"
       height="450"
       showLocation="{{true}}"
       showStops="{{true}}"

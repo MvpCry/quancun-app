@@ -81,6 +81,12 @@
       <text class="menu-text">意见反馈</text>
       <text class="menu-arrow">›</text>
     </view>
+    <view class="menu-item" bindtap="onSyncData">
+      <text class="menu-icon">🔄</text>
+      <text class="menu-text">数据同步</text>
+      <text class="menu-desc">更新坐标和路线数据</text>
+      <text class="menu-arrow">›</text>
+    </view>
   </view>
 
   <!-- 退出登录 -->

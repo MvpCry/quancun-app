@@ -11,7 +11,7 @@
   <!-- 轮播Banner -->
   <swiper class="banner-swiper" indicator-dots indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#FFFFFF" autoplay circular interval="4000">
     <swiper-item wx:for="{{banners}}" wx:key="id">
-      <image class="banner-image" src="{{item.image}}" mode="aspectFill" bindtap="onBannerTap" data-id="{{item.id}}" data-type="{{item.type}}"/>
+      <image class="banner-image" src="{{item.image}}" mode="aspectFill" binderror="onImageError" bindtap="onBannerTap" data-id="{{item.id}}" data-type="{{item.type}}"/>
       <view class="banner-info">
         <text class="banner-title">{{item.title}}</text>
         <text class="banner-desc">{{item.desc}}</text>
@@ -37,7 +37,7 @@
     </view>
     <scroll-view class="hot-attractions-scroll" scroll-x enable-flex>
       <view class="hot-attraction-item" wx:for="{{hotAttractions}}" wx:key="_id" bindtap="onAttractionTap" data-id="{{item._id}}">
-        <image class="hot-image" src="{{item.images[0]}}" mode="aspectFill" lazy-load/>
+        <image class="hot-image" src="{{item.images[0]}}" mode="aspectFill" binderror="onImageError"/>
         <view class="hot-info">
           <text class="hot-name text-ellipsis">{{item.name}}</text>
           <view class="hot-meta">

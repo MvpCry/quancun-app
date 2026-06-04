@@ -1,7 +1,7 @@
 <!-- pages/routes/detail/detail.wxml - 路线详情页 -->
 <view class="container">
-  <!-- 路线地图 -->
-  <view class="detail-map-section" wx:if="{{route.attractions && route.attractions.length > 0}}">
+  <!-- 路线地图（至少2个有效坐标才展示） -->
+  <view class="detail-map-section" wx:if="{{hasMapData}}">
     <map-route
       id="detailMapRoute"
       stops="{{mapStops}}"
@@ -12,6 +12,14 @@
       currentIndex="{{currentStopIndex}}"
       bindstopchange="onStopChange"
     />
+  </view>
+  <!-- 无坐标提示 -->
+  <view class="no-map-hint" wx:elif="{{route.attractions && route.attractions.length > 0}}">
+    <view class="no-map-content">
+      <text class="no-map-icon">🗺️</text>
+      <text class="no-map-text">路线坐标待录入</text>
+      <text class="no-map-desc">请通过后台管理页面设置景点坐标后，路线将自动展示</text>
+    </view>
   </view>
 
   <!-- 路线信息 -->

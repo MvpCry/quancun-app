@@ -169,7 +169,194 @@
   border-radius: var(--radius);
 }
 
-/* ========== 7. 评论 ========== */
+/* 无坐标占位提示 */
+.no-location {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 240rpx;
+  background: #FAFAFA;
+  border-radius: var(--radius);
+  margin: 16rpx 24rpx 24rpx;
+}
+
+.no-location-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.no-location-icon {
+  font-size: 56rpx;
+  opacity: 0.4;
+}
+
+.no-location-text {
+  font-size: 28rpx;
+  color: var(--text-hint);
+  font-weight: 500;
+}
+
+.no-location-desc {
+  font-size: 22rpx;
+  color: #CCCCCC;
+}
+
+/* ========== 7. 写评价 ========== */
+.write-review-section {
+  margin-bottom: 24rpx;
+}
+
+.write-review-section .card-header {
+  padding: 24rpx 24rpx 0;
+}
+
+/* 登录门禁 */
+.login-gate {
+  padding: 40rpx 24rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.login-gate-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.login-gate-icon {
+  font-size: 56rpx;
+  opacity: 0.6;
+}
+
+.login-gate-text {
+  font-size: 26rpx;
+  color: var(--text-hint);
+}
+
+.login-gate-btn {
+  margin-top: 12rpx;
+  padding: 16rpx 48rpx;
+  font-size: 28rpx;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #07C160, #06AD56);
+  border-radius: 44rpx;
+  border: none;
+}
+
+.login-gate-btn::after {
+  border: none;
+}
+
+/* 评价作者身份 */
+.review-author {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 20rpx 24rpx 16rpx;
+}
+
+.review-author-avatar {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: #F0F0F0;
+}
+
+.review-author-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* 星级打分 */
+.write-review-stars {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 8rpx 24rpx 16rpx;
+}
+
+.write-review-label {
+  font-size: 26rpx;
+  color: var(--text-hint);
+  flex-shrink: 0;
+}
+
+.write-review-rating-text {
+  font-size: 28rpx;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* 评价输入框 */
+.write-review-input-wrap {
+  margin: 0 24rpx;
+  border: 2rpx solid var(--border);
+  border-radius: 16rpx;
+  padding: 16rpx 20rpx 8rpx;
+  background: #FAFAFA;
+  transition: border-color 0.2s;
+}
+
+.write-review-input-wrap.focused {
+  border-color: var(--primary);
+  background: #FFFFFF;
+}
+
+.write-review-textarea {
+  width: 100%;
+  min-height: 140rpx;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.write-review-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12rpx;
+  border-top: 1rpx solid #F0F0F0;
+}
+
+.write-review-hint {
+  font-size: 22rpx;
+  color: var(--text-hint);
+}
+
+.write-review-count {
+  font-size: 22rpx;
+  color: var(--text-hint);
+}
+
+.write-review-count.full {
+  color: #E53935;
+}
+
+/* 提交按钮 */
+.submit-review-btn {
+  margin: 20rpx 24rpx 24rpx;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #2E7D32, #4CAF50);
+  border-radius: 44rpx;
+  border: none;
+  text-align: center;
+}
+
+.submit-review-btn::after {
+  border: none;
+}
+
+.submit-review-btn.submitting {
+  background: #CCCCCC;
+}
+
+/* ========== 8. 评论列表 ========== */
 .review-section {
   margin-bottom: 24rpx;
 }
@@ -224,6 +411,27 @@
   font-size: 26rpx;
   color: var(--text-secondary);
   line-height: 1.6;
+  margin-bottom: 8rpx;
+}
+
+/* 举报入口 */
+.review-report {
+  display: inline-flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: 6rpx 14rpx;
+  border-radius: 16rpx;
+  background: #F5F5F5;
+}
+
+.review-report-icon {
+  font-size: 22rpx;
+  color: #CCCCCC;
+}
+
+.review-report-text {
+  font-size: 20rpx;
+  color: #CCCCCC;
 }
 
 .no-reviews {

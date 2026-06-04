@@ -1,0 +1,31 @@
+<!-- pages/admin/bannedWords/index.wxml -->
+<view class="container">
+  <view class="page-header"><text class="page-title">🚫 敏感词库</text><text class="page-count">共 {{total}} 个</text></view>
+  <view class="add-bar">
+    <input class="add-input" placeholder="输入新敏感词..." value="{{newWord}}" bindinput="onWordInput" bindconfirm="onAddWord"/>
+    <button class="btn-sm green" bindtap="onAddWord">添加</button>
+    <button class="btn-sm gray" bindtap="onToggleBatch">批量</button>
+  </view>
+  <view class="batch-area" wx:if="{{showBatch}}">
+    <textarea class="batch-textarea" placeholder="粘贴敏感词，每行一个或用逗号分隔..." value="{{batchText}}" bindinput="onBatchInput" maxlength="2000"/>
+    <view class="batch-actions">
+      <button class="btn-sm gray" bindtap="onToggleBatch">取消</button>
+      <button class="btn-sm green" bindtap="onBatchSubmit">导入词库</button>
+    </view>
+  </view>
+  <view class="search-bar">
+    <input class="search-input" placeholder="搜索敏感词..." value="{{searchKeyword}}" bindinput="onSearchInput" bindconfirm="onSearch"/>
+    <button class="btn-sm green" bindtap="onSearch">搜索</button>
+  </view>
+  <view class="word-list" wx:if="{{!loading && words.length > 0}}">
+    <view class="word-item" wx:for="{{words}}" wx:key="_id">
+      <text class="word-text">{{item.word}}</text>
+      <view class="word-actions">
+        <text class="word-action disable" bindtap="onRemoveWord" data-id="{{item._id}}" data-word="{{item.word}}">禁用</text>
+        <text class="word-action delete" bindtap="onDeleteWord" data-id="{{item._id}}" data-word="{{item.word}}">删除</text>
+      </view>
+    </view>
+  </view>
+  <view class="empty-state" wx:elif="{{!loading}}"><text class="empty-text">词库为空</text></view>
+  <view class="safe-bottom" style="height:60rpx;"></view>
+</view>

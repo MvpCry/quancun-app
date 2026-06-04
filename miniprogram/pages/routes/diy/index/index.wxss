@@ -1,0 +1,254 @@
+/* pages/routes/diy/index/index.wxss - 自制游 */
+
+.diy-page {
+  padding: 0 24rpx;
+  min-height: 100vh;
+  background: #F5F5F5;
+}
+
+/* ========== 卡片通用 ========== */
+.card {
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+
+.card-header {
+  margin-bottom: 20rpx;
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+/* ========== 筛选区 ========== */
+.filter-section {
+  margin-top: 20rpx;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.filter-label {
+  font-size: 26rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.filter-chips {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 14rpx;
+  overflow-x: auto;
+}
+
+/* 用 button 替代 view，确保可点击 */
+.chip-btn {
+  padding: 14rpx 28rpx;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  background: #F5F5F5;
+  color: #666;
+  border: 2rpx solid transparent;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.chip-btn.active {
+  background: #E8F5E9;
+  color: #2E7D32;
+  border-color: #2E7D32;
+  font-weight: 600;
+}
+
+.chip-btn::after {
+  border: none;
+}
+
+.filter-footer {
+  margin-top: 20rpx;
+}
+
+/* ========== 通用按钮 ========== */
+.btn {
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  padding: 24rpx 0;
+  text-align: center;
+  border: none;
+  line-height: 1.4;
+}
+
+.btn::after {
+  border: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2E7D32, #43A047);
+  color: #FFFFFF;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-outline {
+  background: #FFF;
+  color: #2E7D32;
+  border: 2rpx solid #2E7D32;
+  font-size: 26rpx;
+  padding: 16rpx 28rpx;
+  border-radius: 32rpx;
+  line-height: 1.4;
+}
+
+.btn-sm {
+  font-size: 26rpx;
+  padding: 16rpx 0;
+}
+
+/* ========== 推荐结果 ========== */
+.results-header {
+  margin-top: 20rpx;
+}
+
+.results-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.results-hint {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.results-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16rpx;
+}
+
+.selected-count {
+  font-size: 26rpx;
+  color: #2E7D32;
+  font-weight: 500;
+}
+
+/* ========== 村落卡片 ========== */
+.stop-card {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 20rpx 24rpx;
+}
+
+.stop-card.selected {
+  border: 2rpx solid #2E7D32;
+  background: #F8FFF8;
+}
+
+.stop-order-badge {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: #E0E0E0;
+  color: #999;
+  font-size: 22rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stop-order-badge.checked {
+  background: #2E7D32;
+  color: #FFF;
+}
+
+.stop-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.stop-name-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  margin-bottom: 4rpx;
+}
+
+.stop-name {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.stop-location-tag {
+  font-size: 22rpx;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.stop-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-bottom: 4rpx;
+}
+
+.stop-tag {
+  font-size: 20rpx;
+  color: #2E7D32;
+  background: #E8F5E9;
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
+}
+
+/* 导航按钮 */
+.stop-nav {
+  flex-shrink: 0;
+}
+
+.nav-btn-icon {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+/* ========== 空状态 ========== */
+.empty-rec {
+  text-align: center;
+  padding: 80rpx 0;
+  color: #999;
+  font-size: 26rpx;
+}
+
+/* ========== 去规划按钮 ========== */
+.plan-action {
+  padding: 20rpx 0;
+}
+
+.plan-action .btn[disabled] {
+  background: #CCC;
+  color: #999;
+}
+
+/* ========== 安全区 ========== */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}

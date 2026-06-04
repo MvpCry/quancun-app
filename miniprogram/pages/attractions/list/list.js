@@ -40,6 +40,12 @@ Page({
       this.setData({ focusSearch: true });
     }
 
+    // 直接传入关键词（从首页搜索栏跳转）
+    if (options && options.keyword) {
+      var decoded = decodeURIComponent(options.keyword);
+      this.setData({ keyword: decoded });
+    }
+
     this.loadData();
   },
 

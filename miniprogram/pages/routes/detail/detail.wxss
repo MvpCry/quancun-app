@@ -7,6 +7,42 @@
   overflow: hidden;
 }
 
+/* 无坐标提示 */
+.no-map-hint {
+  margin: 0 0 24rpx;
+  background: #FAFAFA;
+  border-radius: var(--radius);
+  min-height: 240rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.no-map-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.no-map-icon {
+  font-size: 56rpx;
+  opacity: 0.4;
+}
+
+.no-map-text {
+  font-size: 28rpx;
+  color: var(--text-hint);
+  font-weight: 500;
+}
+
+.no-map-desc {
+  font-size: 22rpx;
+  color: #CCCCCC;
+  text-align: center;
+  padding: 0 40rpx;
+}
+
 /* 路线信息 */
 .route-header {
   margin-bottom: 24rpx;

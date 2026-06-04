@@ -1,0 +1,9 @@
+{
+  "name": "manageBannedWords",
+  "version": "1.0.0",
+  "description": "敏感词库后台管理云函数",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

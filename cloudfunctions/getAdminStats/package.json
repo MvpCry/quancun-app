@@ -1,0 +1,7 @@
+{
+  "name": "getAdminStats",
+  "version": "1.0.0",
+  "description": "管理后台统计云函数",
+  "main": "index.js",
+  "dependencies": { "wx-server-sdk": "latest" }
+}

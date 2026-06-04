@@ -9,7 +9,15 @@ Page({
     markers: [],
     reviews: [],
     totalReviews: 0,
-    loading: true
+    loading: true,
+
+    // 写评价
+    isLogin: false,
+    currentUser: null,
+    myRating: 5,
+    reviewContent: '',
+    submitting: false,
+    reviewFocused: false
   },
 
   onLoad: function (options) {
@@ -19,9 +27,26 @@ Page({
     }
     this.setData({ attractionId: options.id });
     this.loadAttraction(options.id);
+    this.checkLoginState();
 
     // 记录浏览历史
     this.recordHistory(options.id);
+  },
+
+  onShow: function () {
+    this.checkLoginState();
+  },
+
+  // 检查登录状态
+  checkLoginState: function () {
+    var app = getApp();
+    var userInfo = wx.getStorageSync('userInfo');
+    var isLogin = !!(userInfo && (app.globalData.isLogin || userInfo.nickName));
+
+    this.setData({
+      isLogin: isLogin,
+      currentUser: isLogin ? userInfo : null
+    });
   },
 
   // ========== 主加载：云优先 ==========
@@ -45,7 +70,7 @@ Page({
             attraction.introduction = attraction.description || '';
           }
 
-          that.renderAttraction(attraction, res.result.recentReviews || []);
+          await that.renderAttraction(attraction, res.result.recentReviews || []);
           return;
         }
       } catch (err) {
@@ -61,7 +86,7 @@ Page({
         if (cached[i]._id === id) {
           var found = cached[i];
           if (!found.introduction) found.introduction = found.description || '';
-          that.renderAttraction(found, []);
+          await that.renderAttraction(found, []);
           return;
         }
       }
@@ -74,7 +99,7 @@ Page({
       if (list[j]._id === id) {
         var localFound = list[j];
         if (!localFound.introduction) localFound.introduction = localFound.description || '';
-        that.renderAttraction(localFound, defaultData.defaultReviews);
+        await that.renderAttraction(localFound, defaultData.defaultReviews);
         return;
       }
     }
@@ -85,17 +110,24 @@ Page({
   },
 
   // 渲染景点数据
-  renderAttraction: function (attraction, reviews) {
+  renderAttraction: async function (attraction, reviews) {
+    // 无坐标时尝试地址→geocoder 实时解析
+    if (attraction.address && (!attraction.location || !attraction.location.latitude)) {
+      var app = getApp();
+      try { await app.resolveAttractionLocation(attraction); } catch (e) {}
+    }
+
     // 构建地图标记
     var markers = [];
-    if (attraction.location && attraction.location.latitude) {
+    var hasLocation = !!(attraction.location && attraction.location.latitude);
+    if (hasLocation) {
       markers.push({
         id: 0,
         latitude: attraction.location.latitude,
         longitude: attraction.location.longitude,
         title: attraction.name,
-        iconPath: '/images/marker-attraction.png',
-        width: 36,
+        iconPath: '/images/marker-village.png',
+        width: 54,
         height: 48,
         callout: {
           content: attraction.name,
@@ -111,6 +143,7 @@ Page({
     this.setData({
       attraction: attraction,
       markers: markers,
+      hasLocation: hasLocation,
       reviews: reviews.length > 0 ? reviews : (attraction.reviews || []),
       totalReviews: attraction.reviewCount || (reviews ? reviews.length : 0),
       loading: false
@@ -168,6 +201,182 @@ Page({
     }
     wx.setStorageSync('selectedAttractionIds', ids);
     wx.navigateTo({ url: '/pages/routes/plan/plan' });
+  },
+
+  // ========== 举报评论 ==========
+
+  onReportReview: function (e) {
+    var that = this;
+    var reviewId = e.currentTarget.dataset.reviewId;
+
+    if (!reviewId) return;
+
+    wx.showActionSheet({
+      itemList: ['辱骂脏话', '恶意抹黑'],
+      success: function (res) {
+        var reportType = res.tapIndex === 0 ? 'abuse' : 'defamation';
+
+        wx.showModal({
+          title: '确认举报',
+          content: '确定以"' + (reportType === 'abuse' ? '辱骂脏话' : '恶意抹黑') + '"举报该评论吗？',
+          confirmText: '确认举报',
+          confirmColor: '#E53935',
+          success: function (modalRes) {
+            if (modalRes.confirm) {
+              that.submitReport(reviewId, reportType);
+            }
+          }
+        });
+      }
+    });
+  },
+
+  submitReport: async function (reviewId, reportType) {
+    if (!wx.cloud) {
+      wx.showToast({ title: '云开发不可用', icon: 'none' });
+      return;
+    }
+
+    wx.showLoading({ title: '提交中...' });
+
+    try {
+      var res = await wx.cloud.callFunction({
+        name: 'reportReview',
+        data: {
+          reviewId: reviewId,
+          reportType: reportType
+        }
+      });
+
+      wx.hideLoading();
+
+      if (res.result && res.result.success) {
+        wx.showToast({ title: '举报已提交', icon: 'success' });
+      } else {
+        wx.showToast({
+          title: (res.result && res.result.error) || '举报失败',
+          icon: 'none'
+        });
+      }
+    } catch (err) {
+      wx.hideLoading();
+      console.error('举报失败:', err);
+      wx.showToast({ title: '举报失败，请稍后重试', icon: 'none' });
+    }
+  },
+
+  // ========== 写评价相关 ==========
+
+  // 星级打分变化
+  onReviewStarChange: function (e) {
+    this.setData({ myRating: e.detail.rating });
+  },
+
+  // 评价内容输入
+  onReviewInput: function (e) {
+    this.setData({ reviewContent: e.detail.value });
+  },
+
+  // 评价输入框聚焦/失焦
+  onReviewFocus: function () {
+    this.setData({ reviewFocused: true });
+  },
+
+  onReviewBlur: function () {
+    this.setData({ reviewFocused: false });
+  },
+
+  // 引导登录
+  onGoLogin: function () {
+    var that = this;
+    var app = getApp();
+    app.getUserProfile(function (userInfo) {
+      that.checkLoginState();
+    });
+  },
+
+  // 提交评价
+  onSubmitReview: async function () {
+    var that = this;
+
+    // ① 登录门禁
+    if (!that.data.isLogin) {
+      wx.showModal({
+        title: '需要登录',
+        content: '请先微信授权登录后再发表评价',
+        confirmText: '去登录',
+        success: function (res) {
+          if (res.confirm) that.onGoLogin();
+        }
+      });
+      return;
+    }
+
+    // ② 内容校验
+    var content = (that.data.reviewContent || '').trim();
+    if (content.length < 2) {
+      wx.showToast({ title: '评价内容至少2个字', icon: 'none' });
+      return;
+    }
+    if (content.length > 500) {
+      wx.showToast({ title: '评价内容最多500字', icon: 'none' });
+      return;
+    }
+
+    // ③ 微信内容安全预检
+    if (that.data.submitting) return;
+    that.setData({ submitting: true });
+
+    try {
+      var checkRes = await wx.cloud.callFunction({
+        name: 'checkContent',
+        data: {
+          content: content,
+          openid: ''  // 云函数自动获取，可不传
+        }
+      });
+
+      if (checkRes.result && !checkRes.result.isSafe) {
+        that.setData({ submitting: false });
+        wx.showToast({ title: '内容违规，请修改后发布', icon: 'none' });
+        return;
+      }
+    } catch (err) {
+      // checkContent 调用失败不阻塞，降级继续提交
+      console.warn('内容预检失败，降级放行:', err);
+    }
+
+    // ④ 提交
+    try {
+      var res = await wx.cloud.callFunction({
+        name: 'addReview',
+        data: {
+          attractionId: that.data.attractionId,
+          rating: that.data.myRating,
+          content: content
+        }
+      });
+
+      var result = res.result;
+      if (result && result.success) {
+        wx.showToast({ title: '评价发布成功！', icon: 'success' });
+        that.setData({
+          reviewContent: '',
+          myRating: 5,
+          submitting: false
+        });
+        // 重新加载景点（更新评分和评论列表）
+        that.loadAttraction(that.data.attractionId);
+      } else {
+        var errorMsg = (result && result.error) || '发布失败';
+        wx.showToast({ title: errorMsg, icon: 'none' });
+        that.setData({ submitting: false });
+      }
+    } catch (err) {
+      console.error('提交评价失败:', err);
+      wx.showToast({ title: '发布失败，请稍后重试', icon: 'none' });
+      that.setData({ submitting: false });
+    }
   },
 
   onShareAppMessage: function () {

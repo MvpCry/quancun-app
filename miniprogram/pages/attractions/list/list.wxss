@@ -67,8 +67,10 @@
 }
 
 .filter-chip {
-  display: inline-block;
-  padding: 14rpx 28rpx;
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 26rpx;
   margin-right: 16rpx;
   border-radius: 32rpx;
   font-size: 26rpx;
@@ -76,6 +78,13 @@
   color: var(--text-secondary);
   box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.04);
   transition: all 0.2s;
+  vertical-align: middle;
+}
+
+.filter-chip-icon {
+  width: 30rpx;
+  height: 30rpx;
+  flex-shrink: 0;
 }
 
 .filter-chip.active {
@@ -113,6 +122,25 @@
   height: 4rpx;
   background: var(--primary);
   border-radius: 2rpx;
+}
+
+/* ========== 搜索结果提示 ========== */
+.search-result-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16rpx;
+  padding: 12rpx 0 4rpx;
+}
+
+.result-label {
+  font-size: 26rpx;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.result-count {
+  font-size: 22rpx;
+  color: var(--text-hint);
 }
 
 /* ========== 景点列表 ========== */

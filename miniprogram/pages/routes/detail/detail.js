@@ -38,7 +38,7 @@ Page({
         });
 
         if (res.result && res.result.route) {
-          that.renderRoute(res.result.route);
+          await that.renderRoute(res.result.route);
           return;
         }
       } catch (err) {
@@ -52,7 +52,7 @@ Page({
     if (cached) {
       for (var i = 0; i < cached.length; i++) {
         if (cached[i]._id === id) {
-          that.renderRoute(cached[i]);
+          await that.renderRoute(cached[i]);
           return;
         }
       }
@@ -63,7 +63,7 @@ Page({
     var list = defaultData.defaultRoutes;
     for (var j = 0; j < list.length; j++) {
       if (list[j]._id === id) {
-        that.renderRoute(list[j]);
+        await that.renderRoute(list[j]);
         return;
       }
     }
@@ -74,21 +74,45 @@ Page({
   },
 
   // 渲染路线数据
-  renderRoute: function (route) {
-    // 构建地图数据
+  renderRoute: async function (route) {
+    // 对缺失坐标的站点，用地址实时解析
+    if (route.attractions && route.attractions.length > 0) {
+      var app = getApp();
+      var resolveTasks = [];
+      for (var s = 0; s < route.attractions.length; s++) {
+        var stop = route.attractions[s];
+        if (!stop.location || !stop.location.latitude) {
+          // 构造地址：优先 stop 自带 address，无则拼 "村名，山东省泰安市"
+          if (!stop.address) stop.address = stop.name + '，山东省泰安市';
+          resolveTasks.push(
+            app.resolveAttractionLocation(stop).catch(function () {})
+          );
+        }
+      }
+      if (resolveTasks.length > 0) {
+        await Promise.all(resolveTasks);
+      }
+    }
+
+    // 统计有效坐标的站点数
+    var validStops = 0;
     var mapStops = (route.attractions || []).map(function (stop, index) {
+      var hasLoc = !!(stop.location && stop.location.latitude);
+      if (hasLoc) validStops++;
       return {
         id: stop.attractionId,
         name: stop.name,
-        latitude: stop.location ? stop.location.latitude : 30.5,
-        longitude: stop.location ? stop.location.longitude : 114.3,
-        distance: stop.distanceFromPrev
+        latitude: hasLoc ? stop.location.latitude : 0,
+        longitude: hasLoc ? stop.location.longitude : 0,
+        distance: stop.distanceFromPrev,
+        hasLocation: hasLoc
       };
     });
 
     this.setData({
       route: route,
       mapStops: mapStops,
+      hasMapData: validStops >= 2,
       attractionCount: route.attractions ? route.attractions.length : 0,
       isFavorited: route.isFavorited || false,
       loading: false
@@ -96,8 +120,10 @@ Page({
 
     wx.setNavigationBarTitle({ title: route.name || '路线详情' });
 
-    // 尝试获取腾讯地图真实驾车路线
-    this.fetchRoutePolylines(mapStops);
+    // 只有至少2个有效坐标时才获取驾车路线
+    if (validStops >= 2) {
+      this.fetchRoutePolylines(mapStops.filter(function (s) { return s.hasLocation; }));
+    }
   },
 
   // 获取驾车路线 polyline 展示真实路线

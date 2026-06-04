@@ -16,6 +16,7 @@ Page({
     totalDistance: 0,
     estimatedTime: 0,
     routeName: '',
+    missingCoordNames: [],
     systemInfo: {}
   },
 
@@ -39,12 +40,14 @@ Page({
     var selectedIds = wx.getStorageSync('selectedAttractionIds') || [];
 
     if (selectedIds.length === 0) {
-      that.setData({ selectedAttractions: [] });
+      that.setData({ selectedAttractions: [], missingCoordNames: [] });
       return;
     }
 
+    var foundList = null;
+
     // 1. 尝试云函数获取景点详情
-    if (wx.cloud) {
+    if (!foundList && wx.cloud) {
       try {
         var res = await wx.cloud.callFunction({
           name: 'getAttractions',
@@ -52,8 +55,7 @@ Page({
         });
 
         if (res.result && res.result.list) {
-          that.setData({ selectedAttractions: res.result.list });
-          return;
+          foundList = res.result.list;
         }
       } catch (err) {
         console.error('加载景点失败:', err);
@@ -61,32 +63,61 @@ Page({
     }
 
     // 2. 从全局缓存查找
-    var app = getApp();
-    var cached = app.globalData.cachedAttractions;
-    if (cached) {
-      var foundList = selectedIds.map(function (id) {
-        for (var i = 0; i < cached.length; i++) {
-          if (cached[i]._id === id) return cached[i];
-        }
-        return null;
-      }).filter(Boolean);
-
-      if (foundList.length > 0) {
-        that.setData({ selectedAttractions: foundList });
-        return;
+    if (!foundList) {
+      var app = getApp();
+      var cached = app.globalData.cachedAttractions;
+      if (cached) {
+        foundList = selectedIds.map(function (id) {
+          for (var i = 0; i < cached.length; i++) {
+            if (cached[i]._id === id) return cached[i];
+          }
+          return null;
+        }).filter(Boolean);
       }
     }
 
     // 3. 回退本地数据
-    var defaultData = require('../../../data/defaultData.js');
-    var localList = selectedIds.map(function (id) {
-      for (var j = 0; j < defaultData.defaultAttractions.length; j++) {
-        if (defaultData.defaultAttractions[j]._id === id) return defaultData.defaultAttractions[j];
-      }
-      return null;
-    }).filter(Boolean);
+    if (!foundList || foundList.length === 0) {
+      var defaultData = require('../../../data/defaultData.js');
+      foundList = selectedIds.map(function (id) {
+        for (var j = 0; j < defaultData.defaultAttractions.length; j++) {
+          if (defaultData.defaultAttractions[j]._id === id) return defaultData.defaultAttractions[j];
+        }
+        return null;
+      }).filter(Boolean);
+    }
 
-    that.setData({ selectedAttractions: localList });
+    // 对缺失坐标的景点调用腾讯地图 geocoder 实时解析
+    if (foundList && foundList.length > 0) {
+      var app = getApp();
+      var resolvePromises = [];
+      for (var k = 0; k < foundList.length; k++) {
+        var a = foundList[k];
+        if (a.address && (!a.location || !a.location.latitude)) {
+          resolvePromises.push(
+            app.resolveAttractionLocation(a).catch(function () {})
+          );
+        }
+      }
+      if (resolvePromises.length > 0) {
+        await Promise.all(resolvePromises);
+      }
+    }
+
+    that.setData({ selectedAttractions: foundList || [] });
+    that.checkMissingCoords(foundList || []);
+  },
+
+  // 检查缺失坐标的景点
+  checkMissingCoords: function (attractions) {
+    var missing = [];
+    for (var i = 0; i < attractions.length; i++) {
+      var a = attractions[i];
+      if (!a.location || !a.location.latitude) {
+        missing.push(a.name);
+      }
+    }
+    this.setData({ missingCoordNames: missing });
   },
 
   // ========== 操作景点 ==========
@@ -124,8 +155,8 @@ Page({
           return {
             id: s.attractionId || s.id,
             name: s.name,
-            latitude: s.location.latitude,
-            longitude: s.location.longitude,
+            latitude: (s.location && s.location.latitude) || 0,
+            longitude: (s.location && s.location.longitude) || 0,
             distance: s.distanceFromPrev
           };
         })
@@ -139,6 +170,19 @@ Page({
 
     if (that.data.selectedAttractions.length < 2) {
       wx.showToast({ title: '至少选择2个景点', icon: 'none' });
+      return;
+    }
+
+    // 检查有坐标的景点数量
+    var withCoords = that.data.selectedAttractions.filter(function (a) {
+      return a.location && a.location.latitude;
+    });
+    if (withCoords.length < 2) {
+      wx.showModal({
+        title: '无法规划路线',
+        content: '已选景点中至少有' + (2 - withCoords.length) + '个尚未录入坐标，路线规划需要至少2个有效坐标。\n\n请通过后台管理页面设置景点坐标。',
+        showCancel: false
+      });
       return;
     }
 

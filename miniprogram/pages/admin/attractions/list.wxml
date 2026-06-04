@@ -1,0 +1,22 @@
+<view class="container">
+  <view class="page-header">
+    <text class="page-title">📍 景点管理</text>
+    <button class="btn-add" bindtap="onAdd">+ 新增景点</button>
+  </view>
+  <view class="list" wx:if="{{!loading && attractions.length>0}}">
+    <view class="card" wx:for="{{attractions}}" wx:key="_id">
+      <image class="card-img" src="{{item.images[0]}}" mode="aspectFill" wx:if="{{item.images && item.images[0]}}"/>
+      <view class="card-body">
+        <text class="card-name">{{item.name}}</text>
+        <text class="card-desc text-ellipsis">{{item.address}}</text>
+        <view class="card-tags"><text class="tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="t">{{t}}</text></view>
+        <view class="card-meta"><text>⭐ {{item.rating || '-'}}</text><text>📝 {{item.reviewCount || 0}}条</text></view>
+      </view>
+      <view class="card-actions">
+        <text class="act edit" bindtap="onEdit" data-id="{{item._id}}">编辑</text>
+        <text class="act del" bindtap="onDelete" data-id="{{item._id}}" data-name="{{item.name}}">删除</text>
+      </view>
+    </view>
+  </view>
+  <view class="empty-state" wx:elif="{{!loading}}"><text class="empty-text">暂无景点，点击上方新增</text></view>
+</view>

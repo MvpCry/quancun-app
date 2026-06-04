@@ -1,0 +1,79 @@
+<scroll-view class="container" scroll-y>
+  <!-- 名称 -->
+  <view class="form-grp"><text class="label">景点名称 *</text><input class="inp" value="{{form.name}}" bindinput="onInput" data-field="name" placeholder="如：王林坡村"/></view>
+
+  <!-- ===== 腾讯地图搜点（替代手动填坐标）===== -->
+  <view class="form-grp"><text class="label">搜索位置 *</text>
+    <text class="hint">输入村庄名，从腾讯地图搜索结果中选定，自动填入地址和经纬度</text>
+    <view class="search-row">
+      <input class="inp flex-1" value="{{searchKeyword}}" bindinput="onSearchInput" bindconfirm="onSearchPlace" placeholder="输入村庄名称搜索..."/>
+      <button class="search-btn" bindtap="onSearchPlace" disabled="{{searching}}">{{searching ? '搜索中' : '🔍 搜索'}}</button>
+    </view>
+
+    <!-- 搜索结果列表 -->
+    <view class="search-results" wx:if="{{searched && searchResults.length > 0}}">
+      <view class="result-item {{locationPicked && form.location.latitude === item.location.latitude ? 'picked' : ''}}"
+        wx:for="{{searchResults}}" wx:key="id"
+        bindtap="onPickLocation" data-index="{{index}}">
+        <view class="result-left">
+          <text class="result-title">{{item.title}}</text>
+          <text class="result-addr">{{item.address}}</text>
+        </view>
+        <view class="result-check" wx:if="{{locationPicked && form.location.latitude === item.location.latitude}}">✓ 已选</view>
+        <view class="result-pick" wx:else>选择 ›</view>
+      </view>
+    </view>
+    <view class="search-empty" wx:if="{{searched && searchResults.length === 0}}">
+      <text>未找到匹配地点，请尝试更精确的村名</text>
+    </view>
+
+    <!-- 已选定位置摘要 -->
+    <view class="location-picked-bar" wx:if="{{locationPicked}}">
+      <text class="lp-icon">📍</text>
+      <view class="lp-info">
+        <text class="lp-title">{{form.name || '已选位置'}}</text>
+        <text class="lp-addr">{{form.address}}</text>
+        <text class="lp-coords">经度 {{form.location.longitude}} · 纬度 {{form.location.latitude}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 地址（自动填入，可手动改） -->
+  <view class="form-grp"><text class="label">详细地址</text><input class="inp" value="{{form.address}}" bindinput="onInput" data-field="address" placeholder="搜索选定后自动填入"/></view>
+
+  <!-- 分类 -->
+  <view class="form-grp"><text class="label">分类</text>
+    <view class="cat-row">
+      <view class="cat-chip {{form.category===item.id?'active':''}}" wx:for="{{categories}}" wx:key="id" bindtap="onCatTap" data-id="{{item.id}}">{{item.name}}</view>
+    </view>
+  </view>
+
+  <!-- 标签 -->
+  <view class="form-grp"><text class="label">标签</text><input class="inp" value="{{form.tags}}" bindinput="onInput" data-field="tags" placeholder="多个用顿号分隔：美丽乡村、农家体验"/></view>
+
+  <!-- 开放时间 + 门票 -->
+  <view class="form-grp"><text class="label">开放时间</text><input class="inp" value="{{form.openTime}}" bindinput="onInput" data-field="openTime" placeholder="如：9:00-17:00 或 全天"/></view>
+  <view class="form-grp"><text class="label">门票(元)</text><input class="inp" type="digit" value="{{form.ticketPrice}}" bindinput="onNumInput" data-field="ticketPrice"/></view>
+
+  <!-- 简介 -->
+  <view class="form-grp"><text class="label">简介</text><textarea class="txa" value="{{form.introduction}}" bindinput="onInput" data-field="introduction" placeholder="景点详细介绍..." maxlength="1000"/></view>
+
+  <!-- 图片 -->
+  <view class="form-grp"><text class="label">图片</text>
+    <view class="img-list">
+      <view class="img-item" wx:for="{{form.images}}" wx:key="*this">
+        <image class="img" src="{{item}}" mode="aspectFill"/>
+        <view class="img-del" bindtap="onRemoveImage" data-index="{{index}}">✕</view>
+      </view>
+      <view class="img-add" bindtap="onChooseImage">
+        <text class="img-add-icon">{{uploading ? '⏳' : '+'}}</text>
+        <text class="img-add-text">{{uploading ? '上传中' : '上传图片'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 提交 -->
+  <view class="btn-bar safe-bottom">
+    <button class="btn-save" bindtap="onSubmit" disabled="{{saving}}">{{saving ? '保存中...' : (isEdit ? '更新景点' : '创建景点')}}</button>
+  </view>
+</scroll-view>

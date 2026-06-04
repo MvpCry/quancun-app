@@ -1,7 +1,7 @@
 // miniprogram/data/defaultData.js
 // ===== 【唯一数据源】首页、景点Tab、路线Tab、详情页全部引用此文件 =====
 // 修改景点/路线数据只需改这里，所有页面自动同步
-// 坐标来源：POI86、百度百科、搜狗百科等公开地图数据
+// 坐标由云数据库实时提供，本地 location 均为 null 作为回退标记
 
 var defaultAttractions = [
   {
@@ -16,10 +16,8 @@ var defaultAttractions = [
       '/images/zhujiawa.jpg',
       '/images/baimashi.jpg'
     ],
-    location: {
-      latitude: 36.6569,
-      longitude: 117.1203
-    },
+    // 坐标由云数据库实时提供，本地不再写死
+    location: null,
     address: '山东省泰安市泰山区邱家店镇王林坡村',
     category: 'rural',
     tags: ['美丽乡村', '农家体验', '休闲度假'],
@@ -42,10 +40,8 @@ var defaultAttractions = [
       '/images/wanglinpo.jpg',
       '/images/baimashi.jpg'
     ],
-    location: {
-      latitude: 36.2343,
-      longitude: 116.9212
-    },
+    // 坐标由云数据库实时提供，本地不再写死
+    location: null,
     address: '山东省泰安市岱岳区道朗镇朱家洼村',
     category: 'rural',
     tags: ['古村落', '民宿体验', '历史文化'],
@@ -66,10 +62,8 @@ var defaultAttractions = [
       '/images/wanglinpo.jpg',
       '/images/zhujiawa.jpg'
     ],
-    location: {
-      latitude: 36.2215,
-      longitude: 117.1558
-    },
+    // 坐标由云数据库实时提供，本地不再写死
+    location: null,
     address: '山东省泰安市泰山区泰前街道白马石村',
     category: 'rural',
     tags: ['民俗文化', '泰山石刻', '休闲观光'],
@@ -95,10 +89,11 @@ var defaultRoutes = [
     totalDistance: 98.8,
     estimatedTime: 8,
     likeCount: 89,
+    // 路线景点列表，location 由云数据库实时提供
     attractions: [
-      { attractionId: 'default_bmsc', order: 0, name: '白马石村', location: { latitude: 36.2215, longitude: 117.1558 } },
-      { attractionId: 'default_wlpc', order: 1, name: '王林坡村', location: { latitude: 36.6569, longitude: 117.1203 } },
-      { attractionId: 'default_zjwc', order: 2, name: '朱家洼村', location: { latitude: 36.2343, longitude: 116.9212 } }
+      { attractionId: 'default_bmsc', order: 0, name: '白马石村', location: null },
+      { attractionId: 'default_wlpc', order: 1, name: '王林坡村', location: null },
+      { attractionId: 'default_zjwc', order: 2, name: '朱家洼村', location: null }
     ],
     createTime: '2025-08-01'
   }

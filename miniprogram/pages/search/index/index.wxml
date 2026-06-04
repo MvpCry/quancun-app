@@ -1,0 +1,68 @@
+<!-- pages/search/index/index.wxml - 独立搜索页 -->
+<view class="search-page">
+  <!-- 搜索栏 -->
+  <view class="search-bar-wrap">
+    <view class="search-bar">
+      <text class="search-icon">🔍</text>
+      <input class="search-field" placeholder="搜索景点、村落..." value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" confirm-type="search" focus="{{!keyword}}"/>
+      <text class="search-clear" wx:if="{{keyword}}" bindtap="onClearSearch">✕</text>
+    </view>
+    <button class="search-btn" bindtap="onSearch">搜索</button>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="search-loading" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text>搜索中...</text>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view class="search-results" wx:if="{{!loading && searched}}">
+    <!-- 结果统计 -->
+    <view class="results-header">
+      <text class="results-title">"{{keyword}}"</text>
+      <text class="results-count" wx:if="{{results.length > 0}}">找到 {{results.length}} 个结果</text>
+      <text class="results-count empty" wx:else>未找到结果</text>
+    </view>
+
+    <!-- 结果列表 -->
+    <view class="result-list" wx:if="{{results.length > 0}}">
+      <view class="result-item" wx:for="{{results}}" wx:key="_id" data-index="{{index}}" bindtap="onItemTap">
+        <view class="result-body">
+          <!-- 名称 + 省市区 -->
+          <view class="result-name-row">
+            <text class="result-name">{{item.name}}</text>
+            <text class="result-location-tag">（{{item.address || ''}}）</text>
+          </view>
+          <!-- 地址和分类 -->
+          <view class="result-meta">
+            <text class="result-source" wx:if="{{item.source === 'database'}}">🏘️ 已收录</text>
+            <text class="result-source poi" wx:else>📍 地图结果</text>
+            <text class="result-category" wx:if="{{item.category}}">{{item.category}}</text>
+            <star-rating wx:if="{{item.rating}}" rating="{{item.rating}}" size="small" readonly="{{true}}"/>
+          </view>
+        </view>
+        <!-- 去这里按钮 -->
+        <view class="result-action" catchtap="onGoHere" data-index="{{index}}">
+          <text class="go-here-btn">去这里 ›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{results.length === 0}}">
+      <text class="empty-icon">🔍</text>
+      <text class="empty-text">未找到相关结果</text>
+      <text class="empty-hint">试试其他关键词，如"王林坡"、"泰安"</text>
+    </view>
+  </view>
+
+  <!-- 初始状态：还没搜 -->
+  <view class="search-init" wx:if="{{!loading && !searched}}">
+    <text class="init-icon">🗺️</text>
+    <text class="init-text">输入关键词搜索景点和村落</text>
+    <text class="init-hint">支持村名、地址、分类等搜索</text>
+  </view>
+
+  <view class="safe-bottom" style="height: 40rpx;"></view>
+</view>

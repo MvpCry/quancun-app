@@ -20,6 +20,12 @@
 
   <!-- 底部操作区 -->
   <view class="plan-bottom safe-bottom">
+    <!-- 坐标缺失警告 -->
+    <view class="coord-warning" wx:if="{{missingCoordNames.length > 0 && !routeCalculated}}">
+      <text class="coord-warning-icon">⚠️</text>
+      <text class="coord-warning-text">以下景点尚未录入坐标，路线规划将受影响：{{missingCoordNames.join('、')}}</text>
+    </view>
+
     <!-- 未规划状态：显示已选景点列表 -->
     <view class="plan-panel" wx:if="{{!routeCalculated}}">
       <view class="panel-header">

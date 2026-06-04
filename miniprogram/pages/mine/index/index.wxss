@@ -133,6 +133,7 @@
   padding: 40rpx 0;
 }
 
+.admin-entry{display:flex;justify-content:center;padding:20rpx 0 40rpx}.admin-entry-text{font-size:22rpx;color:#CCC}
 /* Tab内容面板 */
 .tab-content {
   position: fixed;

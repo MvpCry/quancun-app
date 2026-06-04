@@ -81,8 +81,8 @@ Component({
         latitude: stop.latitude,
         longitude: stop.longitude,
         title: stop.name,
-        iconPath: stop.icon || '',
-        width: 32,
+        iconPath: stop.icon || '/images/marker-village.png',
+        width: 48,
         height: 42,
         callout: {
           content: `${index + 1}. ${stop.name}`,

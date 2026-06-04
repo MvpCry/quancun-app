@@ -1,0 +1,71 @@
+<!-- pages/admin/reports/index.wxml -->
+<view class="container">
+  <view class="page-header"><text class="page-title">⚑ 举报管理</text></view>
+  <view class="tab-bar">
+    <view class="tab-item {{activeTab==='pending'?'active':''}}" bindtap="onTabChange" data-tab="pending">待处理</view>
+    <view class="tab-item {{activeTab==='handled'?'active':''}}" bindtap="onTabChange" data-tab="handled">已处理</view>
+    <view class="tab-item {{activeTab==='violations'?'active':''}}" bindtap="onTabChange" data-tab="violations">违规记录</view>
+    <view class="tab-item {{activeTab==='bans'?'active':''}}" bindtap="onTabChange" data-tab="bans">禁言列表</view>
+  </view>
+
+  <!-- 举报列表 -->
+  <block wx:if="{{activeTab==='pending' || activeTab==='handled'}}">
+    <view wx:if="{{activeTab==='pending' && reports.length>0}}" class="batch-bar">
+      <button class="batch-btn" bindtap="onBatchClean">🧹 批量清理高举报评论</button>
+    </view>
+    <view class="report-list" wx:if="{{!loading && reports.length>0}}">
+      <view class="report-card" wx:for="{{reports}}" wx:key="_id">
+        <view class="report-meta">
+          <text class="tag {{item.reportType==='abuse'?'red':''}}">{{item.reportTypeLabel}}</text>
+          <text class="status {{item.status}}">{{item.status==='pending'?'待处理':'已处理'}}</text>
+        </view>
+        <view class="reported-content" wx:if="{{item.currentReview}}">
+          <view class="reported-header">
+            <text class="reported-user">{{item.currentReview.userName}}</text>
+            <text class="reported-star">⭐{{item.currentReview.rating}}</text>
+            <text class="report-count" wx:if="{{item.currentReview.reportCount>1}}">×{{item.currentReview.reportCount}}</text>
+          </view>
+          <text class="reported-text">{{item.currentReview.content}}</text>
+        </view>
+        <view class="reported-content deleted" wx:else><text class="reported-text deleted-text">评论已删除</text></view>
+        <text class="report-time">{{item.createTime}}</text>
+        <view class="report-actions" wx:if="{{item.status==='pending'}}">
+          <button class="act-btn del" bindtap="onDeleteReview" data-report-id="{{item._id}}" data-review-id="{{item.reviewId}}">删除评论</button>
+          <button class="act-btn dismiss" bindtap="onDismissReport" data-report-id="{{item._id}}">驳回</button>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 违规记录 -->
+  <block wx:if="{{activeTab==='violations'}}">
+    <view class="vl-list" wx:if="{{!loading && violations.length>0}}">
+      <view class="vl-item" wx:for="{{violations}}" wx:key="_id">
+        <view class="vl-header">
+          <text class="vl-source {{item.source}}">{{item.source==='keyword'?'🔤关键词':'🤖微信AI'}}</text>
+          <text class="vl-word">{{item.hitWord}}</text>
+        </view>
+        <text class="vl-content">{{item.content}}</text>
+        <text class="vl-time">{{item.createTime}}</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- 禁言列表 -->
+  <block wx:if="{{activeTab==='bans'}}">
+    <view class="ban-list" wx:if="{{!loading && bans.length>0}}">
+      <view class="ban-item" wx:for="{{bans}}" wx:key="_id">
+        <view class="ban-header"><text class="ban-user">{{item.userId}}</text><text class="ban-tag {{item.type==='week'?'week':''}}">{{item.type==='day'?'当日禁言':'7天冻结'}}</text></view>
+        <text class="ban-reason">{{item.reason}}</text>
+        <view class="ban-footer"><text class="ban-time">到期: {{item.expiresAt}}</text><button class="lift-btn" bindtap="onLiftBan" data-ban-id="{{item._id}}">解除</button></view>
+      </view>
+    </view>
+  </block>
+
+  <view class="empty-state" wx:if="{{!loading && reports.length===0 && violations.length===0 && bans.length===0}}">
+    <text class="empty-text">
+      {{activeTab==='pending'?'暂无待处理举报':''}}{{activeTab==='handled'?'暂无处理记录':''}}{{activeTab==='violations'?'暂无违规记录':''}}{{activeTab==='bans'?'暂无禁言用户':''}}
+    </text>
+  </view>
+  <view class="safe-bottom" style="height:80rpx;"></view>
+</view>

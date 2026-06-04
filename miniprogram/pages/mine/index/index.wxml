@@ -94,6 +94,9 @@
     <button class="btn btn-outline btn-block" bindtap="onLogout">退出登录</button>
   </view>
 
+  <view class="admin-entry" bindlongpress="onAdminEntry">
+    <text class="admin-entry-text">去俺村 v1.0.0</text>
+  </view>
   <view class="safe-bottom" style="height: 40rpx;"></view>
 </view>
 

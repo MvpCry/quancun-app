@@ -13,17 +13,34 @@ exports.main = async (event, context) => {
 
   switch (action) {
     case 'profile':
-      // 更新用户信息
+      // 更新或创建用户信息（upsert：先查后决定 add 或 update）
       if (userInfo) {
-        await db.collection('users')
+        var existRes = await db.collection('users')
           .where({ _openid: openid })
-          .update({
+          .get();
+
+        if (existRes.data.length > 0) {
+          // 已有记录 → 更新
+          await db.collection('users')
+            .doc(existRes.data[0]._id)
+            .update({
+              data: {
+                nickName: userInfo.nickName || '',
+                avatarUrl: userInfo.avatarUrl || '',
+                updateTime: db.serverDate()
+              }
+            });
+        } else {
+          // 新用户 → 创建
+          await db.collection('users').add({
             data: {
+              _openid: openid,
               nickName: userInfo.nickName || '',
               avatarUrl: userInfo.avatarUrl || '',
-              updateTime: db.serverDate()
+              createTime: db.serverDate()
             }
           });
+        }
       }
 
       // 获取用户信息

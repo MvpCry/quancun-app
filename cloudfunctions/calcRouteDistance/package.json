@@ -1,0 +1,7 @@
+{
+  "name": "calcRouteDistance",
+  "version": "1.0.0",
+  "description": "路线距离&时长自动计算云函数（CMS钩子）",
+  "main": "index.js",
+  "dependencies": { "wx-server-sdk": "latest" }
+}

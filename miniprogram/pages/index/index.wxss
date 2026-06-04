@@ -2,26 +2,51 @@
 
 /* ========== 搜索栏 ========== */
 .search-bar {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
   padding: 16rpx 0 24rpx;
 }
 
 .search-input {
+  flex: 1;
   display: flex;
   align-items: center;
   background: #FFFFFF;
   border-radius: 40rpx;
-  padding: 18rpx 28rpx;
+  padding: 14rpx 28rpx;
   box-shadow: 0 2rpx 16rpx rgba(0,0,0,0.06);
 }
 
 .search-icon {
   font-size: 32rpx;
   margin-right: 16rpx;
+  flex-shrink: 0;
 }
 
-.search-placeholder {
-  color: #BBBBBB;
+.search-field {
+  flex: 1;
   font-size: 28rpx;
+  color: #333;
+}
+
+.search-clear {
+  font-size: 24rpx;
+  color: #CCCCCC;
+  padding: 8rpx;
+  flex-shrink: 0;
+}
+
+.search-btn {
+  flex-shrink: 0;
+  height: 68rpx;
+  line-height: 68rpx;
+  padding: 0 28rpx;
+  font-size: 26rpx;
+  background: #2E7D32;
+  color: #FFFFFF;
+  border-radius: 34rpx;
+  border: none;
 }
 
 /* ========== 轮播 ========== */
@@ -79,23 +104,27 @@
 }
 
 .category-icon-wrap {
-  width: 88rpx;
-  height: 88rpx;
+  width: 140rpx;
+  height: 140rpx;
   border-radius: 24rpx;
-  background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 12rpx;
 }
 
-.category-icon {
-  font-size: 42rpx;
+.category-icon-img {
+  width: 140rpx;
+  height: 140rpx;
 }
 
 .category-name {
   font-size: 22rpx;
-  color: var(--text-secondary);
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #1a1a1a;
+  padding: 6rpx 24rpx;
+  border-radius: 40rpx;
 }
 
 /* ========== 热门景点滚动 ========== */

@@ -30,25 +30,27 @@ App({
     lastAttractionsFetch: 0,   // 上次景点拉取时间戳
     lastRoutesFetch: 0,        // 上次路线拉取时间戳
     cacheTTL: 5 * 60 * 1000,   // 缓存有效期：5分钟
+    _coordResolveCache: {},    // 地址→坐标内存缓存（同会话去重）
+    pendingRouteTag: '',        // 首页分类点击→路线Tab传参（switchTab 不支持 URL 参数）
 
-    // 景点分类配置
+    // 景点分类配置（图标使用本地图片替代 emoji）
     categories: [
-      { id: 'red', name: '红游', icon: '🚩' },
-      { id: 'rural', name: '乡村游', icon: '🌾' },
-      { id: 'family', name: '亲子游', icon: '👨‍👩‍👧' },
-      { id: 'culture', name: '文化游', icon: '🏛️' },
-      { id: 'diy', name: '自制游', icon: '✨' },
-      { id: 'custom', name: '定制游', icon: '🎯' }
+      { id: 'red', name: '红游', icon: '/images/category-red.png' },
+      { id: 'rural', name: '乡村游', icon: '/images/category-rural.png' },
+      { id: 'family', name: '亲子游', icon: '/images/category-family.png' },
+      { id: 'culture', name: '文化游', icon: '/images/category-culture.png' },
+      { id: 'diy', name: '自制游', icon: '/images/category-diy.png' }
     ],
-    // 路线标签
+    // 路线标签（id 必须与路线文档 tags 数组中的值一致，否则云函数 _.in() 过滤不会命中）
     routeTags: [
-      { id: 'oneDay', name: '一日游' },
-      { id: 'twoDay', name: '两日游' },
-      { id: 'family', name: '亲子游' },
-      { id: 'couple', name: '情侣游' },
-      { id: 'group', name: '团体游' },
-      { id: 'photography', name: '摄影路线' },
-      { id: 'foodie', name: '美食之旅' }
+      { id: '一日游', name: '一日游' },
+      { id: '两日游', name: '两日游' },
+      { id: '乡村游', name: '乡村游' },
+      { id: '亲子游', name: '亲子游' },
+      { id: '红色旅游', name: '红色旅游' },
+      { id: '文化旅游', name: '文化旅游' },
+      { id: '摄影路线', name: '摄影路线' },
+      { id: '美食之旅', name: '美食之旅' }
     ]
   },
 
@@ -111,6 +113,7 @@ App({
           var list = res.result.list.map(function (item) {
             return that.fixImagePaths(item);
           });
+          that.resolveBatchLocations(list, { timeout: 10000 }).catch(function () {});
           // 无筛选时更新全局缓存
           if (!params.category && !params.keyword && !params.page) {
             that.globalData.cachedAttractions = list;
@@ -201,6 +204,53 @@ App({
       this.globalData.cachedRoutes = null;
       this.globalData.lastRoutesFetch = 0;
     }
+  },
+
+  // =============================================
+  //  坐标动态解析（地址 → geocoder → lat/lng）
+  // =============================================
+  _mapService: null,
+  _getMapService: function () {
+    if (!this._mapService) this._mapService = require('./utils/map-service.js');
+    return this._mapService;
+  },
+
+  resolveAttractionLocation: function (item, region) {
+    var that = this;
+    region = region || '泰安';
+    if (item.location && item.location.latitude) return Promise.resolve(item.location);
+    var address = item.address;
+    if (!address) return Promise.reject({ code: -1, message: '缺少地址' });
+    var cacheKey = address + '|' + region;
+    var cached = that.globalData._coordResolveCache[cacheKey];
+    if (cached) { item.location = { latitude: cached.lat, longitude: cached.lng }; return Promise.resolve(item.location); }
+    var mapService = that._getMapService();
+    return mapService.geocoder(address, region).then(function (coords) {
+      item.location = { latitude: coords.lat, longitude: coords.lng };
+      that.globalData._coordResolveCache[cacheKey] = coords;
+      return item.location;
+    });
+  },
+
+  resolveBatchLocations: function (items, opts) {
+    var that = this;
+    opts = opts || {};
+    var region = opts.region || '泰安';
+    var maxConcurrent = opts.maxConcurrent || 5;
+    if (!items || items.length === 0) return Promise.resolve();
+    var index = 0, running = 0, done = 0;
+    return new Promise(function (resolveAll) {
+      function next() {
+        while (running < maxConcurrent && index < items.length) {
+          var item = items[index]; index++; running++;
+          that.resolveAttractionLocation(item, region).catch(function () {}).then(function () {
+            running--; done++;
+            if (done >= items.length) resolveAll(); else next();
+          });
+        }
+      }
+      next();
+    });
   },
 
   // =============================================

@@ -1,0 +1,44 @@
+<!-- pages/admin/dashboard/index.wxml -->
+<view class="container">
+  <view class="admin-header">
+    <text class="admin-title">🛡️ 管理后台</text>
+    <text class="admin-sub">去俺村 · 内容管控</text>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading-state"><text>加载中...</text></view>
+
+  <block wx:elif="{{isAdmin && stats}}">
+    <view class="stat-grid">
+      <view class="stat-card reviews"><text class="num">{{stats.reviews.total}}</text><text class="label">总评论</text><text class="sub">今日 +{{stats.reviews.today}}</text></view>
+      <view class="stat-card violations"><text class="num">{{stats.violations.week}}</text><text class="label">7日违规</text><text class="sub">今日 +{{stats.violations.today}}</text></view>
+      <view class="stat-card reports"><text class="num">{{stats.pendingReports}}</text><text class="label">待处理举报</text><text class="sub" wx:if="{{stats.pendingReports > 0}}" style="color:#E53935;">需要处理</text></view>
+      <view class="stat-card bans"><text class="num">{{stats.activeBans}}</text><text class="label">禁言中</text><text class="sub">正在执行</text></view>
+    </view>
+
+    <view class="section-title"><text>快捷管理</text></view>
+    <view class="menu-grid">
+      <view class="menu-card" bindtap="onNavTo" data-url="/pages/admin/attractions/list">
+        <text class="menu-icon">📍</text><text class="menu-name">景点管理</text><text class="menu-desc">{{stats.attractions}} 个景点</text>
+      </view>
+      <view class="menu-card" bindtap="onNavTo" data-url="/pages/admin/routes/list">
+        <text class="menu-icon">🗺️</text><text class="menu-name">路线管理</text><text class="menu-desc">{{stats.routes}} 条路线</text>
+      </view>
+      <view class="menu-card" bindtap="onNavTo" data-url="/pages/admin/bannedWords/index">
+        <text class="menu-icon">🚫</text><text class="menu-name">敏感词库</text><text class="menu-desc">{{stats.bannedWords}} 个词</text>
+      </view>
+      <view class="menu-card" bindtap="onNavTo" data-url="/pages/admin/reports/index">
+        <text class="menu-icon">⚑</text><text class="menu-name">举报管理</text><text class="menu-desc">{{stats.pendingReports}} 条待处理</text>
+      </view>
+    </view>
+
+    <view class="section-title"><text>数据概览</text></view>
+    <view class="info-list">
+      <view class="info-row"><text class="info-label">景点总数</text><text class="info-value">{{stats.attractions}}</text></view>
+      <view class="info-row"><text class="info-label">路线总数</text><text class="info-value">{{stats.routes}}</text></view>
+      <view class="info-row"><text class="info-label">用户总数</text><text class="info-value">{{stats.users}}</text></view>
+      <view class="info-row"><text class="info-label">本周评论</text><text class="info-value">{{stats.reviews.week}}</text></view>
+      <view class="info-row"><text class="info-label">本周违规</text><text class="info-value" style="color:#E53935;">{{stats.violations.week}}</text></view>
+    </view>
+  </block>
+  <view class="safe-bottom" style="height:60rpx;"></view>
+</view>

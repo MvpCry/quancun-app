@@ -40,10 +40,22 @@
   padding: 20rpx;
 }
 
+.card-name-row {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 10rpx;
+  flex-wrap: wrap;
+}
+
 .card-name {
   font-size: 30rpx;
   font-weight: 600;
-  margin-bottom: 10rpx;
+}
+
+.card-location {
+  font-size: 22rpx;
+  color: #999;
+  flex-shrink: 0;
 }
 
 .card-meta {

@@ -8,7 +8,10 @@
     </view>
   </view>
   <view class="card-info">
-    <text class="card-name text-ellipsis">{{attraction.name}}</text>
+    <view class="card-name-row">
+      <text class="card-name text-ellipsis">{{attraction.name}}</text>
+      <text class="card-location" wx:if="{{shortLocation}}">（{{shortLocation}}）</text>
+    </view>
     <view class="card-meta">
       <star-rating rating="{{attraction.rating}}" size="small" readonly="{{true}}"/>
       <text class="card-review-count">{{attraction.reviewCount || 0}}条评论</text>

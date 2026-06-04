@@ -1,6 +1,6 @@
 // cloudfunctions/importDefaultData/index.js
 // 一次性导入默认数据到云数据库（仅在集合为空时执行）
-// 坐标来源：POI86、百度百科、搜狗百科等公开地图数据
+// 坐标通过腾讯地图 WebService API 地理编码获取（GCJ-02 坐标系）
 const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
@@ -17,10 +17,8 @@ const defaultAttractions = [
       '/images/zhujiawa.jpg',
       '/images/baimashi.jpg'
     ],
-    location: {
-      latitude: 36.6569,
-      longitude: 117.1203
-    },
+    // 坐标由后台管理单独录入，导入时不写死
+    location: null,
     address: '山东省泰安市泰山区邱家店镇王林坡村',
     category: 'rural',
     tags: ['美丽乡村', '农家体验', '休闲度假'],
@@ -39,10 +37,8 @@ const defaultAttractions = [
       '/images/wanglinpo.jpg',
       '/images/baimashi.jpg'
     ],
-    location: {
-      latitude: 36.2343,
-      longitude: 116.9212
-    },
+    // 坐标由后台管理单独录入，导入时不写死
+    location: null,
     address: '山东省泰安市岱岳区道朗镇朱家洼村',
     category: 'rural',
     tags: ['古村落', '民宿体验', '历史文化'],
@@ -61,10 +57,8 @@ const defaultAttractions = [
       '/images/wanglinpo.jpg',
       '/images/zhujiawa.jpg'
     ],
-    location: {
-      latitude: 36.2215,
-      longitude: 117.1558
-    },
+    // 坐标由后台管理单独录入，导入时不写死
+    location: null,
     address: '山东省泰安市泰山区泰前街道白马石村',
     category: 'rural',
     tags: ['民俗文化', '泰山石刻', '休闲观光'],
@@ -185,69 +179,83 @@ exports.main = async (event, context) => {
     }
 
     if (action === 'updateCoordinates') {
-      // 更新现有景点和路线的坐标（不删除用户数据）
+      // @deprecated 此 action 已废弃，请使用 resolveCoordinates 云函数的 batch action
+      // 该云函数会自动通过腾讯地图 geocoder 解析地址→坐标→写入库
+      // 接收后台传入的坐标，批量更新景点和关联路线（保留用于兼容旧版）
+      const { coordinates, totalDistance, coverImage } = event;
       const result = { attractions: [], routes: [] };
 
-      // 1. 更新景点坐标 + 图片路径（.webp → .jpg）
-      const coordMap = {
-        '王林坡村': { latitude: 36.6569, longitude: 117.1203 },
-        '朱家洼村': { latitude: 36.2343, longitude: 116.9212 },
-        '白马石村': { latitude: 36.2215, longitude: 117.1558 }
-      };
+      if (!coordinates || Object.keys(coordinates).length === 0) {
+        return { success: false, message: '请传入 coordinates 参数，格式: { "景点名称": { "latitude": xx, "longitude": yy }, ... }' };
+      }
 
-      for (const [name, location] of Object.entries(coordMap)) {
-        const res = await db.collection('attractions')
-          .where({ name: name })
-          .update({
+      // 1. 按景点名称更新坐标
+      for (const [name, location] of Object.entries(coordinates)) {
+        if (!location || (location.latitude == null || location.longitude == null)) {
+          result.attractions.push({ name, updated: 0, error: '缺少 latitude 或 longitude' });
+          continue;
+        }
+
+        // 先查匹配几条
+        const checkRes = await db.collection('attractions').where({ name: name }).get();
+        console.log('updateCoordinates: name=' + name + ' matched=' + checkRes.data.length);
+
+        if (checkRes.data.length === 0) {
+          result.attractions.push({ name, updated: 0, error: '未找到匹配记录' });
+          continue;
+        }
+
+        // 逐条更新（确保写入）
+        for (const doc of checkRes.data) {
+          const res = await db.collection('attractions').doc(doc._id).update({
             data: {
-              location: db.command.set(location),
+              location: {
+                latitude: Number(location.latitude),
+                longitude: Number(location.longitude)
+              },
               updateTime: db.serverDate()
             }
           });
-        result.attractions.push({ name, updated: res.stats.updated });
-
-        // 修正图片路径 .webp → .jpg
-        await db.collection('attractions')
-          .where({ name: name })
-          .update({
-            data: {
-              images: db.command.set([
-                '/images/' + (name === '王林坡村' ? 'wanglinpo' : name === '朱家洼村' ? 'zhujiawa' : 'baimashi') + '.jpg',
-                '/images/' + (name === '王林坡村' ? 'zhujiawa' : name === '朱家洼村' ? 'wanglinpo' : 'wanglinpo') + '.jpg',
-                '/images/' + (name === '王林坡村' ? 'baimashi' : name === '朱家洼村' ? 'baimashi' : 'zhujiawa') + '.jpg'
-              ])
-            }
-          });
+          result.attractions.push({ name, _id: doc._id, updated: res.stats.updated });
+        }
       }
 
-      // 更新路线封面图
-      await db.collection('routes').where({}).update({
-        data: { coverImage: '/images/zhujiawa.jpg' }
-      });
+      // 2. 如果提供封面图路径，更新所有路线封面
+      if (coverImage) {
+        await db.collection('routes').where({}).update({
+          data: { coverImage: coverImage }
+        });
+      }
 
-      // 2. 更新路线总距离和景点坐标
+      // 3. 同步更新路线中各站点的坐标引用
       const routeRes = await db.collection('routes').get();
       for (const route of routeRes.data) {
         const updatedStops = route.attractions.map(stop => {
-          const newCoord = coordMap[stop.name];
-          if (newCoord) {
+          const newCoord = coordinates[stop.name];
+          if (newCoord && newCoord.latitude != null && newCoord.longitude != null) {
             return {
               ...stop,
               location: {
-                latitude: newCoord.latitude,
-                longitude: newCoord.longitude
+                latitude: Number(newCoord.latitude),
+                longitude: Number(newCoord.longitude)
               }
             };
           }
           return stop;
         });
 
+        const updateData = {
+          attractions: db.command.set(updatedStops),
+          updateTime: db.serverDate()
+        };
+
+        // 如果提供了新的总距离
+        if (totalDistance != null) {
+          updateData.totalDistance = Number(totalDistance);
+        }
+
         await db.collection('routes').doc(route._id).update({
-          data: {
-            totalDistance: 98.8,
-            attractions: db.command.set(updatedStops),
-            updateTime: db.serverDate()
-          }
+          data: updateData
         });
         result.routes.push({ name: route.name, updated: true });
       }
@@ -269,7 +277,7 @@ exports.main = async (event, context) => {
       return exports.main({ action: 'import' }, context);
     }
 
-    return { error: '未知操作。支持: check | import | updateCoordinates | reset' };
+    return { error: '未知操作。支持: check | import | reset 。坐标更新请使用 resolveCoordinates 云函数（batch action）' };
   } catch (err) {
     console.error('importDefaultData error:', err);
     return { error: err.message };

@@ -222,6 +222,10 @@ Page({
     wx.navigateTo({ url: url });
   },
 
+  onAdminEntry: function () {
+    wx.navigateTo({ url: '/pages/admin/dashboard/index' });
+  },
+
   // 关于
   onAbout: function () {
     wx.showModal({
@@ -245,7 +249,7 @@ Page({
     });
   },
 
-  // 数据同步（更新云数据库中的坐标）
+  // 数据同步（调用 resolveCoordinates 批量 geocoder 解析坐标）
   onSyncData: function () {
     var that = this;
     if (!wx.cloud) {
@@ -254,24 +258,26 @@ Page({
     }
 
     wx.showModal({
-      title: '数据同步',
-      content: '将更新云数据库中景点坐标和路线数据为最新版本，不会影响你的收藏和评论。确定同步吗？',
+      title: '坐标同步',
+      content: '将调用腾讯地图 API 解析所有景点地址为坐标并写入数据库。此操作需要 resolveCoordinates 云函数已部署。确定同步吗？',
       confirmText: '同步',
       success: function (res) {
         if (res.confirm) {
-          wx.showLoading({ title: '同步中...' });
+          wx.showLoading({ title: '解析坐标中...' });
           wx.cloud.callFunction({
-            name: 'importDefaultData',
-            data: { action: 'updateCoordinates' },
+            name: 'resolveCoordinates',
+            data: { action: 'batch' },
             success: function (cfRes) {
               wx.hideLoading();
-              if (cfRes.result && cfRes.result.success) {
+              var result = cfRes.result;
+              if (result && result.success) {
+                var s = result.summary;
                 // 清除缓存，强制刷新
                 var app = getApp();
                 app.refreshCache('all');
                 wx.showModal({
                   title: '同步成功',
-                  content: '景点坐标和路线距离已更新！\n\n请下拉刷新首页查看最新数据。',
+                  content: '坐标解析完成！\n\n共 ' + s.total + ' 个景点\n成功：' + s.updated + '\n失败：' + s.failed + '\n\n请下拉刷新首页查看。',
                   showCancel: false
                 });
               } else {
@@ -286,7 +292,7 @@ Page({
               console.error('同步失败:', err);
               wx.showModal({
                 title: '同步失败',
-                content: '请先在微信开发者工具中：\n\n右键 cloudfunctions/importDefaultData 文件夹\n→ 选择"上传并部署：云端安装依赖"\n\n部署成功后再试一次。',
+                content: '请先在微信开发者工具中：\n\n右键 cloudfunctions/resolveCoordinates 文件夹\n→ 选择"上传并部署：云端安装依赖"\n\n部署成功后再试一次。',
                 showCancel: false
               });
             }

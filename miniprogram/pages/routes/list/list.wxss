@@ -43,6 +43,13 @@
   padding-top: 8rpx;
 }
 
+/* 空状态扩展 */
+.empty-desc {
+  font-size: 24rpx;
+  color: var(--text-hint);
+  margin-top: 12rpx;
+}
+
 /* 悬浮按钮 */
 .fab {
   position: fixed;

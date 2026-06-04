@@ -5,6 +5,7 @@ Page({
   data: {
     routeTags: [],
     activeTag: '',
+    categoryName: '',        // 当前分类名称（用于空状态提示）
     routes: [],
     page: 1,
     hasMore: false,
@@ -12,15 +13,68 @@ Page({
     loadingMore: false
   },
 
-  onLoad: function () {
+  onLoad: function (options) {
     var app = getApp();
-    this.setData({ routeTags: app.globalData.routeTags });
-    this.loadData();
+    // 分类标签映射：红游/乡村游/亲子游/文化游 → 路线标签
+    var categoryTagMap = {
+      'red': '红色旅游',
+      'rural': '乡村游',
+      'family': '亲子游',
+      'culture': '文化旅游'
+    };
+    var categoryNameMap = {
+      'red': '红游',
+      'rural': '乡村游',
+      'family': '亲子游',
+      'culture': '文化游'
+    };
+    var tag = '';
+    var categoryName = '';
+    if (options && options.tag) {
+      tag = categoryTagMap[options.tag] || options.tag;
+      categoryName = categoryNameMap[options.tag] || tag;
+    }
+    this.setData({
+      routeTags: app.globalData.routeTags,
+      activeTag: tag,
+      categoryName: categoryName
+    });
+    // 如果有待处理标签（首页分类跳转），onShow 会处理加载，这里跳过
+    if (!app.globalData.pendingRouteTag) {
+      this.loadData();
+    }
   },
 
   onShow: function () {
-    // 每次显示时从缓存刷新
-    this.refreshFromCache();
+    var app = getApp();
+    // 检查是否有首页分类传入的待处理标签（switchTab 不支持 URL 参数）
+    var pending = app.globalData.pendingRouteTag;
+    if (pending) {
+      app.globalData.pendingRouteTag = '';  // 消费后清除
+      var categoryTagMap = {
+        'red': '红色旅游',
+        'rural': '乡村游',
+        'family': '亲子游',
+        'culture': '文化旅游'
+      };
+      var categoryNameMap = {
+        'red': '红游',
+        'rural': '乡村游',
+        'family': '亲子游',
+        'culture': '文化游'
+      };
+      var tag = categoryTagMap[pending] || pending;
+      var categoryName = categoryNameMap[pending] || tag;
+      this.setData({
+        activeTag: tag,
+        categoryName: categoryName,
+        page: 1
+      });
+      this.loadData();
+    } else {
+      // 每次显示时从缓存刷新
+      this.refreshFromCache();
+    }
   },
 
   // ========== 主加载：云优先 ==========

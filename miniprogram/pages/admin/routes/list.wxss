@@ -1,0 +1,7 @@
+.page-header{display:flex;justify-content:space-between;align-items:center;padding:24rpx 0 20rpx}.page-title{font-size:36rpx;font-weight:700}
+.btn-add{padding:14rpx 28rpx;background:#2E7D32;color:#FFF;border-radius:40rpx;font-size:26rpx;border:none}.btn-add::after{border:none}
+.list{display:flex;flex-direction:column;gap:20rpx}
+.card{display:flex;background:#FFF;border-radius:12rpx;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:20rpx;align-items:center;gap:16rpx}
+.card-img{width:120rpx;height:120rpx;border-radius:12rpx;flex-shrink:0;background:#F0F0F0}
+.card-body{flex:1;min-width:0}.card-name{font-size:30rpx;font-weight:600;display:block;margin-bottom:4rpx}.card-desc{font-size:24rpx;color:#999;display:block;margin-bottom:8rpx}.card-tags{display:flex;flex-wrap:wrap;gap:8rpx;margin-bottom:6rpx}.tag{font-size:20rpx;padding:2rpx 12rpx;background:#F5F5F5;border-radius:8rpx;color:#666}.card-meta{font-size:22rpx;color:#999;display:flex;gap:20rpx}
+.card-actions{display:flex;flex-direction:column;gap:12rpx;flex-shrink:0}.act{font-size:24rpx;padding:8rpx 16rpx;border-radius:8rpx}.act.edit{color:#2E7D32;background:#E8F5E9}.act.del{color:#E53935;background:#FFEBEE}

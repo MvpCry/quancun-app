@@ -1,1 +1,18 @@
 node_modules/
+
+# 微信开发者工具生成
+miniprogram/.DS_Store
+*.log
+
+# 云函数 node_modules（部署时云端安装）
+cloudfunctions/*/node_modules/
+
+# IDE 配置
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 系统文件
+Thumbs.db
+Desktop.ini

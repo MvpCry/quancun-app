@@ -5,11 +5,41 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
 
+async function checkAdmin(openid) {
+  if (!openid) return false;
+  try {
+    var res = await db.collection('admins').where({ openid: openid, active: true }).count();
+    return res.total > 0;
+  } catch (e) { return false; }
+}
+
 exports.main = async (event, context) => {
+  var wxContext = cloud.getWXContext();
+  var openid = wxContext.OPENID;
+
+  if (!await checkAdmin(openid)) {
+    return { success: false, error: '无管理员权限', code: 'FORBIDDEN' };
+  }
+
   const { action, data } = event;
 
   try {
     switch (action) {
+      case 'list': {
+        var page = (data && data.page) || 1;
+        var pageSize = (data && data.pageSize) || 50;
+        var skip = (page - 1) * pageSize;
+        var query = db.collection('attractions').orderBy('createTime', 'desc');
+        var countRes = await query.count();
+        var listRes = await query.skip(skip).limit(pageSize).get();
+        return { list: listRes.data, total: countRes.total, hasMore: skip + pageSize < countRes.total };
+      }
+
+      case 'getById': {
+        var res = await db.collection('attractions').doc(data.id).get();
+        return { attraction: res.data };
+      }
+
       case 'create': {
         // 新增景点
         const addRes = await db.collection('attractions').add({

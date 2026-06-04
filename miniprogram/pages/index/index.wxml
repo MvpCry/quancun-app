@@ -1,11 +1,13 @@
 <!-- pages/index/index.wxml - 首页 -->
 <view class="container">
   <!-- 搜索栏 -->
-  <view class="search-bar" bindtap="onSearchTap">
+  <view class="search-bar">
     <view class="search-input">
       <text class="search-icon">🔍</text>
-      <text class="search-placeholder">搜索景点、路线...</text>
+      <input class="search-field" placeholder="搜索景点、路线..." value="{{searchKeyword}}" bindinput="onSearchInput" bindconfirm="onSearch" confirm-type="search"/>
+      <text class="search-clear" wx:if="{{searchKeyword}}" bindtap="onClearSearch">✕</text>
     </view>
+    <button class="search-btn" bindtap="onSearch" size="mini">搜索</button>
   </view>
 
   <!-- 轮播Banner -->
@@ -21,11 +23,11 @@
 
   <!-- 分类导航 -->
   <view class="category-nav">
-    <view class="category-item" wx:for="{{categories}}" wx:key="id" bindtap="onCategoryTap" data-category="{{item.id}}">
-      <view class="category-icon-wrap">
-        <text class="category-icon">{{item.icon}}</text>
+    <view class="category-item" wx:for="{{categories}}" wx:key="id" bindtap="onCategoryTap" data-category="{{item.id}}" hover-class="category-item-hover">
+      <view class="category-icon-wrap" catchtap="onCategoryTap" data-category="{{item.id}}">
+        <image class="category-icon-img" src="{{item.icon}}" mode="aspectFit"/>
       </view>
-      <text class="category-name">{{item.name}}</text>
+      <text class="category-name" catchtap="onCategoryTap" data-category="{{item.id}}">{{item.name}}</text>
     </view>
   </view>
 

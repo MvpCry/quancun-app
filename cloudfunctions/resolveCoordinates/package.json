@@ -1,0 +1,9 @@
+{
+  "name": "resolveCoordinates",
+  "version": "1.0.0",
+  "description": "批量调用腾讯地图geocoder解析地址坐标并回写数据库",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

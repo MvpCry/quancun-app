@@ -55,25 +55,49 @@ function request(endpoint, params) {
 //  1. 地址解析（地址 → 坐标）
 // =============================================
 
+// 模块级缓存：同一地址同次会话只请求一次
+var _geocodeCache = {};
+var _pendingGeocodes = {};
+
 /**
- * 地理编码：地址转坐标
+ * 地理编码：地址转坐标（带内存缓存 + 并发去重）
  * @param {String} address - 详细地址
  * @param {String} region - 城市名（可选，如"泰安"）
  * @returns {Promise<{lat, lng}>}
  */
 function geocoder(address, region) {
-  return request('/ws/geocoder/v1/', {
+  var cacheKey = (address || '') + '|' + (region || '');
+
+  // 命中缓存 → 直接返回
+  if (_geocodeCache[cacheKey]) {
+    return Promise.resolve(_geocodeCache[cacheKey]);
+  }
+
+  // 已有进行中的相同请求 → 复用 Promise
+  if (_pendingGeocodes[cacheKey]) {
+    return _pendingGeocodes[cacheKey];
+  }
+
+  var promise = request('/ws/geocoder/v1/', {
     address: address,
     region: region || ''
   }).then(function (result) {
     if (result.location) {
-      return {
-        lat: result.location.lat,
-        lng: result.location.lng
-      };
+      var coords = { lat: result.location.lat, lng: result.location.lng };
+      _geocodeCache[cacheKey] = coords;
+      return coords;
     }
     throw { code: -2, message: '未找到该地址' };
   });
+
+  _pendingGeocodes[cacheKey] = promise;
+  promise.then(function () {
+    delete _pendingGeocodes[cacheKey];
+  }).catch(function () {
+    delete _pendingGeocodes[cacheKey];
+  });
+
+  return promise;
 }
 
 // =============================================

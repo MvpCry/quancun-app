@@ -23,7 +23,8 @@
       wx:for="{{categories}}" wx:key="id"
       bindtap="onCategoryChange"
       data-category="{{item.id}}">
-      <text>{{item.icon}} {{item.name}}</text>
+      <image class="filter-chip-icon" src="{{item.icon}}" mode="aspectFit"/>
+      <text>{{item.name}}</text>
     </view>
   </scroll-view>
 
@@ -41,6 +42,12 @@
     <view class="sort-item {{sortBy === 'distance' ? 'active' : ''}}" bindtap="onSortChange" data-sort="distance">
       离我最近
     </view>
+  </view>
+
+  <!-- 搜索结果提示 -->
+  <view class="search-result-header" wx:if="{{keyword && attractions.length > 0 && !selectMode}}">
+    <text class="result-label">搜索"{{keyword}}"</text>
+    <text class="result-count">找到 {{attractions.length}} 个结果</text>
   </view>
 
   <!-- 景点列表 -->

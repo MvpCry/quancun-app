@@ -31,12 +31,20 @@
       </view>
     </view>
     <!-- 路线景点预览 -->
-    <view class="route-attractions-preview" wx:if="{{route.attractions && route.attractions.length > 0}}">
-      <view class="route-stop" wx:for="{{route.attractions}}" wx:for-item="stop" wx:key="attractionId">
+    <view class="route-attractions-preview" wx:if="{{formattedStops.length > 0}}">
+      <view class="route-stop" wx:for="{{formattedStops}}" wx:for-item="stop" wx:key="attractionId">
         <view class="stop-dot"></view>
-        <text class="stop-name text-ellipsis">{{stop.name}}</text>
-        <view class="stop-line" wx:if="{{index < route.attractions.length - 1}}"></view>
+        <text class="stop-name text-ellipsis">{{stop.name}}<text class="stop-location" wx:if="{{stop.shortLocation}}">（{{stop.shortLocation}}）</text></text>
+        <view class="stop-line" wx:if="{{index < formattedStops.length - 1}}"></view>
       </view>
+    </view>
+
+    <!-- 底部操作栏：导航按钮 -->
+    <view class="route-actions">
+      <button class="route-nav-btn" catchtap="onNavigate">
+        <text class="route-nav-icon">🧭</text>
+        <text>导航去这里</text>
+      </button>
     </view>
   </view>
 </view>

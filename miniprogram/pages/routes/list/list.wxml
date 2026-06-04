@@ -24,8 +24,9 @@
 
   <!-- 空状态 -->
   <view class="empty-state" wx:if="{{!loading && routes.length === 0}}">
-    <text class="empty-icon">🗺️</text>
-    <text class="empty-text">暂无路线</text>
+    <text class="empty-icon">{{activeTag ? '📭' : '🗺️'}}</text>
+    <text class="empty-text">{{activeTag ? '暂无' + activeTag : '暂无路线'}}</text>
+    <text class="empty-desc" wx:if="{{activeTag}}">该分类下暂未收录路线，敬请期待</text>
     <button class="btn btn-primary btn-small mt-24" bindtap="onCreateRoute">去创建路线</button>
   </view>
 

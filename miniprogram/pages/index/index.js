@@ -8,6 +8,7 @@ Page({
     hotAttractions: [],
     recommendRoutes: [],
     featuredAttractions: [],
+    searchKeyword: '',
     loading: true,
     loadError: false
   },
@@ -102,8 +103,21 @@ Page({
 
   // ========== 交互事件 ==========
 
-  onSearchTap: function () {
-    wx.navigateTo({ url: '/pages/attractions/list/list?focusSearch=1' });
+  onSearchInput: function (e) {
+    this.setData({ searchKeyword: e.detail.value });
+  },
+
+  onSearch: function () {
+    var keyword = (this.data.searchKeyword || '').trim();
+    if (!keyword) {
+      wx.navigateTo({ url: '/pages/search/index/index' });
+      return;
+    }
+    wx.navigateTo({ url: '/pages/search/index/index?keyword=' + encodeURIComponent(keyword) });
+  },
+
+  onClearSearch: function () {
+    this.setData({ searchKeyword: '' });
   },
 
   onBannerTap: function (e) {
@@ -116,7 +130,15 @@ Page({
   },
 
   onCategoryTap: function (e) {
-    wx.navigateTo({ url: '/pages/attractions/list/list?category=' + e.currentTarget.dataset.category });
+    var category = e.currentTarget.dataset.category;
+    if (category === 'diy') {
+      wx.navigateTo({ url: '/pages/routes/diy/index/index' });
+    } else {
+      // 红游/乡村游/亲子游/文化游 → 路线Tab（switchTab 不支持 URL 参数，用全局变量传参）
+      var app = getApp();
+      app.globalData.pendingRouteTag = category;
+      wx.switchTab({ url: '/pages/routes/list/list' });
+    }
   },
 
   onAttractionTap: function (e) {

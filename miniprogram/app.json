@@ -1,12 +1,21 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/search/index/index",
+    "pages/routes/diy/index/index",
     "pages/attractions/list/list",
     "pages/attractions/detail/detail",
     "pages/routes/list/list",
     "pages/routes/detail/detail",
     "pages/routes/plan/plan",
-    "pages/mine/index/index"
+    "pages/mine/index/index",
+    "pages/admin/dashboard/index",
+    "pages/admin/bannedWords/index",
+    "pages/admin/reports/index",
+    "pages/admin/attractions/list",
+    "pages/admin/attractions/edit",
+    "pages/admin/routes/list",
+    "pages/admin/routes/edit"
   ],
   "window": {
     "backgroundTextStyle": "dark",

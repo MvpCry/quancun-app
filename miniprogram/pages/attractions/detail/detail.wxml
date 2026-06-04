@@ -59,7 +59,7 @@
       <text class="card-title">景点位置</text>
       <text class="nav-btn" bindtap="onNavigate">🧭 导航前往</text>
     </view>
-    <view class="map-wrap" bindtap="onOpenMap">
+    <view class="map-wrap" bindtap="onOpenMap" wx:if="{{hasLocation}}">
       <map
         id="detailMap"
         class="detail-map"
@@ -70,9 +70,71 @@
         show-location="{{true}}"
       />
     </view>
+    <view class="map-wrap no-location" wx:else>
+      <view class="no-location-hint">
+        <text class="no-location-icon">📍</text>
+        <text class="no-location-text">坐标待录入</text>
+        <text class="no-location-desc">请通过后台管理页面设置此景点坐标</text>
+      </view>
+    </view>
   </view>
 
-  <!-- ========== 7. 评论 ========== -->
+  <!-- ========== 7. 写评价 ========== -->
+  <view class="write-review-section card">
+    <view class="card-header">
+      <text class="card-title">写评价</text>
+    </view>
+
+    <!-- 未登录提示 -->
+    <view class="login-gate" wx:if="{{!isLogin}}">
+      <view class="login-gate-content">
+        <text class="login-gate-icon">🔒</text>
+        <text class="login-gate-text">微信授权登录后才能发表评价</text>
+        <button class="login-gate-btn" bindtap="onGoLogin">微信一键登录</button>
+      </view>
+    </view>
+
+    <!-- 已登录 → 评价表单 -->
+    <view class="write-review-form" wx:else>
+      <!-- 用户身份 -->
+      <view class="review-author">
+        <image class="review-author-avatar" src="{{currentUser.avatarUrl}}" mode="aspectFill"/>
+        <text class="review-author-name">{{currentUser.nickName}}</text>
+      </view>
+
+      <!-- 星级打分 -->
+      <view class="write-review-stars">
+        <text class="write-review-label">评分</text>
+        <star-rating rating="{{myRating}}" size="large" readonly="{{false}}" bindchange="onReviewStarChange"/>
+        <text class="write-review-rating-text">{{myRating}}分</text>
+      </view>
+
+      <!-- 评价输入 -->
+      <view class="write-review-input-wrap {{reviewFocused || reviewContent ? 'focused' : ''}}">
+        <textarea
+          class="write-review-textarea"
+          placeholder="分享你的真实体验（至少2个字）..."
+          value="{{reviewContent}}"
+          maxlength="500"
+          auto-height
+          bindinput="onReviewInput"
+          bindfocus="onReviewFocus"
+          bindblur="onReviewBlur"
+        />
+        <view class="write-review-footer">
+          <text class="write-review-hint">客观真实的评价会自动展示</text>
+          <text class="write-review-count {{reviewContent.length >= 500 ? 'full' : ''}}">{{reviewContent.length}}/500</text>
+        </view>
+      </view>
+
+      <!-- 提交按钮 -->
+      <button class="submit-review-btn {{submitting ? 'submitting' : ''}}" bindtap="onSubmitReview" disabled="{{submitting}}">
+        {{submitting ? '发布中...' : '发布评价'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- ========== 8. 评论列表 ========== -->
   <view class="review-section card">
     <view class="card-header">
       <text class="card-title">游客评价 ({{totalReviews}})</text>
@@ -88,10 +150,15 @@
           <star-rating rating="{{item.rating}}" size="small" readonly="{{true}}"/>
         </view>
         <text class="review-content">{{item.content}}</text>
+        <!-- 举报入口 -->
+        <view class="review-report" bindtap="onReportReview" data-review-id="{{item._id}}" data-review-index="{{index}}">
+          <text class="review-report-icon">⚑</text>
+          <text class="review-report-text">举报</text>
+        </view>
       </view>
     </view>
     <view class="no-reviews" wx:else>
-      <text class="no-review-text">暂无评价</text>
+      <text class="no-review-text">暂无评价，来说两句吧</text>
     </view>
   </view>
 

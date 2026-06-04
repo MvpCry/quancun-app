@@ -1,0 +1,107 @@
+<!-- pages/routes/diy/index/index.wxml - 自制游 -->
+<view class="diy-page">
+  <!-- ========== 筛选区 ========== -->
+  <view class="filter-section card" wx:if="{{!showResults}}">
+    <view class="card-header">
+      <text class="card-title">🎯 定制你的专属路线</text>
+    </view>
+    <view class="card-body">
+      <!-- 出行时间 -->
+      <view class="filter-group">
+        <text class="filter-label">出行时间</text>
+        <view class="filter-chips">
+          <button class="chip-btn {{hours === item ? 'active' : ''}}" wx:for="{{hourOptions}}" wx:key="*this" bindtap="onHourChange" data-value="{{item}}">{{item}}小时</button>
+        </view>
+      </view>
+
+      <!-- 出行人数 -->
+      <view class="filter-group">
+        <text class="filter-label">出行人数</text>
+        <view class="filter-chips">
+          <button class="chip-btn {{people === item.value ? 'active' : ''}}" wx:for="{{peopleOptions}}" wx:key="value" bindtap="onPeopleChange" data-value="{{item.value}}">{{item.label}}</button>
+        </view>
+      </view>
+
+      <!-- 游玩偏好 -->
+      <view class="filter-group">
+        <text class="filter-label">游玩偏好（可多选）</text>
+        <view class="filter-chips">
+          <button class="chip-btn pref {{preferences.indexOf(item.value) >= 0 ? 'active' : ''}}" wx:for="{{prefOptions}}" wx:key="value" bindtap="onPrefToggle" data-value="{{item.value}}">{{item.icon}} {{item.label}}</button>
+        </view>
+      </view>
+
+      <!-- 出行方式 -->
+      <view class="filter-group">
+        <text class="filter-label">出行方式</text>
+        <view class="filter-chips">
+          <button class="chip-btn {{transport === 'driving' ? 'active' : ''}}" bindtap="onTransportChange" data-value="driving">🚗 自驾</button>
+          <button class="chip-btn {{transport === 'transit' ? 'active' : ''}}" bindtap="onTransportChange" data-value="transit">🚌 公交</button>
+        </view>
+      </view>
+    </view>
+
+    <view class="filter-footer">
+      <button class="btn btn-primary btn-block" bindtap="onRecommend" loading="{{loading}}">
+        {{loading ? '筛选中...' : '🔍 推荐景点'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- ========== 推荐结果（原排列风格） ========== -->
+  <view class="route-result" wx:if="{{showResults && !loading}}">
+    <!-- 概览 -->
+    <view class="route-summary card">
+      <view class="summary-stats">
+        <view class="summary-item">
+          <text class="summary-value">{{hours}}</text>
+          <text class="summary-label">小时</text>
+        </view>
+        <view class="summary-divider"></view>
+        <view class="summary-item">
+          <text class="summary-value">{{recommendList.length}}</text>
+          <text class="summary-label">个村</text>
+        </view>
+        <view class="summary-divider"></view>
+        <view class="summary-item">
+          <text class="summary-value">{{selectedIds.length}}</text>
+          <text class="summary-label">已选</text>
+        </view>
+      </view>
+      <view class="summary-actions">
+        <button class="btn btn-outline btn-sm" bindtap="onBackToFilter">返回筛选</button>
+      </view>
+    </view>
+
+    <!-- 村落卡片 -->
+    <view class="stop-list">
+      <view class="stop-card card {{item._selected ? 'selected' : ''}}" wx:for="{{recommendList}}" wx:key="_id" bindtap="onSelectAttraction" data-id="{{item._id}}">
+        <view class="stop-order-badge {{item._selected ? 'checked' : ''}}">
+          <text wx:if="{{item._selected}}">✓</text>
+          <text wx:else>{{index + 1}}</text>
+        </view>
+        <view class="stop-body">
+          <view class="stop-name-row">
+            <text class="stop-name">{{item.name}}</text>
+            <text class="stop-location-tag" wx:if="{{item.address}}">（{{item.address}}）</text>
+          </view>
+          <view class="stop-meta" wx:if="{{item.tags && item.tags.length > 0}}">
+            <text class="stop-tag" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+          </view>
+          <star-rating wx:if="{{item.rating}}" rating="{{item.rating}}" size="small" readonly="{{true}}"/>
+        </view>
+        <view class="stop-nav" catchtap="onNavigateStop" data-id="{{item._id}}">
+          <text class="nav-btn-text">🧭</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 去规划 -->
+    <view class="plan-action">
+      <button class="btn btn-primary btn-block" bindtap="onGoPlan" disabled="{{selectedIds.length < 2}}">
+        {{selectedIds.length < 2 ? '勾选2个以上景点开始规划' : '📍 去规划路线（' + selectedIds.length + '个）'}}
+      </button>
+    </view>
+
+    <view class="safe-bottom" style="height: 80rpx;"></view>
+  </view>
+</view>

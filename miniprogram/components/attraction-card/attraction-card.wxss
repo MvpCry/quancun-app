@@ -43,7 +43,7 @@
 .card-name-row {
   display: flex;
   align-items: baseline;
-  margin-bottom: 10rpx;
+  margin-bottom: 6rpx;
   flex-wrap: wrap;
 }
 
@@ -52,10 +52,18 @@
   font-weight: 600;
 }
 
-.card-location {
-  font-size: 22rpx;
-  color: #999;
-  flex-shrink: 0;
+.card-intro {
+  margin-bottom: 10rpx;
+}
+
+.card-intro-text {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .card-meta {

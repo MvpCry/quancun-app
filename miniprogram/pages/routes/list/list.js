@@ -46,8 +46,10 @@ Page({
   },
 
   onShow: function () {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 2 });
+    }
     var app = getApp();
-    // 检查是否有首页分类传入的待处理标签（switchTab 不支持 URL 参数）
     var pending = app.globalData.pendingRouteTag;
     if (pending) {
       app.globalData.pendingRouteTag = '';  // 消费后清除

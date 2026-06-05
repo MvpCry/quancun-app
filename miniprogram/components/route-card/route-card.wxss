@@ -145,14 +145,16 @@
 /* 底部操作栏 */
 .route-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
   padding-top: 16rpx;
   border-top: 1rpx solid var(--border);
   margin-top: 8rpx;
 }
 
 .route-nav-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8rpx;
   padding: 12rpx 28rpx;
@@ -160,12 +162,7 @@
   color: #FFFFFF;
   background: linear-gradient(135deg, #2E7D32, #4CAF50);
   border-radius: 36rpx;
-  border: none;
   line-height: 1.4;
-}
-
-.route-nav-btn::after {
-  border: none;
 }
 
 .route-nav-icon {

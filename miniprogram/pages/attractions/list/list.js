@@ -50,7 +50,9 @@ Page({
   },
 
   onShow: function () {
-    // 选择模式下刷新已选状态
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 1 });
+    }
     if (this.data.selectMode) {
       var storedIds = wx.getStorageSync('selectedAttractionIds') || [];
       this.setData({ selectedIds: storedIds });

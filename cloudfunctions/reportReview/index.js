@@ -5,7 +5,6 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
 
-// 举报类型
 const REPORT_TYPES = {
   abuse: '辱骂脏话',
   defamation: '恶意抹黑'
@@ -30,21 +29,18 @@ exports.main = async (event, context) => {
   }
 
   try {
-    // 检查是否已举报过同一条评论（reports 集合可能还不存在，兼容处理）
-    var existRes = null;
+    // 检查是否已举报
+    var alreadyReported = false;
     try {
-      existRes = await db.collection('reports')
-        .where({
-          reviewId: reviewId,
-          reporterId: openid
-        })
+      var existRes = await db.collection('reports')
+        .where({ reviewId: reviewId, reporterId: openid })
         .count();
+      alreadyReported = existRes.total > 0;
     } catch (e) {
-      // reports 集合可能尚未创建，不报错继续
-      console.warn('[reportReview] 查询已举报记录失败（集合可能不存在）:', e.message || e.errMsg);
+      // reports 集合可能还不存在，继续
     }
 
-    if (existRes && existRes.total > 0) {
+    if (alreadyReported) {
       return { success: false, error: '你已举报过该评论' };
     }
 
@@ -54,7 +50,7 @@ exports.main = async (event, context) => {
       var reviewRes = await db.collection('reviews').doc(reviewId).get();
       review = reviewRes.data;
     } catch (e) {
-      console.warn('[reportReview] 获取评论信息失败:', e.message || e.errMsg);
+      // 评论获取失败
     }
 
     if (!review) {
@@ -69,39 +65,35 @@ exports.main = async (event, context) => {
           reporterId: openid,
           reportType: reportType,
           reportTypeLabel: REPORT_TYPES[reportType],
-          // 冗余保存评论快照，方便运营后台查看
           reviewSnapshot: {
-            content: review.content,
-            userName: review.userName,
-            attractionId: review.attractionId
+            content: review.content || '',
+            userName: review.userName || '',
+            attractionId: review.attractionId || ''
           },
-          status: 'pending',  // pending | handled | dismissed
+          status: 'pending',
           createTime: db.serverDate()
         }
       });
     } catch (e) {
-      console.error('[reportReview] 写入举报记录失败:', e.message || e.errMsg);
-      return { success: false, error: '举报写入失败，请检查 reports 集合是否已在云数据库中创建' };
+      // reports 集合不存在时，尝试第一次写入会自动创建；若仍失败则明确提示
+      return { success: false, error: '举报写入失败。请先在云开发控制台 → 数据库 → 创建「reports」集合，然后重试。' };
     }
 
-    // 标记评论为被举报状态
+    // 更新评论举报计数（失败不影响）
     try {
-      await db.collection('reviews')
-        .doc(reviewId)
-        .update({
-          data: {
-            reportCount: _.inc(1),
-            reportedAt: db.serverDate()
-          }
-        });
+      await db.collection('reviews').doc(reviewId).update({
+        data: {
+          reportCount: _.inc(1),
+          reportedAt: db.serverDate()
+        }
+      });
     } catch (e) {
-      // 更新失败不影响举报（已写入 reports）
-      console.warn('[reportReview] 更新评论举报计数失败:', e.message || e.errMsg);
+      // 忽略
     }
 
     return { success: true, message: '举报已提交，运营团队将尽快处理' };
   } catch (err) {
     console.error('reportReview error:', err);
-    return { success: false, error: '举报失败: ' + (err.message || err.errMsg || '未知错误') };
+    return { success: false, error: '举报失败: ' + (err.message || '未知错误') };
   }
 };

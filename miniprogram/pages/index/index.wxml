@@ -31,26 +31,6 @@
     </view>
   </view>
 
-  <!-- 热门景点 -->
-  <view class="page-section">
-    <view class="section-title">
-      <text class="title">热门景点</text>
-      <text class="more" bindtap="onMoreAttractions">更多 ›</text>
-    </view>
-    <scroll-view class="hot-attractions-scroll" scroll-x enable-flex>
-      <view class="hot-attraction-item" wx:for="{{hotAttractions}}" wx:key="_id" bindtap="onAttractionTap" data-id="{{item._id}}">
-        <image class="hot-image" src="{{item.images[0]}}" mode="aspectFill" binderror="onImageError"/>
-        <view class="hot-info">
-          <text class="hot-name text-ellipsis">{{item.name}}</text>
-          <view class="hot-meta">
-            <star-rating rating="{{item.rating}}" size="small" readonly="{{true}}"/>
-            <text class="hot-distance" wx:if="{{item.distance}}">{{item.distance}}km</text>
-          </view>
-        </view>
-      </view>
-    </scroll-view>
-  </view>
-
   <!-- 推荐路线 -->
   <view class="page-section">
     <view class="section-title">
@@ -66,6 +46,7 @@
   <view class="page-section">
     <view class="section-title">
       <text class="title">精选景点</text>
+      <text class="more" bindtap="onMoreAttractions">更多 ›</text>
     </view>
     <view class="attraction-grid">
       <attraction-card wx:for="{{featuredAttractions}}" wx:key="_id" attraction="{{item}}" bindtap="onAttractionTap" data-id="{{item._id}}"/>

@@ -26,7 +26,8 @@ exports.main = async (event, context) => {
       todayViolations, weekViolations,
       pendingReports, totalBannedWords,
       totalAttractions, totalRoutes, totalUsers,
-      activeBans
+      activeBans,
+      totalAdmins
     ] = await Promise.all([
       db.collection('reviews').count().then(r => r.total).catch(() => 0),
       db.collection('reviews').where({ createTime: _.gte(todayStart) }).count().then(r => r.total).catch(() => 0),
@@ -38,7 +39,8 @@ exports.main = async (event, context) => {
       db.collection('attractions').count().then(r => r.total).catch(() => 0),
       db.collection('routes').count().then(r => r.total).catch(() => 0),
       db.collection('users').count().then(r => r.total).catch(() => 0),
-      db.collection('userBans').where({ expiresAt: _.gte(now) }).count().then(r => r.total).catch(() => 0)
+      db.collection('userBans').where({ expiresAt: _.gte(now) }).count().then(r => r.total).catch(() => 0),
+      db.collection('admins').where({ active: true }).count().then(r => r.total).catch(() => 0)
     ]);
 
     return {
@@ -51,7 +53,8 @@ exports.main = async (event, context) => {
         attractions: totalAttractions,
         routes: totalRoutes,
         users: totalUsers,
-        activeBans: activeBans
+        activeBans: activeBans,
+        admins: totalAdmins
       }
     };
   } catch (err) {

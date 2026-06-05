@@ -101,6 +101,16 @@ exports.main = async (event, context) => {
       }
 
       // 获取所有景点（供路线编排时多选下拉）
+      case 'toggleRecommended': {
+        var id = (data && data.id) || event.id;
+        var item = await db.collection('routes').doc(id).get();
+        var newVal = !item.data.recommended;
+        await db.collection('routes').doc(id).update({
+          data: { recommended: newVal, updateTime: db.serverDate() }
+        });
+        return { success: true, recommended: newVal };
+      }
+
       case 'listAttractions': {
         var res = await db.collection('attractions')
           .field({ _id: true, name: true, address: true, category: true })

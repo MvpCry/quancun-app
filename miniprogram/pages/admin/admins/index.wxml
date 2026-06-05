@@ -1,0 +1,56 @@
+<!-- pages/admin/admins/index.wxml - 管理员管理 -->
+<view class="container">
+  <view class="page-header">
+    <text class="page-title">👥 管理员管理</text>
+    <text class="page-count">{{adminTotal}} 位管理员</text>
+  </view>
+
+  <!-- 搜索添加用户 -->
+  <view class="section-title">添加管理员</view>
+  <view class="search-bar">
+    <input class="search-input" placeholder="输入用户昵称搜索..." value="{{searchKeyword}}" bindinput="onSearchInput" bindconfirm="onSearch"/>
+    <button class="btn-sm green" bindtap="onSearch">搜索</button>
+    <button class="btn-sm gray" bindtap="onClearSearch" wx:if="{{searchTotal > 0}}">清空</button>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view class="search-results" wx:if="{{searchTotal > 0}}">
+    <text class="result-hint">找到 {{searchTotal}} 个用户</text>
+    <view class="user-item" wx:for="{{searchResults}}" wx:key="openid">
+      <image class="user-avatar" src="{{item.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"/>
+      <view class="user-info">
+        <text class="user-name">{{item.nickName}}</text>
+        <text class="user-openid">{{item.openid}}</text>
+      </view>
+      <button class="btn-sm green" wx:if="{{!item.isAdmin}}" bindtap="onAddAdmin" data-openid="{{item.openid}}" data-nickname="{{item.nickName}}">设为管理员</button>
+      <text class="already-admin" wx:else>已是管理员</text>
+    </view>
+  </view>
+  <view class="empty-state" wx:elif="{{searching}}">
+    <text class="empty-text">未找到匹配用户</text>
+  </view>
+
+  <!-- 管理员列表 -->
+  <view class="section-title">当前管理员</view>
+  <view class="admin-list" wx:if="{{!loading && admins.length > 0}}">
+    <view class="admin-item" wx:for="{{admins}}" wx:key="_id">
+      <image class="admin-avatar" src="{{item.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"/>
+      <view class="admin-info">
+        <text class="admin-name">{{item.nickName}}</text>
+        <text class="admin-time">添加于 {{item.createTime}}</text>
+      </view>
+      <view class="admin-tag" wx:if="{{item.openid === currentOpenid}}">我</view>
+      <text class="remove-btn" wx:if="{{item.openid !== currentOpenid}}" bindtap="onRemoveAdmin" data-id="{{item._id}}" data-nickname="{{item.nickName}}">移除</text>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:elif="{{!loading}}">
+    <text class="empty-text">暂无管理员</text>
+  </view>
+
+  <view class="loading-state" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <view class="safe-bottom" style="height:60rpx;"></view>
+</view>

@@ -1,0 +1,33 @@
+<!-- pages/admin/banners/index.wxml - 首页轮播Banner管理 -->
+<view class="container">
+  <view class="page-header">
+    <text class="page-title">🖼️ Banner轮播</text>
+    <text class="page-count">{{total}} 个村落</text>
+  </view>
+
+  <view class="hint-text">加入轮播的村落将展示在首页顶部轮播区，图片自动取村落第一张</view>
+
+  <view class="search-bar">
+    <input class="search-input" placeholder="搜索村落名称或地址..." value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch"/>
+    <text class="search-btn" bindtap="onSearch">搜索</text>
+  </view>
+
+  <view class="item-list" wx:if="{{!loading && attractions.length > 0}}">
+    <view class="item-row" wx:for="{{attractions}}" wx:key="_id">
+      <image class="item-thumb" src="{{item.images[0] || '/images/default-attraction.png'}}" mode="aspectFill"/>
+      <view class="item-info">
+        <text class="item-name">{{item.name}}</text>
+        <text class="item-sub">{{item.address || ''}}</text>
+      </view>
+      <view class="item-toggle {{item.isBanner ? 'on' : 'off'}}" bindtap="onToggle" data-id="{{item._id}}" data-name="{{item.name}}" data-banner="{{item.isBanner}}">
+        <text>{{item.isBanner ? '轮播中' : '未加入'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:elif="{{!loading}}">
+    <text class="empty-text">暂无村落数据</text>
+  </view>
+
+  <view class="safe-bottom" style="height:60rpx;"></view>
+</view>

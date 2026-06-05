@@ -83,6 +83,26 @@ exports.main = async (event, context) => {
         return { success: true };
       }
 
+      case 'toggleFeatured': {
+        var id = (data && data.id) || event.id;
+        var item = await db.collection('attractions').doc(id).get();
+        var newVal = !item.data.featured;
+        await db.collection('attractions').doc(id).update({
+          data: { featured: newVal, updateTime: db.serverDate() }
+        });
+        return { success: true, featured: newVal };
+      }
+
+      case 'toggleBanner': {
+        var id = (data && data.id) || event.id;
+        var item = await db.collection('attractions').doc(id).get();
+        var newVal = !item.data.isBanner;
+        await db.collection('attractions').doc(id).update({
+          data: { isBanner: newVal, updateTime: db.serverDate() }
+        });
+        return { success: true, isBanner: newVal };
+      }
+
       case 'batchImport': {
         // 批量导入景点
         if (!data || !data.list || data.list.length === 0) {

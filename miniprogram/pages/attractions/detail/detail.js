@@ -1,5 +1,6 @@
 // pages/attractions/detail/detail.js
 // 数据优先从云数据库获取，回退到本地默认数据
+var format = require('../../../utils/format.js');
 
 Page({
   data: {
@@ -9,6 +10,10 @@ Page({
     markers: [],
     reviews: [],
     totalReviews: 0,
+    reviewTotal: 0,
+    reviewSort: 'like',
+    reviewPage: 1,
+    hasMore: false,
     loading: true,
 
     // 写评价
@@ -60,17 +65,16 @@ Page({
       try {
         var res = await wx.cloud.callFunction({
           name: 'getAttractionDetail',
-          data: { id: id }
+          data: { id: id, reviewSort: that.data.reviewSort, reviewPage: 1, reviewPageSize: 20 }
         });
 
         if (res.result && res.result.attraction) {
           var attraction = res.result.attraction;
-          // 确保兼容字段
           if (!attraction.introduction) {
             attraction.introduction = attraction.description || '';
           }
 
-          await that.renderAttraction(attraction, res.result.recentReviews || []);
+          await that.renderAttraction(attraction, res.result.reviews || [], res.result.reviewTotal || 0, res.result.hasMore || false);
           return;
         }
       } catch (err) {
@@ -86,7 +90,7 @@ Page({
         if (cached[i]._id === id) {
           var found = cached[i];
           if (!found.introduction) found.introduction = found.description || '';
-          await that.renderAttraction(found, []);
+          await that.renderAttraction(found, [], 0, false);
           return;
         }
       }
@@ -99,7 +103,7 @@ Page({
       if (list[j]._id === id) {
         var localFound = list[j];
         if (!localFound.introduction) localFound.introduction = localFound.description || '';
-        await that.renderAttraction(localFound, defaultData.defaultReviews);
+        await that.renderAttraction(localFound, defaultData.defaultReviews, defaultData.defaultReviews.length, false);
         return;
       }
     }
@@ -110,7 +114,7 @@ Page({
   },
 
   // 渲染景点数据
-  renderAttraction: async function (attraction, reviews) {
+  renderAttraction: async function (attraction, reviews, reviewTotal, hasMore) {
     // 无坐标时尝试地址→geocoder 实时解析
     if (attraction.address && (!attraction.location || !attraction.location.latitude)) {
       var app = getApp();
@@ -140,12 +144,19 @@ Page({
       });
     }
 
+    // 格式化评论时间
+    reviews = (reviews.length > 0 ? reviews : (attraction.reviews || [])).map(function (r) {
+      r.createTime = format.formatDate(r.createTime);
+      return r;
+    });
+
     this.setData({
       attraction: attraction,
       markers: markers,
       hasLocation: hasLocation,
-      reviews: reviews.length > 0 ? reviews : (attraction.reviews || []),
-      totalReviews: attraction.reviewCount || (reviews ? reviews.length : 0),
+      reviews: reviews,
+      reviewTotal: reviewTotal || (reviews ? reviews.length : 0),
+      hasMore: hasMore || false,
       loading: false
     });
 
@@ -253,15 +264,91 @@ Page({
       if (res.result && res.result.success) {
         wx.showToast({ title: '举报已提交', icon: 'success' });
       } else {
-        wx.showToast({
-          title: (res.result && res.result.error) || '举报失败',
-          icon: 'none'
+        var errMsg = (res.result && res.result.error) || '举报失败';
+        // 用弹窗展示完整错误信息，方便排查
+        wx.showModal({
+          title: '举报失败',
+          content: errMsg + '\n\nreviewId: ' + reviewId,
+          showCancel: false
         });
       }
     } catch (err) {
       wx.hideLoading();
       console.error('举报失败:', err);
-      wx.showToast({ title: '举报失败，请稍后重试', icon: 'none' });
+      wx.showModal({
+        title: '举报失败',
+        content: '云函数调用异常\n\n' + (err.errMsg || err.message || '未知错误') + '\n\n请确认 reportReview 云函数已部署',
+        showCancel: false
+      });
+    }
+  },
+
+  // ========== 评论排序 ==========
+  onSortReview: function (e) {
+    var sort = e.currentTarget.dataset.sort;
+    if (sort === this.data.reviewSort) return;
+    this.setData({ reviewSort: sort, reviewPage: 1 });
+    this.loadAttraction(this.data.attractionId);
+  },
+
+  // ========== 加载更多评论 ==========
+  onLoadMoreReviews: async function () {
+    var that = this;
+    var nextPage = that.data.reviewPage + 1;
+    try {
+      var res = await wx.cloud.callFunction({
+        name: 'getAttractionDetail',
+        data: {
+          id: that.data.attractionId,
+          reviewSort: that.data.reviewSort,
+          reviewPage: nextPage,
+          reviewPageSize: 20
+        }
+      });
+      if (res.result && res.result.reviews) {
+        var more = res.result.reviews.map(function (r) {
+          r.createTime = format.formatDate(r.createTime);
+          return r;
+        });
+        var newReviews = that.data.reviews.concat(more);
+        that.setData({
+          reviews: newReviews,
+          reviewPage: nextPage,
+          hasMore: res.result.hasMore || false
+        });
+      }
+    } catch (err) {
+      console.error('加载更多评论失败:', err);
+    }
+  },
+
+  // ========== 点赞评论 ==========
+  onLikeReview: async function (e) {
+    var that = this;
+    var index = e.currentTarget.dataset.index;
+    var reviewId = e.currentTarget.dataset.id;
+
+    if (!wx.cloud) {
+      wx.showToast({ title: '云开发不可用', icon: 'none' });
+      return;
+    }
+
+    try {
+      var res = await wx.cloud.callFunction({
+        name: 'toggleLike',
+        data: { reviewId: reviewId }
+      });
+      if (res.result && res.result.success) {
+        var reviews = that.data.reviews;
+        var item = reviews[index];
+        item.isLiked = res.result.liked;
+        item.likeCount = Math.max(0, (item.likeCount || 0) + (res.result.liked ? 1 : -1));
+        that.setData({ reviews: reviews });
+      } else {
+        wx.showToast({ title: (res.result && res.result.error) || '操作失败', icon: 'none' });
+      }
+    } catch (err) {
+      wx.showToast({ title: '操作失败', icon: 'none' });
     }
   },
 

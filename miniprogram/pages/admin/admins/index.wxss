@@ -1,0 +1,48 @@
+/* pages/admin/admins/index.wxss */
+
+/* 页面头部 */
+.page-header{display:flex;justify-content:space-between;align-items:baseline;padding:24rpx 0 16rpx}
+.page-title{font-size:36rpx;font-weight:700}
+.page-count{font-size:26rpx;color:#999}
+
+/* 区块标题 */
+.section-title{font-size:28rpx;font-weight:600;color:#666;margin:24rpx 0 16rpx;padding-left:4rpx}
+
+/* 搜索栏 */
+.search-bar{display:flex;gap:12rpx;margin-bottom:16rpx}
+.search-input{flex:1;padding:14rpx 24rpx;background:#FFF;border-radius:40rpx;font-size:26rpx;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+
+/* 按钮 */
+.btn-sm{padding:14rpx 24rpx;border-radius:40rpx;font-size:26rpx;border:none;flex-shrink:0}
+.btn-sm::after{border:none}
+.green{background:#2E7D32;color:#FFF}
+.gray{background:#666;color:#FFF}
+
+/* 搜索结果 */
+.result-hint{font-size:24rpx;color:#999;margin-bottom:12rpx;display:block}
+.search-results{background:#FFF;border-radius:12rpx;padding:16rpx 24rpx;margin-bottom:20rpx;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+
+.user-item{display:flex;align-items:center;padding:16rpx 0;border-bottom:1rpx solid #F5F5F5}
+.user-item:last-child{border-bottom:none}
+.user-avatar{width:72rpx;height:72rpx;border-radius:50%;margin-right:16rpx;background:#F0F0F0;flex-shrink:0}
+.user-info{flex:1;overflow:hidden}
+.user-name{font-size:28rpx;font-weight:500;display:block}
+.user-openid{font-size:22rpx;color:#BBB;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.already-admin{font-size:24rpx;color:#2E7D32;flex-shrink:0;padding:8rpx 16rpx;background:#E8F5E9;border-radius:20rpx}
+
+/* 管理员列表 */
+.admin-list{background:#FFF;border-radius:12rpx;box-shadow:0 2px 8px rgba(0,0,0,.06);overflow:hidden}
+.admin-item{display:flex;align-items:center;padding:22rpx 24rpx;border-bottom:1rpx solid #F5F5F5}
+.admin-item:last-child{border-bottom:none}
+.admin-avatar{width:72rpx;height:72rpx;border-radius:50%;margin-right:16rpx;background:#F0F0F0;flex-shrink:0}
+.admin-info{flex:1;overflow:hidden}
+.admin-name{font-size:28rpx;font-weight:500;display:block}
+.admin-time{font-size:22rpx;color:#BBB;display:block}
+.admin-tag{font-size:22rpx;color:#2E7D32;background:#E8F5E9;padding:6rpx 16rpx;border-radius:20rpx;margin-right:12rpx;flex-shrink:0}
+.remove-btn{font-size:26rpx;color:#E53935;padding:8rpx 16rpx;flex-shrink:0}
+
+/* 空状态 */
+.empty-state{padding:80rpx 0;text-align:center}
+.empty-text{font-size:28rpx;color:#BBB}
+
+.loading-state{padding:80rpx 0;text-align:center;font-size:28rpx;color:#999}

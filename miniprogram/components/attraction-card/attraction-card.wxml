@@ -10,7 +10,9 @@
   <view class="card-info">
     <view class="card-name-row">
       <text class="card-name text-ellipsis">{{attraction.name}}</text>
-      <text class="card-location" wx:if="{{shortLocation}}">（{{shortLocation}}）</text>
+    </view>
+    <view class="card-intro">
+      <text class="card-intro-text">{{attraction.introduction || '暂无简介'}}</text>
     </view>
     <view class="card-meta">
       <star-rating rating="{{attraction.rating}}" size="small" readonly="{{true}}"/>

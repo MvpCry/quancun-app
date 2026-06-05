@@ -1,0 +1,9 @@
+{
+  "name": "toggleLike",
+  "version": "1.0.0",
+  "description": "评论点赞/取消",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

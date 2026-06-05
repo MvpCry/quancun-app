@@ -137,7 +137,11 @@
   <!-- ========== 8. 评论列表 ========== -->
   <view class="review-section card">
     <view class="card-header">
-      <text class="card-title">游客评价 ({{totalReviews}})</text>
+      <text class="card-title">游客评价 ({{reviewTotal}})</text>
+      <view class="review-sort">
+        <text class="sort-opt {{reviewSort === 'like' ? 'active' : ''}}" bindtap="onSortReview" data-sort="like">最赞</text>
+        <text class="sort-opt {{reviewSort === 'time' ? 'active' : ''}}" bindtap="onSortReview" data-sort="time">最新</text>
+      </view>
     </view>
     <view class="review-list" wx:if="{{reviews.length > 0}}">
       <view class="review-item" wx:for="{{reviews}}" wx:key="_id">
@@ -150,15 +154,24 @@
           <star-rating rating="{{item.rating}}" size="small" readonly="{{true}}"/>
         </view>
         <text class="review-content">{{item.content}}</text>
-        <!-- 举报入口 -->
-        <view class="review-report" bindtap="onReportReview" data-review-id="{{item._id}}" data-review-index="{{index}}">
-          <text class="review-report-icon">⚑</text>
-          <text class="review-report-text">举报</text>
+        <view class="review-actions">
+          <view class="review-like {{item.isLiked ? 'liked' : ''}}" bindtap="onLikeReview" data-index="{{index}}" data-id="{{item._id}}">
+            <text>{{item.isLiked ? '❤️' : '🤍'}}</text>
+            <text class="like-count" wx:if="{{item.likeCount > 0}}">{{item.likeCount}}</text>
+          </view>
+          <view class="review-report" bindtap="onReportReview" data-review-id="{{item._id}}" data-review-index="{{index}}">
+            <text class="review-report-icon">⚑</text>
+            <text class="review-report-text">举报</text>
+          </view>
         </view>
       </view>
     </view>
     <view class="no-reviews" wx:else>
       <text class="no-review-text">暂无评价，来说两句吧</text>
+    </view>
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore}}">
+      <text class="load-more-btn" bindtap="onLoadMoreReviews">加载更多评论</text>
     </view>
   </view>
 

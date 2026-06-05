@@ -1,5 +1,6 @@
 // pages/mine/index/index.js - 我的页面逻辑
 // 修复：getApp() 移到 onLoad 内部，避免模块顶层调用
+var format = require('../../../utils/format.js');
 
 Page({
   data: {
@@ -17,6 +18,9 @@ Page({
   },
 
   onShow: function () {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 3 });
+    }
     this.checkLoginState();
     if (this.data.isLogin) {
       this.loadUserStats();
@@ -155,9 +159,12 @@ Page({
             name: 'getReviews',
             data: { action: 'myReviews' }
           });
-          this.setData({
-            tabList: (reviewRes.result && reviewRes.result.list) || []
+          var reviews = (reviewRes.result && reviewRes.result.list) || [];
+          reviews = reviews.map(function (r) {
+            r.createTime = format.formatDate(r.createTime);
+            return r;
           });
+          this.setData({ tabList: reviews });
           break;
         }
 

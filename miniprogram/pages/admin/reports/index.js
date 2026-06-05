@@ -1,4 +1,5 @@
 // pages/admin/reports/index.js
+var format = require('../../../utils/format.js');
 Page({
   data: {
     reports: [], violations: [], bans: [],
@@ -21,7 +22,11 @@ Page({
     var that = this; page = page || 1; that.setData({ loading: true });
     try {
       var res = await wx.cloud.callFunction({ name: 'handleReport', data: { action: 'listReports', status: that.data.activeTab, page: page, pageSize: 20 } });
-      that.setData({ reports: (res.result && res.result.list) || [], total: (res.result && res.result.total) || 0, loading: false });
+      var reports = ((res.result && res.result.list) || []).map(function (r) {
+        r.createTime = format.formatDate(r.createTime);
+        return r;
+      });
+      that.setData({ reports: reports, total: (res.result && res.result.total) || 0, loading: false });
     } catch (err) { that.setData({ loading: false }); }
   },
   // === 违规 ===
@@ -29,7 +34,11 @@ Page({
     var that = this; that.setData({ loading: true });
     try {
       var res = await wx.cloud.callFunction({ name: 'handleReport', data: { action: 'listViolations', pageSize: 50 } });
-      that.setData({ violations: (res.result && res.result.list) || [], loading: false });
+      var violations = ((res.result && res.result.list) || []).map(function (v) {
+        v.createTime = format.formatDate(v.createTime);
+        return v;
+      });
+      that.setData({ violations: violations, loading: false });
     } catch (err) { that.setData({ loading: false }); }
   },
   // === 禁言 ===

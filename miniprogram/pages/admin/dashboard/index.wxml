@@ -29,6 +29,18 @@
       <view class="menu-card" bindtap="onNavTo" data-url="/pages/admin/reports/index">
         <text class="menu-icon">⚑</text><text class="menu-name">举报管理</text><text class="menu-desc">{{stats.pendingReports}} 条待处理</text>
       </view>
+      <view class="menu-card" bindtap="onNavTo" data-url="/pages/admin/admins/index">
+        <text class="menu-icon">👥</text><text class="menu-name">管理员管理</text><text class="menu-desc">{{stats.admins}} 位管理员</text>
+      </view>
+      <view class="menu-card" bindtap="onNavTo" data-url="/pages/admin/featured/index">
+        <text class="menu-icon">⭐</text><text class="menu-name">精选景点</text><text class="menu-desc">首页上架管理</text>
+      </view>
+      <view class="menu-card" bindtap="onNavTo" data-url="/pages/admin/recommended/index">
+        <text class="menu-icon">🏅</text><text class="menu-name">推荐路线</text><text class="menu-desc">首页上架管理</text>
+      </view>
+      <view class="menu-card" bindtap="onNavTo" data-url="/pages/admin/banners/index">
+        <text class="menu-icon">🖼️</text><text class="menu-name">Banner轮播</text><text class="menu-desc">首页顶部图片</text>
+      </view>
     </view>
 
     <view class="section-title"><text>数据概览</text></view>

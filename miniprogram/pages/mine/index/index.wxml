@@ -103,66 +103,71 @@
 <!-- 我的收藏弹层 -->
 <view class="tab-content" wx:if="{{activeTab}}">
   <view class="tab-header">
-    <text class="tab-back" bindtap="onCloseTab">‹ 返回</text>
-    <text class="tab-title">
-      {{activeTab === 'favorites' ? '我的收藏' : ''}}
-      {{activeTab === 'routes' ? '我的路线' : ''}}
-      {{activeTab === 'reviews' ? '我的评价' : ''}}
-      {{activeTab === 'history' ? '浏览历史' : ''}}
-    </text>
-    <view></view>
+    <text class="tab-back" bindtap="onCloseTab">←</text>
+    <text class="tab-title">{{activeTab === 'favorites' ? '我的收藏' : activeTab === 'routes' ? '我的路线' : activeTab === 'reviews' ? '我的评价' : '浏览历史'}}</text>
+    <view class="tab-placeholder"></view>
   </view>
 
   <!-- 收藏列表 -->
-  <view class="tab-list" wx:if="{{activeTab === 'favorites'}}">
-    <view wx:if="{{tabList.length > 0}}">
+  <view class="tab-body" wx:if="{{activeTab === 'favorites'}}">
+    <block wx:if="{{tabList.length > 0}}">
       <view class="fav-item" wx:for="{{tabList}}" wx:key="_id" bindtap="onFavItemTap" data-item="{{item}}">
-        <image class="fav-image" src="{{item.coverImage || item.images[0]}}" mode="aspectFill" lazy-load/>
+        <image class="fav-image" src="{{item.coverImage || item.images[0]}}" mode="aspectFill"/>
         <view class="fav-info">
           <text class="fav-name">{{item.name}}</text>
-          <text class="fav-type tag tag-primary">{{item.favType === 'attraction' ? '景点' : '路线'}}</text>
+          <text class="fav-type-tag">{{item.favType === 'attraction' ? '景点' : '路线'}}</text>
         </view>
         <text class="fav-arrow">›</text>
       </view>
-    </view>
+    </block>
     <view class="empty-state" wx:else>
-      <text class="empty-icon">💝</text>
-      <text class="empty-text">还没有收藏内容</text>
+      <view class="empty-circle">💝</view>
+      <text class="empty-title">还没有收藏</text>
+      <text class="empty-desc">去发现感兴趣的景点和路线吧</text>
     </view>
   </view>
 
   <!-- 我的路线列表 -->
-  <view class="tab-list" wx:if="{{activeTab === 'routes'}}">
-    <route-card wx:for="{{tabList}}" wx:key="_id" route="{{item}}" bindtap="onRouteTap" data-id="{{item._id}}"/>
-    <view class="empty-state" wx:if="{{tabList.length === 0}}">
-      <text class="empty-icon">🗺️</text>
-      <text class="empty-text">还没有创建路线</text>
-      <button class="btn btn-primary btn-small mt-24" bindtap="onCreateRoute">去创建路线</button>
+  <view class="tab-body" wx:if="{{activeTab === 'routes'}}">
+    <block wx:if="{{tabList.length > 0}}">
+      <route-card wx:for="{{tabList}}" wx:key="_id" route="{{item}}" bindtap="onRouteTap" data-id="{{item._id}}"/>
+    </block>
+    <view class="empty-state" wx:else>
+      <view class="empty-circle">🗺️</view>
+      <text class="empty-title">还没有路线</text>
+      <text class="empty-desc">规划一条属于自己的旅行路线</text>
+      <button class="empty-btn" bindtap="onCreateRoute">去创建路线</button>
     </view>
   </view>
 
   <!-- 我的评论列表 -->
-  <view class="tab-list" wx:if="{{activeTab === 'reviews'}}">
-    <view class="review-item" wx:for="{{tabList}}" wx:key="_id">
-      <view class="review-header">
-        <text class="review-attraction-name">{{item.attractionName}}</text>
-        <star-rating rating="{{item.rating}}" size="small" readonly="{{true}}"/>
+  <view class="tab-body" wx:if="{{activeTab === 'reviews'}}">
+    <block wx:if="{{tabList.length > 0}}">
+      <view class="review-card" wx:for="{{tabList}}" wx:key="_id">
+        <view class="review-card-top">
+          <text class="review-card-name">{{item.attractionName}}</text>
+          <star-rating rating="{{item.rating}}" size="small" readonly="{{true}}"/>
+        </view>
+        <text class="review-card-content">{{item.content}}</text>
+        <text class="review-card-time">{{item.createTime}}</text>
       </view>
-      <text class="review-text">{{item.content}}</text>
-      <text class="review-date">{{item.createTime}}</text>
-    </view>
-    <view class="empty-state" wx:if="{{tabList.length === 0}}">
-      <text class="empty-icon">💬</text>
-      <text class="empty-text">还没有发表评价</text>
+    </block>
+    <view class="empty-state" wx:else>
+      <view class="empty-circle">💬</view>
+      <text class="empty-title">还没有评价</text>
+      <text class="empty-desc">游览过景点后写下你的感受吧</text>
     </view>
   </view>
 
   <!-- 浏览历史列表 -->
-  <view class="tab-list" wx:if="{{activeTab === 'history'}}">
-    <attraction-card wx:for="{{tabList}}" wx:key="_id" attraction="{{item}}" bindtap="onAttractionTap" data-id="{{item._id}}"/>
-    <view class="empty-state" wx:if="{{tabList.length === 0}}">
-      <text class="empty-icon">🕐</text>
-      <text class="empty-text">暂无浏览记录</text>
+  <view class="tab-body" wx:if="{{activeTab === 'history'}}">
+    <block wx:if="{{tabList.length > 0}}">
+      <attraction-card wx:for="{{tabList}}" wx:key="_id" attraction="{{item}}" bindtap="onAttractionTap" data-id="{{item._id}}"/>
+    </block>
+    <view class="empty-state" wx:else>
+      <view class="empty-circle">🕐</view>
+      <text class="empty-title">暂无记录</text>
+      <text class="empty-desc">浏览过的景点会出现在这里</text>
     </view>
   </view>
 </view>

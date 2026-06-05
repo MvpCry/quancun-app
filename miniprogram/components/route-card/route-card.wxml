@@ -41,10 +41,10 @@
 
     <!-- 底部操作栏：导航按钮 -->
     <view class="route-actions">
-      <button class="route-nav-btn" catchtap="onNavigate">
+      <view class="route-nav-btn" catchtap="onNavigate">
         <text class="route-nav-icon">🧭</text>
         <text>导航去这里</text>
-      </button>
+      </view>
     </view>
   </view>
 </view>

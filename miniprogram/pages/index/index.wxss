@@ -127,55 +127,6 @@
   border-radius: 40rpx;
 }
 
-/* ========== 热门景点滚动 ========== */
-.hot-attractions-scroll {
-  white-space: nowrap;
-  padding-bottom: 8rpx;
-}
-
-.hot-attraction-item {
-  display: inline-block;
-  width: 260rpx;
-  margin-right: 20rpx;
-  background: #FFFFFF;
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-}
-
-.hot-attraction-item:last-child {
-  margin-right: 0;
-}
-
-.hot-image {
-  width: 100%;
-  height: 180rpx;
-}
-
-.hot-info {
-  padding: 16rpx;
-}
-
-.hot-name {
-  font-size: 28rpx;
-  font-weight: 600;
-  margin-bottom: 10rpx;
-}
-
-.hot-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.hot-distance {
-  font-size: 22rpx;
-  color: var(--text-hint);
-  background: #F5F5F5;
-  padding: 4rpx 12rpx;
-  border-radius: 8rpx;
-}
-
 /* ========== 精选景点网格 ========== */
 .attraction-grid {
   display: flex;
@@ -185,4 +136,46 @@
 
 .attraction-grid > attraction-card {
   width: calc(50% - 12rpx);
+}
+
+/* ========== 推荐路线网格 ========== */
+.route-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.route-grid-card {
+  width: calc(50% - 12rpx);
+  background: #FFFFFF;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin-bottom: 24rpx;
+}
+
+.route-grid-img {
+  width: 100%;
+  height: 220rpx;
+}
+
+.route-grid-info {
+  padding: 20rpx;
+}
+
+.route-grid-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.route-grid-desc {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }

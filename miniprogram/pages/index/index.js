@@ -5,7 +5,6 @@ Page({
   data: {
     banners: [],
     categories: [],
-    hotAttractions: [],
     recommendRoutes: [],
     featuredAttractions: [],
     searchKeyword: '',
@@ -20,7 +19,9 @@ Page({
   },
 
   onShow: function () {
-    // 每次显示时从缓存刷新（其他页面可能更新了数据）
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 0 });
+    }
     this.refreshFromCache();
   },
 
@@ -32,31 +33,56 @@ Page({
     that.setData({ loading: true, loadError: false });
 
     try {
-      // 并行加载景点和路线（共享 app 缓存，Tab 页面直接复用）
-      var attractionPromise = app.fetchAttractions({ sortBy: 'rating', pageSize: 6 });
-      var routePromise = app.fetchRoutes({ action: 'recommend', limit: 3 });
+      // 精选景点：从云数据库 featured 字段筛选
+      var featuredPromise = app.callCloud('getAttractions', { action: 'featured', limit: 20 }, 8000)
+        .then(function (res) { return (res.result && res.result.list) ? res.result.list : []; })
+        .catch(function () { return []; });
 
-      var results = await Promise.all([attractionPromise, routePromise]);
-      var attractionResult = results[0];
-      var routeResult = results[1];
+      // 推荐路线：从云数据库 recommended 字段筛选
+      var routePromise = app.callCloud('getRoutes', { action: 'recommend', limit: 20 }, 8000)
+        .then(function (res) { return (res.result && res.result.list) ? res.result.list : []; })
+        .catch(function () { return []; });
 
-      var attractions = attractionResult ? attractionResult.list : [];
-      var routes = routeResult ? routeResult.list : [];
+      // Banner：从后台banners集合读取
+      var bannerPromise = app.callCloud('manageBanners', { action: 'list' }, 8000)
+        .then(function (res) { return (res.result && res.result.list) ? res.result.list : []; })
+        .catch(function () { return []; });
 
-      // 构建 Banner（从景点数据中取前几个）
-      var banners = that.buildBanners(attractions);
+      var results = await Promise.all([featuredPromise, routePromise, bannerPromise]);
+      var featured = results[0];
+      var routes = results[1];
+      var banners = results[2];
+
+      // 如果精选景点为空，回退取评分最高的前6个
+      if (featured.length === 0) {
+        try {
+          var fallbackRes = await app.fetchAttractions({ sortBy: 'rating', pageSize: 6 });
+          featured = fallbackRes.list || [];
+        } catch (e) { featured = []; }
+      }
+
+      // 如果推荐路线为空，回退取全部路线
+      if (routes.length === 0) {
+        try {
+          var fallbackRoutes = await app.fetchRoutes({ limit: 20 });
+          routes = fallbackRoutes.list || [];
+        } catch (e) { routes = []; }
+      }
+
+      // 如果 Banner 为空，从精选景点构建
+      if (banners.length === 0) {
+        banners = that.buildBanners(featured);
+      }
 
       that.setData({
         banners: banners,
-        hotAttractions: attractions,
+        featuredAttractions: featured,
         recommendRoutes: routes,
-        featuredAttractions: attractions,   // 精选 = 热门景点（可后续区分）
         loading: false
       });
     } catch (err) {
       console.error('首页加载失败:', err);
       that.setData({ loading: false, loadError: true });
-      // 兜底：尝试从全局缓存读取
       that.refreshFromCache();
     }
   },
@@ -69,7 +95,6 @@ Page({
 
     if (attractions && attractions.length > 0) {
       this.setData({
-        hotAttractions: attractions,
         featuredAttractions: attractions,
         banners: this.buildBanners(attractions)
       });

@@ -362,6 +362,9 @@
 }
 
 .review-section .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 24rpx 24rpx 0;
 }
 
@@ -412,6 +415,59 @@
   color: var(--text-secondary);
   line-height: 1.6;
   margin-bottom: 8rpx;
+}
+
+/* 评论排序 */
+.review-sort {
+  display: flex;
+  gap: 8rpx;
+}
+.sort-opt {
+  font-size: 24rpx;
+  color: #999;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  background: #F5F5F5;
+}
+.sort-opt.active {
+  color: #fff;
+  background: #2E7D32;
+  font-weight: 500;
+}
+
+/* 底部操作栏（点赞 + 举报） */
+.review-actions {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  margin-top: 10rpx;
+}
+.review-like {
+  display: inline-flex;
+  align-items: center;
+  gap: 4rpx;
+  font-size: 26rpx;
+  padding: 4rpx 8rpx;
+}
+.review-like.liked {
+  font-weight: 600;
+}
+.like-count {
+  font-size: 22rpx;
+  color: #999;
+}
+
+/* 加载更多 */
+.load-more {
+  text-align: center;
+  padding: 24rpx 0 16rpx;
+}
+.load-more-btn {
+  font-size: 26rpx;
+  color: #2E7D32;
+  padding: 10rpx 32rpx;
+  border-radius: 32rpx;
+  background: #E8F5E9;
 }
 
 /* 举报入口 */

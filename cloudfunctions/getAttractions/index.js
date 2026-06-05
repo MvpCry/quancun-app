@@ -117,6 +117,16 @@ exports.main = async (event, context) => {
         return { list };
       }
 
+      case 'featured': {
+        // 精选景点：featured 字段为 true
+        const featuredRes = await db.collection('attractions')
+          .where({ featured: true })
+          .orderBy('createTime', 'desc')
+          .limit(limit || 20)
+          .get();
+        return { list: featuredRes.data };
+      }
+
       case 'banners': {
         // 获取评分最高的N个景点作为Banner
         const res = await db.collection('attractions')

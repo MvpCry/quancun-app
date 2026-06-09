@@ -1,8 +1,23 @@
+<!-- custom-tab-bar/index.wxml - 自定义底部导航栏 -->
 <view class="tab-bar">
-  <view class="tab-item {{selected === index ? 'active' : ''}}" wx:for="{{list}}" wx:key="index" bindtap="switchTab" data-index="{{index}}" data-path="{{item.pagePath}}">
-    <view class="tab-icon-box">
-      <image class="tab-icon" src="{{selected === index ? item.iconActive : item.icon}}" mode="aspectFit"/>
+  <view
+    class="tab-bar-item"
+    wx:for="{{list}}"
+    wx:key="pagePath"
+    bindtap="onTabTap"
+    data-path="{{item.pagePath}}"
+    data-index="{{index}}"
+  >
+    <!-- 图标 + 选中时绿色椭圆外框 -->
+    <view class="tab-icon-wrap {{selected === index ? 'tab-icon-wrap-active' : ''}}">
+      <image
+        class="tab-icon"
+        src="{{selected === index ? item.selectedIconPath : item.iconPath}}"
+        mode="aspectFit"
+      />
     </view>
-    <text class="tab-text">{{item.text}}</text>
+    <text class="tab-text {{selected === index ? 'tab-text-active' : ''}}">
+      {{item.text}}
+    </text>
   </view>
 </view>

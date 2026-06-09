@@ -1,0 +1,9 @@
+{
+  "name": "addVillage",
+  "version": "1.0.0",
+  "description": "向云数据库添加单个景点",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

@@ -128,18 +128,36 @@ exports.main = async (event, context) => {
       }
 
       case 'banners': {
-        // 获取评分最高的N个景点作为Banner
+        // 优先读取后台标记为 isBanner 的景点
+        const bannerRes = await db.collection('attractions')
+          .where({ isBanner: true })
+          .orderBy('createTime', 'desc')
+          .limit(limit || 4)
+          .get();
+
+        if (bannerRes.data && bannerRes.data.length > 0) {
+          const bannerList = bannerRes.data.map((item) => ({
+            id: item._id,
+            type: 'attraction',
+            image: (item.images && item.images[0]) || '',
+            title: item.name,
+            desc: item.introduction ? item.introduction.substring(0, 40) + '...' : (item.description || '').substring(0, 40) + '...'
+          }));
+          return { list: bannerList };
+        }
+
+        // 回退：评分最高的N个景点
         const res = await db.collection('attractions')
           .orderBy('rating', 'desc')
           .limit(limit || 4)
           .get();
 
-        const list = res.data.map((item, index) => ({
+        const list = res.data.map((item) => ({
           id: item._id,
           type: 'attraction',
           image: (item.images && item.images[0]) || '',
           title: item.name,
-          desc: item.description ? item.description.substring(0, 40) + '...' : ''
+          desc: item.introduction ? item.introduction.substring(0, 40) + '...' : (item.description || '').substring(0, 40) + '...'
         }));
 
         return { list };

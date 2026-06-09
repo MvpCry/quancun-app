@@ -23,6 +23,9 @@ Page({
       this.getTabBar().setData({ selected: 0 });
     }
     this.refreshFromCache();
+    // 每次回到首页时重新拉取 Banner 和精选（后台可能已修改）
+    this.refreshBanners();
+    this.refreshFeatured();
   },
 
   // ========== 主加载：云优先 ==========
@@ -43,8 +46,8 @@ Page({
         .then(function (res) { return (res.result && res.result.list) ? res.result.list : []; })
         .catch(function () { return []; });
 
-      // Banner：从后台banners集合读取
-      var bannerPromise = app.callCloud('manageBanners', { action: 'list' }, 8000)
+      // Banner：从 getAttractions 云函数读取后台标记的 isBanner 景点
+      var bannerPromise = app.callCloud('getAttractions', { action: 'banners', limit: 4 }, 8000)
         .then(function (res) { return (res.result && res.result.list) ? res.result.list : []; })
         .catch(function () { return []; });
 
@@ -90,18 +93,40 @@ Page({
   // ========== 从全局缓存刷新（onShow 触发） ==========
   refreshFromCache: function () {
     var app = getApp();
-    var attractions = app.globalData.cachedAttractions;
     var routes = app.globalData.cachedRoutes;
 
-    if (attractions && attractions.length > 0) {
-      this.setData({
-        featuredAttractions: attractions,
-        banners: this.buildBanners(attractions)
-      });
-    }
+    // 精选景点和 Banner 由云函数控制，不从缓存覆盖
     if (routes && routes.length > 0) {
       this.setData({ recommendRoutes: routes });
     }
+  },
+
+  // ========== 轻量刷新 Banner（onShow 调用） ==========
+  refreshBanners: function () {
+    var that = this;
+    var app = getApp();
+    app.callCloud('getAttractions', { action: 'banners', limit: 4 }, 6000)
+      .then(function (res) {
+        var list = (res.result && res.result.list) ? res.result.list : [];
+        if (list.length > 0) {
+          that.setData({ banners: list });
+        }
+      })
+      .catch(function () {});
+  },
+
+  // ========== 轻量刷新精选景点（onShow 调用） ==========
+  refreshFeatured: function () {
+    var that = this;
+    var app = getApp();
+    app.callCloud('getAttractions', { action: 'featured', limit: 20 }, 6000)
+      .then(function (res) {
+        var list = (res.result && res.result.list) ? res.result.list : [];
+        if (list.length > 0) {
+          that.setData({ featuredAttractions: list });
+        }
+      })
+      .catch(function () {});
   },
 
   // ========== 构建 Banner ==========

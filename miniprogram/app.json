@@ -17,8 +17,6 @@
     "pages/admin/routes/list",
     "pages/admin/routes/edit",
     "pages/admin/admins/index",
-    "pages/admin/featured/index",
-    "pages/admin/recommended/index",
     "pages/admin/banners/index"
   ],
   "window": {

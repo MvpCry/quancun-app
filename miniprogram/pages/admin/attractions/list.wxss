@@ -1,7 +1,81 @@
-.page-header{display:flex;justify-content:space-between;align-items:center;padding:24rpx 0 20rpx}.page-title{font-size:36rpx;font-weight:700}
-.btn-add{padding:14rpx 28rpx;background:#2E7D32;color:#FFF;border-radius:40rpx;font-size:26rpx;border:none}.btn-add::after{border:none}
-.list{display:flex;flex-direction:column;gap:20rpx}
+/* ====== 页面头部 ====== */
+.page-header{display:flex;justify-content:space-between;align-items:center;padding:24rpx 0 20rpx}
+.page-title{font-size:36rpx;font-weight:700}
+.btn-add{padding:14rpx 28rpx;background:#2E7D32;color:#FFF;border-radius:40rpx;font-size:26rpx;border:none}
+.btn-add::after{border:none}
+
+/* ====== 搜索栏 ====== */
+.search-bar{display:flex;align-items:center;gap:12rpx;margin-bottom:20rpx}
+.search-input{flex:1;height:64rpx;background:#FFF;border-radius:12rpx;padding:0 20rpx;font-size:26rpx;border:1rpx solid #E8E8E8}
+.search-btn{padding:14rpx 28rpx;background:#2E7D32;color:#FFF;border-radius:12rpx;font-size:26rpx;flex-shrink:0}
+
+/* ====== Loading ====== */
+.loading-state{text-align:center;padding:120rpx 0;color:#999;font-size:28rpx}
+
+/* ====== 面包屑 ====== */
+.breadcrumb{display:flex;align-items:center;padding:16rpx 0;margin-bottom:12rpx;flex-wrap:wrap}
+.bc-item{font-size:26rpx;color:#2E7D32}
+.bc-root{font-weight:600}
+.bc-sep{color:#CCC;margin:0 6rpx;font-size:24rpx}
+.bc-active{color:#333;font-weight:600}
+.bc-total{font-size:24rpx;color:#999;margin-left:6rpx}
+
+/* ====== 树形面板 ====== */
+.tree-panel{background:#FFF;border-radius:12rpx;padding:12rpx 16rpx;margin-bottom:16rpx;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+
+.tree-branch{}
+
+/* 缩进层级 */
+.level-indent{padding-left:40rpx}
+
+/* ====== 文件夹行 ====== */
+.folder-row{display:flex;align-items:center;padding:16rpx 12rpx;border-radius:10rpx;margin:3rpx 0;transition:background .15s}
+.folder-row:active{background:#F0F0F0}
+
+/* Level 1: 省 */
+.folder-l1{background:#F5F9F5}
+.folder-l1.expanded{background:#E8F5E9}
+
+/* Level 2: 地级市 */
+.folder-l2{background:#FAFBFC}
+.folder-l2.expanded{background:#EEF2F7}
+
+/* Level 3: 区/县/县级市 */
+.folder-l3{padding-left:20rpx}
+.folder-l3.selected{background:#E3F2FD}
+.folder-l3.selected .folder-name{color:#1565C0;font-weight:600}
+
+.folder-arrow{width:32rpx;font-size:18rpx;color:#999;flex-shrink:0;text-align:center}
+.folder-icon{font-size:28rpx;margin-right:8rpx;flex-shrink:0}
+.folder-name{font-size:28rpx;font-weight:500}
+.folder-count{font-size:24rpx;color:#999;margin-left:6rpx}
+
+/* ====== 列表面板 ====== */
+.list-panel{}
+.list-header{display:flex;justify-content:space-between;align-items:center;padding:16rpx 0 12rpx}
+.list-title{font-size:28rpx;font-weight:600;color:#333}
+.list-total{font-size:24rpx;color:#999}
+
+/* ====== 景点卡片 ====== */
+.list{display:flex;flex-direction:column;gap:16rpx}
 .card{display:flex;background:#FFF;border-radius:12rpx;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:20rpx;align-items:center;gap:16rpx}
 .card-img{width:120rpx;height:120rpx;border-radius:12rpx;flex-shrink:0;background:#F0F0F0}
-.card-body{flex:1;min-width:0}.card-name{font-size:30rpx;font-weight:600;display:block;margin-bottom:4rpx}.card-desc{font-size:24rpx;color:#999;display:block;margin-bottom:8rpx}.card-tags{display:flex;flex-wrap:wrap;gap:8rpx;margin-bottom:6rpx}.tag{font-size:20rpx;padding:2rpx 12rpx;background:#F5F5F5;border-radius:8rpx;color:#666}.card-meta{font-size:22rpx;color:#999;display:flex;gap:20rpx}
-.card-actions{display:flex;flex-direction:column;gap:12rpx;flex-shrink:0}.act{font-size:24rpx;padding:8rpx 16rpx;border-radius:8rpx}.act.edit{color:#2E7D32;background:#E8F5E9}.act.del{color:#E53935;background:#FFEBEE}
+.card-body{flex:1;min-width:0}
+.card-name{font-size:30rpx;font-weight:600;display:block;margin-bottom:4rpx}
+.card-desc{font-size:24rpx;color:#999;display:block;margin-bottom:8rpx}
+.card-tags{display:flex;flex-wrap:wrap;gap:8rpx;margin-bottom:6rpx}
+.tag{font-size:20rpx;padding:2rpx 12rpx;background:#F5F5F5;border-radius:8rpx;color:#666}
+.card-meta{font-size:22rpx;color:#999;display:flex;gap:20rpx}
+.card-actions{display:flex;flex-direction:column;gap:10rpx;flex-shrink:0}
+.act{font-size:24rpx;padding:8rpx 16rpx;border-radius:8rpx;text-align:center}
+.act.edit{color:#2E7D32;background:#E8F5E9}
+.act.del{color:#E53935;background:#FFEBEE}
+.act.featured-on{color:#FF9800;background:#FFF3E0}
+.act.featured-off{color:#999;background:#F5F5F5}
+
+/* ====== 空状态 ====== */
+.empty-state{text-align:center;padding:80rpx 0;color:#999}
+.empty-text{font-size:28rpx}
+.tree-empty-hint{text-align:center;padding:100rpx 0}
+.hint-icon{font-size:64rpx;display:block;margin-bottom:16rpx}
+.hint-text{font-size:28rpx;color:#BBB}

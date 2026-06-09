@@ -13,6 +13,7 @@
         <view class="card-meta"><text>📍 {{item.attractionCount || 0}}个景点</text><text>📏 {{item.totalDistance || '-'}}km</text><text>⏱ {{item.estimatedTime || '-'}}h</text></view>
       </view>
       <view class="card-actions">
+        <text class="act {{item.recommended ? 'rec-on' : 'rec-off'}}" bindtap="onToggleRecommended" data-id="{{item._id}}" data-name="{{item.name}}" data-recommended="{{item.recommended}}">{{item.recommended ? '🏅已推荐' : '☆推荐'}}</text>
         <text class="act edit" bindtap="onEdit" data-id="{{item._id}}">编辑</text>
         <text class="act del" bindtap="onDelete" data-id="{{item._id}}" data-name="{{item.name}}">删除</text>
       </view>

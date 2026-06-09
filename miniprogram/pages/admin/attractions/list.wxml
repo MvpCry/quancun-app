@@ -1,22 +1,99 @@
+<!-- pages/admin/attractions/list.wxml - 省→市→区/县 三级树形 -->
 <view class="container">
   <view class="page-header">
     <text class="page-title">📍 景点管理</text>
     <button class="btn-add" bindtap="onAdd">+ 新增景点</button>
   </view>
-  <view class="list" wx:if="{{!loading && attractions.length>0}}">
-    <view class="card" wx:for="{{attractions}}" wx:key="_id">
-      <image class="card-img" src="{{item.images[0]}}" mode="aspectFill" wx:if="{{item.images && item.images[0]}}"/>
-      <view class="card-body">
-        <text class="card-name">{{item.name}}</text>
-        <text class="card-desc text-ellipsis">{{item.address}}</text>
-        <view class="card-tags"><text class="tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="t">{{t}}</text></view>
-        <view class="card-meta"><text>⭐ {{item.rating || '-'}}</text><text>📝 {{item.reviewCount || 0}}条</text></view>
-      </view>
-      <view class="card-actions">
-        <text class="act edit" bindtap="onEdit" data-id="{{item._id}}">编辑</text>
-        <text class="act del" bindtap="onDelete" data-id="{{item._id}}" data-name="{{item.name}}">删除</text>
+
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <input class="search-input" placeholder="搜索景点名称、地址..." value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch"/>
+    <text class="search-btn" bindtap="onSearch">搜索</text>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading-state"><text>加载中...</text></view>
+
+  <block wx:elif="{{!loading}}">
+    <!-- 面包屑 -->
+    <view class="breadcrumb" wx:if="{{currentPath.length > 0 || filteredAttractions.length > 0}}">
+      <text class="bc-item bc-root" bindtap="onClearPath" data-index="-1">全部景点</text>
+      <block wx:for="{{currentPath}}" wx:key="name">
+        <text class="bc-sep">›</text>
+        <text class="bc-item {{index === currentPath.length - 1 ? 'bc-active' : ''}}"
+          bindtap="onClearPath" data-index="{{index}}">{{item.name}}</text>
+      </block>
+      <text class="bc-total" wx:if="{{filteredAttractions.length > 0}}">({{filteredAttractions.length}})</text>
+    </view>
+
+    <!-- 树形面板 -->
+    <view class="tree-panel">
+      <view wx:for="{{provinceTree}}" wx:key="province" class="tree-branch">
+        <!-- Level 1: 省 -->
+        <view class="folder-row folder-l1 {{item.expanded ? 'expanded' : ''}}" bindtap="onToggleProvince" data-name="{{item.province}}">
+          <text class="folder-arrow">{{item.expanded ? '▼' : '▶'}}</text>
+          <text class="folder-icon">{{item.expanded ? '📂' : '📁'}}</text>
+          <text class="folder-name">{{item.province}}</text>
+          <text class="folder-count">({{item.count}})</text>
+        </view>
+
+        <!-- Level 2: 地级市 -->
+        <view wx:if="{{item.expanded}}" class="level-indent">
+          <view wx:for="{{item.cities}}" wx:key="city" wx:for-item="city">
+            <view class="folder-row folder-l2 {{city.expanded ? 'expanded' : ''}}"
+              bindtap="onToggleCity" data-province="{{item.province}}" data-city="{{city.city}}">
+              <text class="folder-arrow">{{city.expanded ? '▼' : '▶'}}</text>
+              <text class="folder-icon">{{city.expanded ? '📂' : '📁'}}</text>
+              <text class="folder-name">{{city.city}}</text>
+              <text class="folder-count">({{city.count}})</text>
+            </view>
+
+            <!-- Level 3: 区/县/县级市 -->
+            <view wx:if="{{city.expanded}}" class="level-indent">
+              <view class="folder-row folder-l3 {{currentPath.length >= 3 && currentPath[2].name === dist.district ? 'selected' : ''}}"
+                wx:for="{{city.districts}}" wx:key="district" wx:for-item="dist"
+                bindtap="onSelectDistrict" data-province="{{item.province}}" data-city="{{city.city}}" data-district="{{dist.district}}">
+                <text class="folder-icon">📄</text>
+                <text class="folder-name">{{dist.district}}</text>
+                <text class="folder-count">({{dist.count}})</text>
+              </view>
+            </view>
+          </view>
+        </view>
       </view>
     </view>
-  </view>
-  <view class="empty-state" wx:elif="{{!loading}}"><text class="empty-text">暂无景点，点击上方新增</text></view>
+
+    <!-- 景点列表 -->
+    <view class="list-panel">
+      <view class="list-header" wx:if="{{filteredAttractions.length > 0}}">
+        <text class="list-title">{{keyword ? '搜索结果' : '景点列表'}}</text>
+        <text class="list-total">共 {{filteredAttractions.length}} 个</text>
+      </view>
+
+      <view class="list" wx:if="{{filteredAttractions.length > 0}}">
+        <view class="card" wx:for="{{filteredAttractions}}" wx:key="_id">
+          <image class="card-img" src="{{item.images[0]}}" mode="aspectFill" wx:if="{{item.images && item.images[0]}}"/>
+          <view class="card-body">
+            <text class="card-name">{{item.name}}</text>
+            <text class="card-desc text-ellipsis">{{item.address}}</text>
+            <view class="card-tags"><text class="tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="t">{{t}}</text></view>
+            <view class="card-meta"><text>⭐ {{item.rating || '-'}}</text><text>📝 {{item.reviewCount || 0}}条</text></view>
+          </view>
+          <view class="card-actions">
+            <text class="act {{item.featured ? 'featured-on' : 'featured-off'}}" bindtap="onToggleFeatured" data-id="{{item._id}}" data-name="{{item.name}}" data-featured="{{item.featured}}">{{item.featured ? '⭐已上架' : '☆上架'}}</text>
+            <text class="act edit" bindtap="onEdit" data-id="{{item._id}}">编辑</text>
+            <text class="act del" bindtap="onDelete" data-id="{{item._id}}" data-name="{{item.name}}">删除</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="empty-state" wx:elif="{{currentPath.length >= 3 || keyword}}">
+        <text class="empty-text">{{keyword ? '没有匹配的景点' : '该区暂无景点'}}</text>
+      </view>
+      <view class="tree-empty-hint" wx:elif="{{!(currentPath.length >= 3) && !keyword && filteredAttractions.length === 0}}">
+        <text class="hint-icon">👆</text>
+        <text class="hint-text">省 → 市 → 区/县，三级展开后点击查看景点</text>
+      </view>
+    </view>
+  </block>
+  <view class="safe-bottom" style="height:60rpx;"></view>
 </view>

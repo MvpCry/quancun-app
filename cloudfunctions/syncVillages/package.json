@@ -1,0 +1,9 @@
+{
+  "name": "syncVillages",
+  "version": "1.0.0",
+  "description": "一键同步10个特色乡村到云数据库",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

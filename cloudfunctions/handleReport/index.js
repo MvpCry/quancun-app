@@ -9,15 +9,40 @@ exports.main = async (event, context) => {
   var wxContext = cloud.getWXContext();
   var openid = wxContext.OPENID;
 
-  // 管理员鉴权
-  var isAdmin = await checkAdmin(openid);
-  if (!isAdmin) {
-    return { success: false, error: '无管理员权限', code: 'FORBIDDEN' };
-  }
-
   var { action, reportId, reviewId } = event;
 
   try {
+    // ========== 用户自删评论（无需管理员权限） ==========
+    if (action === 'deleteMyReview') {
+      if (!reviewId) return { success: false, error: '缺少评论ID' };
+
+      // 查询评论确认是本人发的
+      var reviewRes;
+      try {
+        reviewRes = await db.collection('reviews').doc(reviewId).get();
+      } catch (e) {
+        return { success: false, error: '评论不存在' };
+      }
+
+      var review = reviewRes.data;
+      // 非管理员用户只能删除自己的评论
+      var isAdmin = await checkAdmin(openid);
+      if (!isAdmin && review.userId !== openid) {
+        return { success: false, error: '只能删除自己的评论', code: 'FORBIDDEN' };
+      }
+
+      await db.collection('reviews').doc(reviewId).remove();
+      await recalcAttractionRating(reviewId);
+
+      return { success: true, message: '评论已删除' };
+    }
+
+    // 以下操作需要管理员权限
+    var isAdmin = await checkAdmin(openid);
+    if (!isAdmin) {
+      return { success: false, error: '无管理员权限', code: 'FORBIDDEN' };
+    }
+
     switch (action) {
 
       // ========== 删除违规评论 ==========

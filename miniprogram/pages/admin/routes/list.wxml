@@ -1,7 +1,24 @@
+<view class="nav-container {{isAndroid ? 'android' : ''}}">
+  <view class="nav-left">
+    <view class="nav-back" bindtap="onNavBack">←</view>
+  </view>
+  <view class="nav-center">
+    <text class="nav-title">路线管理</text>
+  </view>
+  <view class="nav-right"></view>
+</view>
 <view class="container">
-  <view class="page-header">
-    <text class="page-title">🗺️ 路线管理</text>
-    <button class="btn-add" bindtap="onAdd">+ 新增路线</button>
+  <view class="top-bar">
+    <view class="top-title-row">
+      <view class="top-title-left">
+        <text class="top-icon">🗺️</text>
+        <text class="top-title">路线管理</text>
+      </view>
+      <text class="top-count" wx:if="{{routes.length > 0}}">共 {{routes.length}} 条路线</text>
+    </view>
+    <view class="top-actions">
+      <button class="btn-add" bindtap="onAdd">+ 新增路线</button>
+    </view>
   </view>
   <view class="list" wx:if="{{!loading && routes.length>0}}">
     <view class="card" wx:for="{{routes}}" wx:key="_id">

@@ -1,4 +1,11 @@
 <!-- pages/mine/index/index.wxml - 我的页面 -->
+<view class="nav-container {{isAndroid ? 'android' : ''}}">
+  <view class="nav-left"></view>
+  <view class="nav-center">
+    <text class="nav-title">我的</text>
+  </view>
+  <view class="nav-right"></view>
+</view>
 <view class="container">
   <!-- 用户信息卡 -->
   <view class="user-card card">
@@ -100,12 +107,16 @@
   <view class="safe-bottom" style="height: 40rpx;"></view>
 </view>
 
-<!-- 我的收藏弹层 -->
+<!-- 我的子页弹层 -->
 <view class="tab-content" wx:if="{{activeTab}}">
-  <view class="tab-header">
-    <text class="tab-back" bindtap="onCloseTab">←</text>
-    <text class="tab-title">{{activeTab === 'favorites' ? '我的收藏' : activeTab === 'routes' ? '我的路线' : activeTab === 'reviews' ? '我的评价' : '浏览历史'}}</text>
-    <view class="tab-placeholder"></view>
+  <view class="nav-container {{isAndroid ? 'android' : ''}}">
+    <view class="nav-left">
+      <view class="nav-back" bindtap="onCloseTab">←</view>
+    </view>
+    <view class="nav-center">
+      <text class="nav-title">{{activeTab === 'favorites' ? '我的收藏' : activeTab === 'routes' ? '我的路线' : activeTab === 'reviews' ? '我的评价' : '浏览历史'}}</text>
+    </view>
+    <view class="nav-right"></view>
   </view>
 
   <!-- 收藏列表 -->
@@ -149,7 +160,10 @@
           <star-rating rating="{{item.rating}}" size="small" readonly="{{true}}"/>
         </view>
         <text class="review-card-content">{{item.content}}</text>
-        <text class="review-card-time">{{item.createTime}}</text>
+        <view class="review-card-bottom">
+          <text class="review-card-time">{{item.createTime}}</text>
+          <text class="review-card-del" bindtap="onDeleteReview" data-id="{{item._id}}" data-name="{{item.attractionName}}">删除</text>
+        </view>
       </view>
     </block>
     <view class="empty-state" wx:else>

@@ -1,4 +1,10 @@
-// pages/admin/attractions/list.js - 三级树形：省 → 市 → 区/县/县级市
+// pages/admin/attractions/list.js - 省→市→区/县 三级树形（结构化字段 + 批量修正）
+var REGION = {
+  province: '山东省',
+  city: '泰安市',
+  districts: ['泰山区', '岱岳区', '东平县', '新泰市', '肥城市']
+};
+
 Page({
   data: {
     provinceTree: [],        // [{ province, count, expanded, cities: [...] }]
@@ -6,10 +12,22 @@ Page({
     filteredAttractions: [], // 当前景点列表
     allAttractions: [],
     loading: true,
-    keyword: ''
+    keyword: '',
+
+    isAndroid: false,
+    // 批量修正
+    batchMode: false,
+    selectedIds: [],
+    showBatchModal: false,
+    batchDistrict: '',
+    batchTown: '',
+    batchVillage: '',
+    batchDistricts: REGION.districts,
+    batchDistrictIndex: -1
   },
 
   onShow: function () {
+    this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android' });
     if (this._loaded) { this.loadSilent(); } else { this.loadAttractions(); }
   },
 
@@ -30,120 +48,91 @@ Page({
     } catch (err) {}
   },
 
-  // ========== 地址解析（省 / 地级市 / 区县） ==========
-  parseAddress: function (address) {
-    if (!address) return { province: '未知', city: '未知', district: '未知' };
-    // 省: XX省
-    var pMatch = address.match(/^([一-龥]{2,6}[省])/);
-    var province = pMatch ? pMatch[1] : '未知';
-    // 地级市: 省后面第一个 XX市
-    var rest = address.replace(/^[一-龥]+省/, '');
-    var cMatch = rest.match(/^([一-龥]{2,8}市)/);
-    var city = cMatch ? cMatch[1] : '未知';
-    // 区/县/县级市: 地级市后面
-    var afterCity = rest.replace(/^[一-龥]+市/, '');
-    var dMatch = afterCity.match(/^([一-龥]{2,8}[区县市])/);
-    var district = dMatch ? dMatch[1] : '未知';
-    return { province: province, city: city, district: district };
+  // ========== 结构化字段 → 区县归类 ==========
+
+  getDisplayDistrict: function (a) {
+    // 优先用结构化字段
+    var d = a.district;
+    if (d && REGION.districts.indexOf(d) >= 0) return d;
+    // 回退：从 address 字符串正则匹配
+    if (a.address) {
+      for (var k = 0; k < REGION.districts.length; k++) {
+        if (a.address.indexOf(REGION.districts[k]) >= 0) return REGION.districts[k];
+      }
+    }
+    return '未知';
   },
 
-  // ========== 构建三级树 ==========
+  // ========== 构建三级树（结构化字段，固定排序） ==========
   buildTree: function (attractions) {
     var that = this;
-    // 解析地址
+
+    // Step 1: 归类
     for (var i = 0; i < attractions.length; i++) {
-      var parsed = that.parseAddress(attractions[i].address);
-      attractions[i]._province = parsed.province;
-      attractions[i]._city = parsed.city;
-      attractions[i]._district = parsed.district;
+      attractions[i]._province = attractions[i].province || REGION.province;
+      attractions[i]._city = attractions[i].city || REGION.city;
+      attractions[i]._district = that.getDisplayDistrict(attractions[i]);
     }
 
-    var provinceMap = {};
+    // Step 2: 按区县分组
+    var districtMap = {};
     for (var j = 0; j < attractions.length; j++) {
       var a = attractions[j];
-      if (!provinceMap[a._province]) provinceMap[a._province] = {};
-      if (!provinceMap[a._province][a._city]) provinceMap[a._province][a._city] = {};
-      if (!provinceMap[a._province][a._city][a._district]) provinceMap[a._province][a._city][a._district] = [];
-      provinceMap[a._province][a._city][a._district].push(a);
+      var d = a._district;
+      if (!districtMap[d]) districtMap[d] = [];
+      districtMap[d].push(a);
     }
 
-    // 保留展开状态
-    var oldTree = that.data.provinceTree || [];
-    var getOldExpanded = function (tree, key) {
-      for (var t = 0; t < tree.length; t++) {
-        if (tree[t][key] === tree[t][key]) { /* no-op */ }
-        // Simple: just check the name
-      }
-    };
-    // 用 map 记录旧展开
-    var oldProvExp = {};
-    var oldCityExp = {};
-    for (var op = 0; op < oldTree.length; op++) {
-      oldProvExp[oldTree[op].province] = oldTree[op].expanded;
-      var ocities = oldTree[op].cities || [];
-      for (var oc = 0; oc < ocities.length; oc++) {
-        oldCityExp[ocities[oc].city] = ocities[oc].expanded;
-      }
+    // Step 3: 构建树（省→市→区县，区县按固定顺序，未知末位）
+    var totalCount = attractions.length;
+
+    // 计算归属泰安市的数量（排除未知）
+    var taiAnCount = 0;
+    for (var di = 0; di < REGION.districts.length; di++) {
+      taiAnCount += (districtMap[REGION.districts[di]] || []).length;
     }
 
-    // 保留路径和选区
+    var districts = [];
+    for (var dk = 0; dk < REGION.districts.length; dk++) {
+      var dn = REGION.districts[dk];
+      var list = districtMap[dn] || [];
+      districts.push({ district: dn, count: list.length, attractions: list });
+    }
+
+    // 未知
+    var unknownList = districtMap['未知'] || [];
+    if (unknownList.length > 0) {
+      districts.push({ district: '未知', count: unknownList.length, attractions: unknownList });
+    }
+
+    var provinceTree = [{
+      province: REGION.province,
+      count: totalCount,
+      expanded: true,
+      cities: [{
+        city: REGION.city,
+        count: taiAnCount + unknownList.length,
+        expanded: true,
+        districts: districts
+      }]
+    }];
+
+    // Step 4: 恢复选区
     var cp = that.data.currentPath || [];
-    var selProv = cp.length >= 1 ? cp[0].name : '';
-    var selCity = cp.length >= 2 ? cp[1].name : '';
     var selDist = cp.length >= 3 ? cp[2].name : '';
-
-    var provinces = Object.keys(provinceMap).sort();
-    var provinceTree = [];
-    for (var pi = 0; pi < provinces.length; pi++) {
-      var provName = provinces[pi];
-      var cities = Object.keys(provinceMap[provName]).sort();
-      var cityList = [];
-      var provTotal = 0;
-      for (var ci = 0; ci < cities.length; ci++) {
-        var cityName = cities[ci];
-        var districts = Object.keys(provinceMap[provName][cityName]).sort();
-        var districtList = [];
-        var cityTotal = 0;
-        for (var di = 0; di < districts.length; di++) {
-          var distName = districts[di];
-          var list = provinceMap[provName][cityName][distName];
-          cityTotal += list.length;
-          districtList.push({ district: distName, count: list.length, attractions: list });
-        }
-        provTotal += cityTotal;
-        var cityExpanded = oldCityExp[cityName] !== undefined ? oldCityExp[cityName] : false;
-        cityList.push({ city: cityName, count: cityTotal, expanded: cityExpanded, districts: districtList });
-      }
-      var provExpanded = oldProvExp[provName] !== undefined ? oldProvExp[provName] : (provinces.length <= 1);
-      provinceTree.push({ province: provName, count: provTotal, expanded: provExpanded, cities: cityList });
-    }
-
-    // 显示对应景点
     var filtered = [];
-    if (selDist) {
-      for (var p2 = 0; p2 < provinceTree.length; p2++) {
-        if (provinceTree[p2].province === selProv) {
-          for (var c2 = 0; c2 < provinceTree[p2].cities.length; c2++) {
-            if (provinceTree[p2].cities[c2].city === selCity) {
-              for (var d2 = 0; d2 < provinceTree[p2].cities[c2].districts.length; d2++) {
-                if (provinceTree[p2].cities[c2].districts[d2].district === selDist) {
-                  filtered = provinceTree[p2].cities[c2].districts[d2].attractions;
-                  break;
-                }
-              }
-              break;
-            }
-          }
-          break;
-        }
-      }
+    if (selDist && districtMap[selDist]) {
+      filtered = districtMap[selDist];
     }
 
     that.setData({
       provinceTree: provinceTree,
       allAttractions: attractions,
       filteredAttractions: filtered,
-      currentPath: cp
+      currentPath: filtered.length > 0 ? cp : [],
+      // 保留批量状态
+      batchMode: that.data.batchMode,
+      selectedIds: that.data.batchMode ? that.data.selectedIds : []
     });
   },
 
@@ -209,15 +198,13 @@ Page({
     var index = Number(e.currentTarget.dataset.index);
     var cp = this.data.currentPath;
     if (index < 0) {
-      // 全部景点
       this.setData({ currentPath: [], filteredAttractions: [], keyword: '' });
       return;
     }
     var newPath = cp.slice(0, index + 1);
     var tree = this.data.provinceTree;
-    var filtered = [];
+
     if (newPath.length >= 3) {
-      // 重新选中区
       this.onSelectDistrict({
         currentTarget: {
           dataset: { province: newPath[0].name, city: newPath[1].name, district: newPath[2].name }
@@ -225,8 +212,9 @@ Page({
       });
       return;
     }
-    // 如果只选了省或市，不显示景点
+
     this.setData({ currentPath: newPath, filteredAttractions: [], keyword: '' });
+
     // 确保路径中的节点展开
     if (newPath.length >= 1) {
       for (var i = 0; i < tree.length; i++) {
@@ -247,7 +235,6 @@ Page({
     var kw = (e.detail.value || '').trim().toLowerCase();
     this.setData({ keyword: kw });
     if (!kw) {
-      // 恢复选区
       if (this.data.currentPath.length >= 3) {
         var cp2 = this.data.currentPath;
         this.onSelectDistrict({ currentTarget: { dataset: { province: cp2[0].name, city: cp2[1].name, district: cp2[2].name } } });
@@ -258,14 +245,123 @@ Page({
     var results = all.filter(function (a) {
       return (a.name || '').toLowerCase().indexOf(kw) >= 0 ||
              (a.address || '').toLowerCase().indexOf(kw) >= 0 ||
+             (a._province || '').toLowerCase().indexOf(kw) >= 0 ||
              (a._city || '').toLowerCase().indexOf(kw) >= 0 ||
-             (a._district || '').toLowerCase().indexOf(kw) >= 0;
+             (a._district || '').toLowerCase().indexOf(kw) >= 0 ||
+             (a.district || '').toLowerCase().indexOf(kw) >= 0 ||
+             (a.town || '').toLowerCase().indexOf(kw) >= 0 ||
+             (a.village || '').toLowerCase().indexOf(kw) >= 0;
     });
     this.setData({ filteredAttractions: results, currentPath: [] });
   },
 
   onSearch: function () {
     this.onSearchInput({ detail: { value: this.data.keyword } });
+  },
+
+  // ========== 批量修正区域 ==========
+
+  onToggleBatchMode: function () {
+    var newMode = !this.data.batchMode;
+    this.setData({
+      batchMode: newMode,
+      selectedIds: newMode ? [] : this.data.selectedIds
+    });
+  },
+
+  onToggleSelect: function (e) {
+    var id = e.currentTarget.dataset.id;
+    var selected = this.data.selectedIds.slice();
+    var idx = selected.indexOf(id);
+    if (idx >= 0) {
+      selected.splice(idx, 1);
+    } else {
+      selected.push(id);
+    }
+    this.setData({ selectedIds: selected });
+  },
+
+  onToggleSelectAll: function () {
+    var that = this;
+    if (that.data.selectedIds.length === that.data.filteredAttractions.length) {
+      that.setData({ selectedIds: [] });
+    } else {
+      var ids = that.data.filteredAttractions.map(function (a) { return a._id; });
+      that.setData({ selectedIds: ids });
+    }
+  },
+
+  onOpenBatchModal: function () {
+    if (this.data.selectedIds.length === 0) {
+      wx.showToast({ title: '请先选择景点', icon: 'none' });
+      return;
+    }
+    this.setData({ showBatchModal: true, batchDistrict: '', batchTown: '', batchVillage: '', batchDistrictIndex: -1 });
+  },
+
+  onCloseBatchModal: function () {
+    this.setData({ showBatchModal: false });
+  },
+
+  onBatchDistrictChange: function (e) {
+    var idx = Number(e.detail.value);
+    this.setData({
+      batchDistrict: this.data.batchDistricts[idx] || '',
+      batchDistrictIndex: idx
+    });
+  },
+
+  onBatchTownInput: function (e) {
+    this.setData({ batchTown: e.detail.value });
+  },
+
+  onBatchVillageInput: function (e) {
+    this.setData({ batchVillage: e.detail.value });
+  },
+
+  onConfirmBatchUpdate: async function () {
+    var that = this;
+    if (!that.data.batchDistrict) {
+      wx.showToast({ title: '请选择区/县', icon: 'none' });
+      return;
+    }
+
+    wx.showLoading({ title: '批量更新中...' });
+    try {
+      var res = await wx.cloud.callFunction({
+        name: 'adminAttractions',
+        data: {
+          action: 'batchUpdateRegion',
+          data: {
+            ids: that.data.selectedIds,
+            province: REGION.province,
+            city: REGION.city,
+            district: that.data.batchDistrict,
+            town: that.data.batchTown || '',
+            village: that.data.batchVillage || ''
+          }
+        }
+      });
+
+      wx.hideLoading();
+
+      if (res.result && res.result.success) {
+        var msg = '已更新 ' + res.result.updated + ' 个景点';
+        if (res.result.errors && res.result.errors.length > 0) {
+          msg += '，' + res.result.errors.length + ' 个失败';
+        }
+        wx.showToast({ title: msg, icon: 'success' });
+        that.setData({ showBatchModal: false, batchMode: false, selectedIds: [] });
+        getApp().refreshCache('attractions');
+        that.loadAttractions();
+      } else {
+        wx.showToast({ title: (res.result && res.result.error) || '更新失败', icon: 'none' });
+      }
+    } catch (err) {
+      wx.hideLoading();
+      console.error('批量更新失败:', err);
+      wx.showToast({ title: '更新失败，请重试', icon: 'none' });
+    }
   },
 
   // ========== 操作 ==========
@@ -293,16 +389,17 @@ Page({
           var res = await wx.cloud.callFunction({ name: 'adminAttractions', data: { action: 'toggleFeatured', id: id } });
           wx.hideLoading();
           if (res.result && res.result.success) {
-            var list = that.data.filteredAttractions.map(function (item) {
-              if (item._id === id) item.featured = res.result.featured;
-              return item;
-            });
             var all = that.data.allAttractions.map(function (item) {
               if (item._id === id) item.featured = res.result.featured;
               return item;
             });
             that.buildTree(all);
-            if (list.length > 0) that.setData({ filteredAttractions: list });
+            // 同步更新当前展示列表
+            var filtered = that.data.filteredAttractions.map(function (item) {
+              if (item._id === id) item.featured = res.result.featured;
+              return item;
+            });
+            that.setData({ filteredAttractions: filtered });
             wx.showToast({ title: res.result.featured ? '已上架精选' : '已下架精选', icon: 'success' });
             getApp().refreshCache('attractions');
           }
@@ -324,14 +421,18 @@ Page({
         try {
           await wx.cloud.callFunction({ name: 'adminAttractions', data: { action: 'delete', data: { id: id } } });
           wx.hideLoading();
-          var list = that.data.filteredAttractions.filter(function (item) { return item._id !== id; });
           var all = that.data.allAttractions.filter(function (item) { return item._id !== id; });
+          var filtered = that.data.filteredAttractions.filter(function (item) { return item._id !== id; });
           that.buildTree(all);
-          that.setData({ filteredAttractions: list });
+          that.setData({ filteredAttractions: filtered });
           wx.showToast({ title: '已删除', icon: 'success' });
           getApp().refreshCache('attractions');
         } catch (err) { wx.hideLoading(); wx.showToast({ title: '操作失败', icon: 'none' }); }
       }
     });
+  },
+
+  onNavBack: function () {
+    wx.navigateBack();
   }
 });

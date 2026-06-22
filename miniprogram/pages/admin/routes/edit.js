@@ -2,6 +2,7 @@
 Page({
   data: {
     isEdit: false, id: '', saving: false,
+    isAndroid: false,
     form: { name: '', description: '', coverImage: '', tags: {}, selectedAttractions: [] },
     selectedNames: [],        // 与 selectedAttractions 对应的名称数组
     allAttractions: [],       // 全部可选的景点
@@ -14,6 +15,7 @@ Page({
   },
 
   onLoad: function (options) {
+    this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android' });
     this.loadAllAttractions();
     if (options && options.id) {
       this.setData({ isEdit: true, id: options.id });
@@ -223,5 +225,9 @@ Page({
       that.setData({ saving: false });
       wx.showToast({ title: '保存失败', icon: 'none' });
     }
+  },
+
+  onNavBack: function () {
+    wx.navigateBack();
   }
 });

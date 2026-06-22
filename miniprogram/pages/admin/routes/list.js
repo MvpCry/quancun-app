@@ -1,8 +1,9 @@
 // pages/admin/routes/list.js - 路线列表管理（无刷新局部更新 + 推荐开关）
 Page({
-  data: { routes: [], loading: true },
+  data: { routes: [], loading: true, isAndroid: false },
 
   onShow: function () {
+    this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android' });
     if (this._loaded) { this.loadSilent(); } else { this.loadRoutes(); }
   },
 
@@ -77,5 +78,9 @@ Page({
         } catch (err) { wx.hideLoading(); wx.showToast({ title: '操作失败', icon: 'none' }); }
       }
     });
+  },
+
+  onNavBack: function () {
+    wx.navigateBack();
   }
 });

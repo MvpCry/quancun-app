@@ -1,17 +1,35 @@
 <!-- pages/admin/admins/index.wxml - 管理员管理 -->
+<view class="nav-container {{isAndroid ? 'android' : ''}}">
+  <view class="nav-left">
+    <view class="nav-back" bindtap="onNavBack">←</view>
+  </view>
+  <view class="nav-center">
+    <text class="nav-title">管理员管理</text>
+  </view>
+  <view class="nav-right"></view>
+</view>
 <view class="container">
-  <view class="page-header">
-    <text class="page-title">👥 管理员管理</text>
-    <text class="page-count">{{adminTotal}} 位管理员</text>
+  <view class="top-bar">
+    <view class="top-title-row">
+      <view class="top-title-left">
+        <text class="top-icon">👥</text>
+        <text class="top-title">管理员管理</text>
+      </view>
+      <text class="top-count" wx:if="{{adminTotal > 0}}">{{adminTotal}} 位管理员</text>
+    </view>
+
+    <view class="search-bar">
+      <view class="search-input-wrap">
+        <text class="search-icon">🔍</text>
+        <input class="search-input" placeholder="输入用户昵称搜索..." value="{{searchKeyword}}" bindinput="onSearchInput" bindconfirm="onSearch"/>
+      </view>
+      <button class="btn-sm green" bindtap="onSearch">搜索</button>
+      <button class="btn-sm gray" bindtap="onClearSearch" wx:if="{{searchTotal > 0}}">清空</button>
+    </view>
   </view>
 
   <!-- 搜索添加用户 -->
   <view class="section-title">添加管理员</view>
-  <view class="search-bar">
-    <input class="search-input" placeholder="输入用户昵称搜索..." value="{{searchKeyword}}" bindinput="onSearchInput" bindconfirm="onSearch"/>
-    <button class="btn-sm green" bindtap="onSearch">搜索</button>
-    <button class="btn-sm gray" bindtap="onClearSearch" wx:if="{{searchTotal > 0}}">清空</button>
-  </view>
 
   <!-- 搜索结果 -->
   <view class="search-results" wx:if="{{searchTotal > 0}}">

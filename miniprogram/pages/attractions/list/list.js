@@ -7,6 +7,7 @@ Page({
     activeCategory: '',
     keyword: '',
     sortBy: 'rating',
+    isAndroid: false,
     attractions: [],
     page: 1,
     hasMore: false,
@@ -21,7 +22,7 @@ Page({
 
   onLoad: function (options) {
     var app = getApp();
-    this.setData({ categories: app.globalData.categories });
+    this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android', categories: app.globalData.categories });
 
     // 选择模式
     if (options && options.mode === 'select') {
@@ -229,5 +230,9 @@ Page({
   // ========== 分享 ==========
   onShareAppMessage: function () {
     return { title: '去俺村 - 发现最美景点', path: '/pages/attractions/list/list' };
+  },
+
+  onNavBack: function () {
+    wx.navigateBack();
   }
 });

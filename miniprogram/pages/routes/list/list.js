@@ -6,6 +6,7 @@ Page({
     routeTags: [],
     activeTag: '',
     categoryName: '',        // 当前分类名称（用于空状态提示）
+    isAndroid: false,
     routes: [],
     page: 1,
     hasMore: false,
@@ -14,6 +15,7 @@ Page({
   },
 
   onLoad: function (options) {
+    this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android' });
     var app = getApp();
     // 分类标签映射：红游/乡村游/亲子游/文化游 → 路线标签
     var categoryTagMap = {
@@ -180,5 +182,9 @@ Page({
 
   onShareAppMessage: function () {
     return { title: '去俺村 - 发现最美旅游路线', path: '/pages/routes/list/list' };
+  },
+
+  onNavBack: function () {
+    wx.navigateBack();
   }
 });

@@ -5,10 +5,11 @@ Page({
     allAttractions: [],
     total: 0,
     loading: true,
-    keyword: ''
+    keyword: '',
+    isAndroid: false
   },
 
-  onLoad: function () { this.loadList(); },
+  onLoad: function () { this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android' }); this.loadList(); },
   onShow: function () { this.loadList(); },
 
   loadList: async function () {
@@ -84,5 +85,9 @@ Page({
         }
       }
     });
+  },
+
+  onNavBack: function () {
+    wx.navigateBack();
   }
 });

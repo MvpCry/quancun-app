@@ -5,10 +5,12 @@ Page({
   data: {
     stats: null,
     loading: true,
-    isAdmin: false
+    isAdmin: false,
+    isAndroid: false
   },
 
   onLoad: function () {
+    this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android' });
     this.checkAdmin();
   },
 
@@ -69,5 +71,9 @@ Page({
 
   onNavTo: function (e) {
     wx.navigateTo({ url: e.currentTarget.dataset.url });
+  },
+
+  onNavBack: function () {
+    wx.navigateBack();
   }
 });

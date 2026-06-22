@@ -1,4 +1,11 @@
 <!-- pages/attractions/list/list.wxml - 景点列表页 -->
+<view class="nav-container {{isAndroid ? 'android' : ''}}">
+  <view class="nav-left"></view>
+  <view class="nav-center">
+    <text class="nav-title">景点</text>
+  </view>
+  <view class="nav-right"></view>
+</view>
 <view class="container">
   <!-- 选择模式顶部栏 -->
   <view class="select-top-bar" wx:if="{{selectMode}}">

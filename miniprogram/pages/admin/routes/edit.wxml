@@ -1,3 +1,12 @@
+<view class="nav-container {{isAndroid ? 'android' : ''}}">
+  <view class="nav-left">
+    <view class="nav-back" bindtap="onNavBack">←</view>
+  </view>
+  <view class="nav-center">
+    <text class="nav-title">{{isEdit ? '编辑路线' : '新增路线'}}</text>
+  </view>
+  <view class="nav-right"></view>
+</view>
 <scroll-view class="container" scroll-y>
   <!-- 路线名称 -->
   <view class="form-grp"><text class="label">路线名称 *</text><input class="inp" value="{{form.name}}" bindinput="onInput" data-field="name" placeholder="如：泰安乡村一日游"/></view>

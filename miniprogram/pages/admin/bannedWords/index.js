@@ -3,9 +3,9 @@ Page({
   data: {
     words: [], total: 0, loading: true,
     newWord: '', searchKeyword: '',
-    showBatch: false, batchText: ''
+    showBatch: false, batchText: '', isAndroid: false
   },
-  onLoad: function () { this.loadWords(); },
+  onLoad: function () { this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android' }); this.loadWords(); },
   loadWords: async function (page) {
     var that = this; page = page || 1; that.setData({ loading: true });
     try {
@@ -68,5 +68,9 @@ Page({
           success: function () { that.setData({ showBatch: false, batchText: '' }); that.loadWords(); } });
       }
     } catch (err) { wx.hideLoading(); wx.showToast({ title: '导入失败', icon: 'none' }); }
+  },
+
+  onNavBack: function () {
+    wx.navigateBack();
   }
 });

@@ -9,10 +9,12 @@ Page({
     featuredAttractions: [],
     searchKeyword: '',
     loading: true,
-    loadError: false
+    loadError: false,
+    isAndroid: false
   },
 
   onLoad: function () {
+    this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android' });
     var app = getApp();
     this.setData({ categories: app.globalData.categories });
     this.loadData();
@@ -218,5 +220,9 @@ Page({
 
   onShareAppMessage: function () {
     return { title: '去俺村 - 发现最美乡村旅游路线', path: '/pages/index/index' };
+  },
+
+  onNavBack: function () {
+    wx.navigateBack();
   }
 });

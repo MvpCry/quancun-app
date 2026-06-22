@@ -144,7 +144,7 @@
       </view>
     </view>
     <view class="review-list" wx:if="{{reviews.length > 0}}">
-      <view class="review-item" wx:for="{{reviews}}" wx:key="_id">
+      <view class="review-item" wx:for="{{reviews}}" wx:key="_id" bindlongpress="onLongPressReview" data-review-id="{{item._id}}" data-index="{{index}}">
         <view class="review-user">
           <image class="review-avatar" src="{{item.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"/>
           <view class="review-user-info">

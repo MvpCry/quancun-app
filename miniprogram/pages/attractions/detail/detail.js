@@ -466,6 +466,46 @@ Page({
     }
   },
 
+  // ========== 长按删除自己的评论 ==========
+  onLongPressReview: function (e) {
+    var that = this;
+    var reviewId = e.currentTarget.dataset.reviewId;
+    var index = e.currentTarget.dataset.index;
+    var review = that.data.reviews[index];
+    if (!review) return;
+
+    wx.showModal({
+      title: '删除评论',
+      content: '确定删除这条评论吗？',
+      confirmText: '删除',
+      confirmColor: '#E53935',
+      success: function (res) {
+        if (!res.confirm) return;
+        wx.showLoading({ title: '删除中...' });
+        wx.cloud.callFunction({
+          name: 'handleReport',
+          data: { action: 'deleteMyReview', reviewId: reviewId },
+          success: function (cfRes) {
+            wx.hideLoading();
+            if (cfRes.result && cfRes.result.success) {
+              wx.showToast({ title: '已删除', icon: 'success' });
+              // 从列表中移除
+              var reviews = that.data.reviews.slice();
+              reviews.splice(index, 1);
+              that.setData({ reviews: reviews, reviewTotal: Math.max(0, that.data.reviewTotal - 1) });
+            } else {
+              wx.showToast({ title: (cfRes.result && cfRes.result.error) || '删除失败', icon: 'none' });
+            }
+          },
+          fail: function () {
+            wx.hideLoading();
+            wx.showToast({ title: '删除失败，请重试', icon: 'none' });
+          }
+        });
+      }
+    });
+  },
+
   onShareAppMessage: function () {
     return {
       title: '去俺村 - ' + this.data.attraction.name,

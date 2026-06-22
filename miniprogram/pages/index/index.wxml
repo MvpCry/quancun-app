@@ -1,4 +1,11 @@
 <!-- pages/index/index.wxml - 首页 -->
+<view class="nav-container {{isAndroid ? 'android' : ''}}">
+  <view class="nav-left"></view>
+  <view class="nav-center">
+    <text class="nav-title">去俺村</text>
+  </view>
+  <view class="nav-right"></view>
+</view>
 <view class="container">
   <!-- 搜索栏 -->
   <view class="search-bar">

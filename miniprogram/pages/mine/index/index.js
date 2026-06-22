@@ -8,12 +8,14 @@ Page({
     userInfo: {},
     favoriteCount: 0,
     myRouteCount: 0,
+    isAndroid: false,
     myReviewCount: 0,
     activeTab: '',
     tabList: []
   },
 
   onLoad: function () {
+    this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android' });
     this.checkLoginState();
   },
 
@@ -307,5 +309,46 @@ Page({
         }
       }
     });
+  },
+
+  // ========== 删除自己的评价 ==========
+  onDeleteReview: function (e) {
+    var that = this;
+    var reviewId = e.currentTarget.dataset.id;
+    var attractionName = e.currentTarget.dataset.name || '该景点';
+
+    wx.showModal({
+      title: '删除评价',
+      content: '确定删除对「' + attractionName + '」的评价吗？',
+      confirmText: '删除',
+      confirmColor: '#E53935',
+      success: function (res) {
+        if (!res.confirm) return;
+        wx.showLoading({ title: '删除中...' });
+        wx.cloud.callFunction({
+          name: 'handleReport',
+          data: { action: 'deleteMyReview', reviewId: reviewId },
+          success: function (cfRes) {
+            wx.hideLoading();
+            if (cfRes.result && cfRes.result.success) {
+              wx.showToast({ title: '已删除', icon: 'success' });
+              // 从列表中移除
+              var list = that.data.tabList.filter(function (item) { return item._id !== reviewId; });
+              that.setData({ tabList: list, myReviewCount: Math.max(0, that.data.myReviewCount - 1) });
+            } else {
+              wx.showToast({ title: (cfRes.result && cfRes.result.error) || '删除失败', icon: 'none' });
+            }
+          },
+          fail: function () {
+            wx.hideLoading();
+            wx.showToast({ title: '删除失败，请重试', icon: 'none' });
+          }
+        });
+      }
+    });
+  },
+
+  onNavBack: function () {
+    wx.navigateBack();
   }
 });

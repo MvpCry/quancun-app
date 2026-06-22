@@ -1,4 +1,4 @@
 {
   "usingComponents": {},
-  "navigationBarTitleText": "Banner管理"
+  "navigationStyle": "custom"
 }

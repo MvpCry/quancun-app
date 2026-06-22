@@ -1,5 +1,18 @@
-.page-header{display:flex;justify-content:space-between;align-items:center;padding:24rpx 0 20rpx}.page-title{font-size:36rpx;font-weight:700}
-.btn-add{padding:14rpx 28rpx;background:#2E7D32;color:#FFF;border-radius:40rpx;font-size:26rpx;border:none}.btn-add::after{border:none}
+/* 自定义导航栏（左箭头+居中标题+右胶囊）*/
+.nav-container{width:100%;background:#207c30;box-sizing:border-box;padding-top:calc(env(safe-area-inset-top) + 36rpx);padding-bottom:16rpx;min-height:140rpx;display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;}
+.nav-container.android{padding-top:calc(env(safe-area-inset-top) + 40rpx)!important;align-items:center}
+.nav-left{width:100rpx;flex-shrink:0;display:flex;align-items:center;padding-left:30rpx}.nav-center{flex:1;display:flex;justify-content:center;align-items:center}.nav-right{width:180rpx;flex-shrink:0}.nav-title{font-size:36rpx;color:#fff;font-weight:600;padding:12rpx 0;white-space:nowrap}
+.nav-back{width:40rpx;height:40rpx;font-size:40rpx;line-height:40rpx;color:#fff;display:flex;align-items:center;justify-content:center}
+
+/* 顶部卡片 */
+.top-bar{background:linear-gradient(135deg,#E8F5E9 0%,#FFF 40%);border-radius:16rpx;padding:28rpx 28rpx 18rpx;margin-bottom:20rpx;box-shadow:0 2px 12px rgba(0,0,0,.05)}
+.top-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:20rpx}
+.top-title-left{display:flex;align-items:center;gap:10rpx}
+.top-icon{font-size:36rpx}
+.top-title{font-size:38rpx;font-weight:700;color:#1B5E20;white-space:nowrap}
+.top-count{font-size:24rpx;color:#999;white-space:nowrap}
+.top-actions{display:flex;align-items:center;gap:16rpx}
+.btn-add{padding:16rpx 36rpx;background:#2E7D32;color:#FFF;border-radius:40rpx;font-size:28rpx;font-weight:600;border:none;box-shadow:0 2px 8px rgba(46,125,50,.25)}.btn-add::after{border:none}
 .list{display:flex;flex-direction:column;gap:20rpx}
 .card{display:flex;background:#FFF;border-radius:12rpx;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:20rpx;align-items:center;gap:16rpx}
 .card-img{width:120rpx;height:120rpx;border-radius:12rpx;flex-shrink:0;background:#F0F0F0}

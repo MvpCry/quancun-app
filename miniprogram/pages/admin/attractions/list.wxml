@@ -1,14 +1,37 @@
-<!-- pages/admin/attractions/list.wxml - 省→市→区/县 三级树形 -->
-<view class="container">
-  <view class="page-header">
-    <text class="page-title">📍 景点管理</text>
-    <button class="btn-add" bindtap="onAdd">+ 新增景点</button>
+<!-- pages/admin/attractions/list.wxml - 省→市→区/县 三级树形（批量修正）-->
+<view class="nav-container {{isAndroid ? 'android' : ''}}">
+  <view class="nav-left">
+    <view class="nav-back" bindtap="onNavBack">←</view>
   </view>
+  <view class="nav-center">
+    <text class="nav-title">景点管理</text>
+  </view>
+  <view class="nav-right"></view>
+</view>
+<view class="container">
+  <!-- ====== 顶部标题栏 ====== -->
+  <view class="top-bar">
+    <view class="top-title-row">
+      <view class="top-title-left">
+        <text class="top-icon">📍</text>
+        <text class="top-title">景点管理</text>
+      </view>
+      <text class="top-count" wx:if="{{allAttractions.length > 0}}">共 {{allAttractions.length}} 个景点</text>
+    </view>
+    <view class="top-actions">
+      <button class="btn-batch {{batchMode ? 'active' : ''}}" bindtap="onToggleBatchMode">
+        {{batchMode ? '取消选择' : '批量修正区域'}}
+      </button>
+      <button class="btn-add" bindtap="onAdd">+ 新增景点</button>
+    </view>
 
-  <!-- 搜索栏 -->
-  <view class="search-bar">
-    <input class="search-input" placeholder="搜索景点名称、地址..." value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch"/>
-    <text class="search-btn" bindtap="onSearch">搜索</text>
+    <!-- 搜索栏 -->
+    <view class="search-bar">
+      <view class="search-input-wrap">
+        <text class="search-icon">🔍</text>
+        <input class="search-input" placeholder="搜索名称、地址、区县..." value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch"/>
+      </view>
+    </view>
   </view>
 
   <view wx:if="{{loading}}" class="loading-state"><text>加载中...</text></view>
@@ -20,9 +43,9 @@
       <block wx:for="{{currentPath}}" wx:key="name">
         <text class="bc-sep">›</text>
         <text class="bc-item {{index === currentPath.length - 1 ? 'bc-active' : ''}}"
-          bindtap="onClearPath" data-index="{{index}}">{{item.name}}</text>
+          bindtap="onClearPath" data-index="{{index}}">{{item.name}}({{index === 2 ? filteredAttractions.length : ''}})</text>
       </block>
-      <text class="bc-total" wx:if="{{filteredAttractions.length > 0}}">({{filteredAttractions.length}})</text>
+      <text class="bc-total" wx:if="{{filteredAttractions.length > 0 && currentPath.length < 3}}">({{filteredAttractions.length}})</text>
     </view>
 
     <!-- 树形面板 -->
@@ -47,19 +70,38 @@
               <text class="folder-count">({{city.count}})</text>
             </view>
 
-            <!-- Level 3: 区/县/县级市 -->
+            <!-- Level 3: 区/县/县级市（叶子节点，📄 图标）-->
             <view wx:if="{{city.expanded}}" class="level-indent">
-              <view class="folder-row folder-l3 {{currentPath.length >= 3 && currentPath[2].name === dist.district ? 'selected' : ''}}"
+              <view class="folder-row folder-l3 {{currentPath.length >= 3 && currentPath[2].name === dist.district ? 'selected' : ''}}{{dist.district === '未知' ? 'unknown' : ''}}"
                 wx:for="{{city.districts}}" wx:key="district" wx:for-item="dist"
                 bindtap="onSelectDistrict" data-province="{{item.province}}" data-city="{{city.city}}" data-district="{{dist.district}}">
                 <text class="folder-icon">📄</text>
                 <text class="folder-name">{{dist.district}}</text>
                 <text class="folder-count">({{dist.count}})</text>
               </view>
+
+              <!-- 未知为空时的提示 -->
+              <view class="unknown-empty" wx:if="{{dist.district === '未知' && dist.count === 0}}">
+                <text class="empty-hint-text">✅ 所有景点均已归类，没有脏数据</text>
+              </view>
             </view>
           </view>
         </view>
       </view>
+
+      <!-- 树形为空 -->
+      <view class="tree-empty-state" wx:if="{{provinceTree.length === 0}}">
+        <text class="empty-text">暂无景点数据</text>
+        <text class="empty-sub">点击右上角 + 新增景点</text>
+      </view>
+    </view>
+
+    <!-- 搜索结果区域路径标签 -->
+    <view class="search-path-tags" wx:if="{{keyword && filteredAttractions.length > 0}}">
+      <text class="path-tag-hint">搜索结果所在区域：</text>
+      <text class="path-tag" wx:for="{{filteredAttractions}}" wx:key="_id" wx:for-item="a">
+        {{a._province || a.province}} › {{a._city || a.city}} › {{a._district || '未知'}}
+      </text>
     </view>
 
     <!-- 景点列表 -->
@@ -70,15 +112,27 @@
       </view>
 
       <view class="list" wx:if="{{filteredAttractions.length > 0}}">
-        <view class="card" wx:for="{{filteredAttractions}}" wx:key="_id">
+        <view class="card {{batchMode && selectedIds.indexOf(item._id) >= 0 ? 'card-selected' : ''}}"
+          wx:for="{{filteredAttractions}}" wx:key="_id">
+          <!-- 批量选择复选框 -->
+          <view class="card-check" wx:if="{{batchMode}}" catchtap="onToggleSelect" data-id="{{item._id}}">
+            <view class="checkbox {{selectedIds.indexOf(item._id) >= 0 ? 'checked' : ''}}">
+              <text wx:if="{{selectedIds.indexOf(item._id) >= 0}}">✓</text>
+            </view>
+          </view>
           <image class="card-img" src="{{item.images[0]}}" mode="aspectFill" wx:if="{{item.images && item.images[0]}}"/>
           <view class="card-body">
             <text class="card-name">{{item.name}}</text>
-            <text class="card-desc text-ellipsis">{{item.address}}</text>
+            <text class="card-desc text-ellipsis">
+              {{item._province || ''}} {{item._city || ''}} {{item._district || ''}}
+              <text wx:if="{{item.town}}">{{item.town}}</text>
+              <text wx:if="{{item.village}}">{{item.village}}</text>
+            </text>
+            <text class="card-addr-hint text-ellipsis">{{item.address}}</text>
             <view class="card-tags"><text class="tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="t">{{t}}</text></view>
             <view class="card-meta"><text>⭐ {{item.rating || '-'}}</text><text>📝 {{item.reviewCount || 0}}条</text></view>
           </view>
-          <view class="card-actions">
+          <view class="card-actions" wx:if="{{!batchMode}}">
             <text class="act {{item.featured ? 'featured-on' : 'featured-off'}}" bindtap="onToggleFeatured" data-id="{{item._id}}" data-name="{{item.name}}" data-featured="{{item.featured}}">{{item.featured ? '⭐已上架' : '☆上架'}}</text>
             <text class="act edit" bindtap="onEdit" data-id="{{item._id}}">编辑</text>
             <text class="act del" bindtap="onDelete" data-id="{{item._id}}" data-name="{{item.name}}">删除</text>
@@ -89,11 +143,55 @@
       <view class="empty-state" wx:elif="{{currentPath.length >= 3 || keyword}}">
         <text class="empty-text">{{keyword ? '没有匹配的景点' : '该区暂无景点'}}</text>
       </view>
-      <view class="tree-empty-hint" wx:elif="{{!(currentPath.length >= 3) && !keyword && filteredAttractions.length === 0}}">
+      <view class="tree-empty-hint" wx:elif="{{!(currentPath.length >= 3) && !keyword && filteredAttractions.length === 0 && provinceTree.length > 0}}">
         <text class="hint-icon">👆</text>
-        <text class="hint-text">省 → 市 → 区/县，三级展开后点击查看景点</text>
+        <text class="hint-text">省 → 市 → 区/县，点击区县查看景点</text>
       </view>
     </view>
   </block>
+
+  <!-- 批量操作底部栏 -->
+  <view class="batch-bar" wx:if="{{batchMode && selectedIds.length > 0}}">
+    <view class="batch-left" catchtap="onToggleSelectAll">
+      <view class="checkbox {{selectedIds.length === filteredAttractions.length ? 'checked' : ''}}">
+        <text wx:if="{{selectedIds.length === filteredAttractions.length}}">✓</text>
+      </view>
+      <text class="batch-label">全选</text>
+    </view>
+    <text class="batch-count">已选 {{selectedIds.length}} 个</text>
+    <button class="batch-btn" bindtap="onOpenBatchModal">批量修正区域</button>
+  </view>
+
+  <!-- 批量修正弹窗 -->
+  <view class="modal-mask" wx:if="{{showBatchModal}}" bindtap="onCloseBatchModal">
+    <view class="modal-content" catchtap="">
+      <text class="modal-title">批量修正区域 ({{selectedIds.length}}个景点)</text>
+
+      <view class="form-grp">
+        <text class="label">区/县 *</text>
+        <picker mode="selector" range="{{batchDistricts}}" value="{{batchDistrictIndex}}" bindchange="onBatchDistrictChange">
+          <view class="picker-val {{batchDistrict ? '' : 'picker-placeholder'}}">
+            {{batchDistrict || '请选择区/县'}}
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-grp">
+        <text class="label">乡镇/街道 (选填)</text>
+        <input class="inp" value="{{batchTown}}" bindinput="onBatchTownInput" placeholder="如：道朗镇"/>
+      </view>
+
+      <view class="form-grp">
+        <text class="label">村庄 (选填)</text>
+        <input class="inp" value="{{batchVillage}}" bindinput="onBatchVillageInput" placeholder="如：里峪村"/>
+      </view>
+
+      <view class="modal-btns">
+        <button class="btn-cancel" bindtap="onCloseBatchModal">取消</button>
+        <button class="btn-confirm" bindtap="onConfirmBatchUpdate">确认更新</button>
+      </view>
+    </view>
+  </view>
+
   <view class="safe-bottom" style="height:60rpx;"></view>
 </view>

@@ -1,5 +1,10 @@
 /* pages/mine/index/index.wxss - 我的页面样式 */
 
+/* 自定义导航栏 */
+.nav-container{width:100%;background:#207c30;box-sizing:border-box;padding-top:calc(env(safe-area-inset-top) + 36rpx);padding-bottom:16rpx;min-height:140rpx;display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;}
+.nav-container.android{padding-top:calc(env(safe-area-inset-top) + 40rpx)!important;align-items:center}
+.nav-left{width:100rpx;flex-shrink:0;display:flex;align-items:center;padding-left:30rpx}.nav-center{flex:1;display:flex;justify-content:center;align-items:center}.nav-right{width:180rpx;flex-shrink:0}.nav-title{font-size:36rpx;color:#fff;font-weight:600;padding:12rpx 0;white-space:nowrap}
+
 /* 用户卡片 */
 .user-card {
   margin-top: 24rpx;
@@ -133,7 +138,7 @@
   padding: 40rpx 0;
 }
 
-.admin-entry{display:flex;justify-content:center;padding:20rpx 0 40rpx}.admin-entry-text{font-size:22rpx;color:#CCC}
+.admin-entry{display:flex;justify-content:space-between;padding:20rpx 0 40rpx}.admin-entry-text{font-size:22rpx;color:#CCC}
 /* Tab内容面板 */
 .tab-content {
   position: fixed;
@@ -264,6 +269,19 @@
 .review-card-time {
   font-size: 22rpx;
   color: #BBB;
+}
+
+.review-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8rpx;
+}
+
+.review-card-del {
+  font-size: 24rpx;
+  color: #E53935;
+  padding: 6rpx 16rpx;
 }
 
 /* ===== 统一空状态 ===== */

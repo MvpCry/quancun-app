@@ -1,4 +1,13 @@
 <!-- pages/admin/dashboard/index.wxml -->
+<view class="nav-container {{isAndroid ? 'android' : ''}}">
+  <view class="nav-left">
+    <view class="nav-back" bindtap="onNavBack">←</view>
+  </view>
+  <view class="nav-center">
+    <text class="nav-title">管理后台</text>
+  </view>
+  <view class="nav-right"></view>
+</view>
 <view class="container">
   <view class="admin-header">
     <text class="admin-title">🛡️ 管理后台</text>

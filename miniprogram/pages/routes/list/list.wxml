@@ -1,4 +1,11 @@
 <!-- pages/routes/list/list.wxml - 路线列表页 -->
+<view class="nav-container {{isAndroid ? 'android' : ''}}">
+  <view class="nav-left"></view>
+  <view class="nav-center">
+    <text class="nav-title">路线</text>
+  </view>
+  <view class="nav-right"></view>
+</view>
 <view class="container">
   <!-- 顶部标签筛选 -->
   <view class="section-header">

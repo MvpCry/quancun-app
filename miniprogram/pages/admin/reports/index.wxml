@@ -1,6 +1,23 @@
 <!-- pages/admin/reports/index.wxml -->
+<view class="nav-container {{isAndroid ? 'android' : ''}}">
+  <view class="nav-left">
+    <view class="nav-back" bindtap="onNavBack">←</view>
+  </view>
+  <view class="nav-center">
+    <text class="nav-title">举报管理</text>
+  </view>
+  <view class="nav-right"></view>
+</view>
 <view class="container">
-  <view class="page-header"><text class="page-title">⚑ 举报管理</text></view>
+  <view class="top-bar">
+    <view class="top-title-row">
+      <view class="top-title-left">
+        <text class="top-icon">⚑</text>
+        <text class="top-title">举报管理</text>
+      </view>
+    </view>
+  </view>
+
   <view class="tab-bar">
     <view class="tab-item {{activeTab==='pending'?'active':''}}" bindtap="onTabChange" data-tab="pending">待处理</view>
     <view class="tab-item {{activeTab==='handled'?'active':''}}" bindtap="onTabChange" data-tab="handled">已处理</view>

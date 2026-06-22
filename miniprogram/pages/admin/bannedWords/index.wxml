@@ -1,21 +1,43 @@
 <!-- pages/admin/bannedWords/index.wxml -->
+<view class="nav-container {{isAndroid ? 'android' : ''}}">
+  <view class="nav-left">
+    <view class="nav-back" bindtap="onNavBack">←</view>
+  </view>
+  <view class="nav-center">
+    <text class="nav-title">敏感词库</text>
+  </view>
+  <view class="nav-right"></view>
+</view>
 <view class="container">
-  <view class="page-header"><text class="page-title">🚫 敏感词库</text><text class="page-count">共 {{total}} 个</text></view>
-  <view class="add-bar">
-    <input class="add-input" placeholder="输入新敏感词..." value="{{newWord}}" bindinput="onWordInput" bindconfirm="onAddWord"/>
-    <button class="btn-sm green" bindtap="onAddWord">添加</button>
-    <button class="btn-sm gray" bindtap="onToggleBatch">批量</button>
-  </view>
-  <view class="batch-area" wx:if="{{showBatch}}">
-    <textarea class="batch-textarea" placeholder="粘贴敏感词，每行一个或用逗号分隔..." value="{{batchText}}" bindinput="onBatchInput" maxlength="2000"/>
-    <view class="batch-actions">
-      <button class="btn-sm gray" bindtap="onToggleBatch">取消</button>
-      <button class="btn-sm green" bindtap="onBatchSubmit">导入词库</button>
+  <view class="top-bar">
+    <view class="top-title-row">
+      <view class="top-title-left">
+        <text class="top-icon">🚫</text>
+        <text class="top-title">敏感词库</text>
+      </view>
+      <text class="top-count" wx:if="{{total > 0}}">共 {{total}} 个</text>
     </view>
-  </view>
-  <view class="search-bar">
-    <input class="search-input" placeholder="搜索敏感词..." value="{{searchKeyword}}" bindinput="onSearchInput" bindconfirm="onSearch"/>
-    <button class="btn-sm green" bindtap="onSearch">搜索</button>
+
+    <view class="add-bar">
+      <input class="add-input" placeholder="输入新敏感词..." value="{{newWord}}" bindinput="onWordInput" bindconfirm="onAddWord"/>
+      <button class="btn-sm green" bindtap="onAddWord">添加</button>
+      <button class="btn-sm gray" bindtap="onToggleBatch">批量</button>
+    </view>
+
+    <view class="batch-area" wx:if="{{showBatch}}">
+      <textarea class="batch-textarea" placeholder="粘贴敏感词，每行一个或用逗号分隔..." value="{{batchText}}" bindinput="onBatchInput" maxlength="2000"/>
+      <view class="batch-actions">
+        <button class="btn-sm gray" bindtap="onToggleBatch">取消</button>
+        <button class="btn-sm green" bindtap="onBatchSubmit">导入词库</button>
+      </view>
+    </view>
+
+    <view class="search-bar">
+      <view class="search-input-wrap">
+        <text class="search-icon">🔍</text>
+        <input class="search-input" placeholder="搜索敏感词..." value="{{searchKeyword}}" bindinput="onSearchInput" bindconfirm="onSearch"/>
+      </view>
+    </view>
   </view>
   <view class="word-list" wx:if="{{!loading && words.length > 0}}">
     <view class="word-item" wx:for="{{words}}" wx:key="_id">

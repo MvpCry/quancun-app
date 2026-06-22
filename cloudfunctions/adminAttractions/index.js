@@ -65,10 +65,20 @@ exports.main = async (event, context) => {
       }
 
       case 'create': {
-        // 新增景点
+        // 新增景点 — 校验区县合法性
+        var validDistricts = ['泰山区', '岱岳区', '东平县', '新泰市', '肥城市'];
+        if (data.district && validDistricts.indexOf(data.district) === -1) {
+          return { success: false, error: '区/县不合法，可选：' + validDistricts.join('、') };
+        }
         const addRes = await db.collection('attractions').add({
           data: {
             ...data,
+            // 确保结构化字段存在
+            province: data.province || '山东省',
+            city: data.city || '泰安市',
+            district: data.district || '',
+            town: data.town || '',
+            village: data.village || '',
             rating: 0,
             reviewCount: 0,
             createTime: db.serverDate(),
@@ -79,7 +89,11 @@ exports.main = async (event, context) => {
       }
 
       case 'update': {
-        // 更新景点
+        // 更新景点 — 校验区县合法性
+        var validDistricts = ['泰山区', '岱岳区', '东平县', '新泰市', '肥城市'];
+        if (data.district && validDistricts.indexOf(data.district) === -1) {
+          return { success: false, error: '区/县不合法，可选：' + validDistricts.join('、') };
+        }
         const { id, ...updateData } = data;
         await db.collection('attractions')
           .doc(id)
@@ -90,6 +104,97 @@ exports.main = async (event, context) => {
             }
           });
         return { success: true };
+      }
+
+      case 'batchUpdateRegion': {
+        // 批量修正区域字段
+        var ids = (data && data.ids) || [];
+        if (!ids || ids.length === 0) {
+          return { success: false, error: '请提供景点ID列表' };
+        }
+        var regionData = {
+          province: (data && data.province) || '山东省',
+          city: (data && data.city) || '泰安市',
+          district: (data && data.district) || '',
+          town: (data && data.town) || '',
+          village: (data && data.village) || '',
+          updateTime: db.serverDate()
+        };
+        var updated = 0;
+        var errors = [];
+        for (var i = 0; i < ids.length; i++) {
+          try {
+            await db.collection('attractions').doc(ids[i]).update({ data: regionData });
+            updated++;
+          } catch (e) {
+            errors.push({ id: ids[i], error: e.message });
+          }
+        }
+        return { success: true, updated: updated, total: ids.length, errors: errors };
+      }
+
+      case 'migrateRegions': {
+        // 一次性迁移：解析现有 address → 写入 structured region 字段
+        var allRes = await db.collection('attractions').limit(500).get();
+        var list = allRes.data;
+        var updated = 0;
+        var skipped = 0;
+        var errors = [];
+
+        for (var i = 0; i < list.length; i++) {
+          var a = list[i];
+          // 已有结构化字段就跳过
+          if (a.district) { skipped++; continue; }
+
+          var addr = a.address || '';
+          var province = '山东省';
+          var city = '泰安市';
+          var district = '';
+          var town = '';
+          var village = '';
+
+          // 去掉省
+          var afterProv = addr.replace(/^山东省/, '');
+          // 去掉地级市"泰安市"
+          var afterCity = afterProv.replace(/^泰安市/, '');
+          // 匹配区/县/县级市
+          var distMatch = afterCity.match(/^(泰山区|岱岳区|东平县|新泰市|肥城市)/);
+          if (distMatch) {
+            district = distMatch[0];
+            var afterDist = afterCity.substring(distMatch[0].length);
+            // 匹配乡镇/街道
+            var townMatch = afterDist.match(/^(.{1,6}?[镇乡]|.{1,6}?街道)/);
+            if (townMatch) {
+              town = townMatch[0];
+              var afterTown = afterDist.substring(townMatch[0].length);
+              // 匹配村
+              var villageMatch = afterTown.match(/^(.+?村)/);
+              if (villageMatch) village = villageMatch[0];
+            }
+          }
+
+          if (district) {
+            try {
+              await db.collection('attractions').doc(a._id).update({
+                data: {
+                  province: province,
+                  city: city,
+                  district: district,
+                  town: town,
+                  village: village,
+                  updateTime: db.serverDate()
+                }
+              });
+              updated++;
+            } catch (e) {
+              errors.push({ name: a.name, _id: a._id, error: e.message });
+            }
+          } else {
+            errors.push({ name: a.name, _id: a._id, error: '无法从地址解析区县', address: addr });
+          }
+        }
+
+        return { success: true, total: list.length, updated: updated, skipped: skipped, errors: errors };
       }
 
       case 'delete': {

@@ -5,6 +5,7 @@ Page({
     admins: [],
     adminTotal: 0,
     loading: true,
+    isAndroid: false,
 
     // 搜索结果
     searchKeyword: '',
@@ -16,6 +17,7 @@ Page({
   },
 
   onLoad: function () {
+    this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android' });
     this.loadAdmins();
   },
 
@@ -177,5 +179,9 @@ Page({
       searchResults: [],
       searchTotal: 0
     });
+  },
+
+  onNavBack: function () {
+    wx.navigateBack();
   }
 });

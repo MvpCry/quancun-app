@@ -1,16 +1,32 @@
 <!-- pages/admin/banners/index.wxml - 首页轮播Banner管理 -->
+<view class="nav-container {{isAndroid ? 'android' : ''}}">
+  <view class="nav-left">
+    <view class="nav-back" bindtap="onNavBack">←</view>
+  </view>
+  <view class="nav-center">
+    <text class="nav-title">Banner轮播</text>
+  </view>
+  <view class="nav-right"></view>
+</view>
 <view class="container">
-  <view class="page-header">
-    <text class="page-title">🖼️ Banner轮播</text>
-    <text class="page-count">{{total}} 个村落</text>
+  <view class="top-bar">
+    <view class="top-title-row">
+      <view class="top-title-left">
+        <text class="top-icon">🖼️</text>
+        <text class="top-title">Banner轮播</text>
+      </view>
+      <text class="top-count" wx:if="{{total > 0}}">{{total}} 个村落</text>
+    </view>
+
+    <view class="search-bar">
+      <view class="search-input-wrap">
+        <text class="search-icon">🔍</text>
+        <input class="search-input" placeholder="搜索村落名称或地址..." value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch"/>
+      </view>
+    </view>
   </view>
 
   <view class="hint-text">加入轮播的村落将展示在首页顶部轮播区，图片自动取村落第一张</view>
-
-  <view class="search-bar">
-    <input class="search-input" placeholder="搜索村落名称或地址..." value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch"/>
-    <text class="search-btn" bindtap="onSearch">搜索</text>
-  </view>
 
   <view class="item-list" wx:if="{{!loading && attractions.length > 0}}">
     <view class="item-row" wx:for="{{attractions}}" wx:key="_id">

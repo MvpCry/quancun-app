@@ -7,6 +7,7 @@ Page({
     loading: true,
     isAdmin: false,
     isAndroid: false
+    backIcon: '<',
   },
 
   onLoad: function () {

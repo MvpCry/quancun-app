@@ -53,7 +53,7 @@
   line-height: 64rpx;
   padding: 0 28rpx;
   font-size: 26rpx;
-  background: #2E7D32;
+  background: #2E8B57;
   color: #FFFFFF;
   border-radius: 32rpx;
   border: none;
@@ -74,7 +74,7 @@
   width: 48rpx;
   height: 48rpx;
   border: 4rpx solid #E0E0E0;
-  border-top-color: #2E7D32;
+  border-top-color: #2E8B57;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -147,7 +147,7 @@
 
 .result-source {
   font-size: 22rpx;
-  color: #2E7D32;
+  color: #2E8B57;
   background: #E8F5E9;
   padding: 2rpx 12rpx;
   border-radius: 8rpx;
@@ -172,7 +172,7 @@
 .go-here-btn {
   display: inline-block;
   padding: 12rpx 24rpx;
-  background: linear-gradient(135deg, #2E7D32, #43A047);
+  background: linear-gradient(135deg, #2E8B57, #3CB371);
   color: #FFFFFF;
   font-size: 24rpx;
   font-weight: 500;

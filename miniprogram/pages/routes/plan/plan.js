@@ -6,6 +6,7 @@ var mapService = require('../../../utils/map-service.js');
 
 Page({
   data: {
+    backIcon: '<',
     selectedAttractions: [],
     routeCalculated: false,
     routeCalculating: false,
@@ -516,6 +517,10 @@ Page({
       console.error('保存路线失败:', err);
       wx.showToast({ title: '保存失败', icon: 'none' });
     }
+  },
+
+  goBack: function () {
+    wx.navigateBack();
   },
 
   onShareAppMessage: function () {

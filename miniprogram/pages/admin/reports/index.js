@@ -4,6 +4,7 @@ Page({
   data: {
     reports: [], violations: [], bans: [],
     total: 0, loading: true, isAndroid: false,
+    backIcon: '<',
     activeTab: 'pending'  // pending | handled | violations | bans
   },
   onLoad: function () { this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android' }); this.loadData(); },

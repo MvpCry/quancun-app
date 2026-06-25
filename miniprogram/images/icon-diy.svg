@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <!-- 小汽车侧面 -->
+  <!-- 车身 -->
+  <rect x="5" y="18" width="26" height="9" rx="2" fill="none" stroke="#2E8B57" stroke-width="2"/>
+  <!-- 车顶 -->
+  <polyline points="10,18 14,10 24,10 28,18" fill="none" stroke="#2E8B57" stroke-width="2" stroke-linejoin="round"/>
+  <!-- 车窗分隔 -->
+  <line x1="19" y1="12" x2="19" y2="18" stroke="#2E8B57" stroke-width="1.5"/>
+  <!-- 车轮 -->
+  <circle cx="12" cy="28" r="4" fill="none" stroke="#2E8B57" stroke-width="2"/>
+  <circle cx="26" cy="28" r="4" fill="none" stroke="#2E8B57" stroke-width="2"/>
+  <!-- 车轮中心点 -->
+  <circle cx="12" cy="28" r="1" fill="#2E8B57"/>
+  <circle cx="26" cy="28" r="1" fill="#2E8B57"/>
+  <!-- 道路 -->
+  <line x1="4" y1="34" x2="36" y2="34" stroke="#2E8B57" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+</svg>

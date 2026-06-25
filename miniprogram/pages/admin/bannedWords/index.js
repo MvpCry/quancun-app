@@ -4,6 +4,7 @@ Page({
     words: [], total: 0, loading: true,
     newWord: '', searchKeyword: '',
     showBatch: false, batchText: '', isAndroid: false
+    backIcon: '<',
   },
   onLoad: function () { this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android' }); this.loadWords(); },
   loadWords: async function (page) {

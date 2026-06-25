@@ -3,6 +3,7 @@ Page({
   data: {
     isEdit: false, id: '', saving: false,
     isAndroid: false,
+    backIcon: '<',
     form: { name: '', description: '', coverImage: '', tags: {}, selectedAttractions: [] },
     selectedNames: [],        // 与 selectedAttractions 对应的名称数组
     allAttractions: [],       // 全部可选的景点

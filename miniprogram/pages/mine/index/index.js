@@ -9,6 +9,7 @@ Page({
     favoriteCount: 0,
     myRouteCount: 0,
     isAndroid: false,
+    backIcon: '<',
     myReviewCount: 0,
     activeTab: '',
     tabList: []

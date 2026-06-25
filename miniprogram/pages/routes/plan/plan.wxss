@@ -1,19 +1,92 @@
-/* pages/routes/plan/plan.wxss - 路线规划页样式 */
+/* pages/routes/plan/plan.wxss - 路线规划页（卡片列表风格） */
 
 .plan-page {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: var(--bg-page);
+  background: #f5f5f5;
 }
 
-/* 地图区域 */
+/* ==================== 自定义导航栏 ==================== */
+.nav-container {
+  width: 100%;
+  background: linear-gradient(180deg, #2E8B57 0%, #3CB371 100%);
+  padding-top: calc(env(safe-area-inset-top) + 36rpx);
+  padding-bottom: 16rpx;
+  min-height: 140rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-radius: 0 0 48rpx 48rpx;
+  flex-shrink: 0;
+}
+
+.nav-left {
+  width: 100rpx;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding-left: 16rpx;
+}
+
+.nav-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-right {
+  width: 100rpx;
+  flex-shrink: 0;
+}
+
+.nav-title {
+  font-size: 34rpx;
+  color: #fff;
+  font-weight: 600;
+  padding: 12rpx 0;
+  white-space: nowrap;
+}
+
+.nav-back {
+  width: 64rpx;
+  height: 64rpx;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-icon {
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* ==================== 地图区域 ==================== */
 .plan-map-wrap {
   position: relative;
   flex-shrink: 0;
 }
 
-/* 坐标缺失警告 */
+.map-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 20rpx 40rpx;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+}
+
+/* ==================== 坐标缺失警告 ==================== */
 .coord-warning {
   display: flex;
   align-items: center;
@@ -36,19 +109,7 @@
   line-height: 1.5;
 }
 
-.map-loading {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.7);
-  color: #FFFFFF;
-  padding: 20rpx 40rpx;
-  border-radius: 40rpx;
-  font-size: 26rpx;
-}
-
-/* 底部面板 */
+/* ==================== 底部面板 ==================== */
 .plan-bottom {
   flex: 1;
   display: flex;
@@ -60,56 +121,72 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #FFFFFF;
+  background: #f5f5f5;
   border-radius: 28rpx 28rpx 0 0;
   margin-top: -20rpx;
+  padding: 24rpx;
   position: relative;
   z-index: 10;
-  box-shadow: 0 -4rpx 20rpx rgba(0,0,0,0.06);
+}
+
+/* ==================== 标题卡片 ==================== */
+.panel-card {
+  background: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
 }
 
 .panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 28rpx 32rpx 16rpx;
-  border-bottom: 1rpx solid var(--border);
+  padding: 28rpx;
 }
 
 .panel-title {
-  font-size: 32rpx;
-  font-weight: 700;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1a1a1a;
 }
 
 .panel-action {
   font-size: 26rpx;
-  color: var(--primary);
+  color: #2E8B57;
 }
 
-/* 已选景点列表 */
-.selected-list {
+/* ==================== 已选景点列表卡片 ==================== */
+.selected-list-card {
   flex: 1;
-  padding: 8rpx 32rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
 }
 
 .selected-item {
   display: flex;
   align-items: center;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid #F5F5F5;
+  padding: 28rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.selected-item:last-child {
+  border-bottom: none;
 }
 
 .selected-order {
-  width: 44rpx;
-  height: 44rpx;
+  width: 48rpx;
+  height: 48rpx;
   border-radius: 50%;
-  background: var(--bg-page);
-  color: var(--text-secondary);
+  background: #e8f5e9;
+  color: #2E8B57;
   font-size: 24rpx;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 16rpx;
+  margin-right: 20rpx;
   flex-shrink: 0;
 }
 
@@ -120,73 +197,82 @@
 
 .selected-name {
   font-size: 28rpx;
-  font-weight: 500;
+  color: #333;
   display: block;
   margin-bottom: 4rpx;
 }
 
 .selected-address {
-  font-size: 22rpx;
-  color: var(--text-hint);
-}
-
-.selected-actions {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
+  font-size: 24rpx;
+  color: #999;
 }
 
 .selected-delete {
-  width: 44rpx;
-  height: 44rpx;
+  width: 48rpx;
+  height: 48rpx;
   border-radius: 50%;
-  background: #FFEBEE;
-  color: #F44336;
+  background: #ffebee;
+  color: #f44336;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24rpx;
+  margin-right: 16rpx;
 }
 
 .selected-drag {
-  color: var(--text-hint);
+  color: #ccc;
   font-size: 28rpx;
 }
 
-/* 空状态 */
-.empty-selected {
+/* ==================== 空状态卡片 ==================== */
+.empty-card {
   flex: 1;
+  background: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60rpx;
+  padding: 80rpx 48rpx;
 }
 
-.empty-selected .empty-icon {
-  font-size: 80rpx;
-  margin-bottom: 16rpx;
+.empty-icon-wrap {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: #e8f5e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24rpx;
 }
 
-.empty-selected .empty-text {
-  font-size: 28rpx;
-  color: var(--text-secondary);
+.empty-icon {
+  font-size: 48rpx;
+}
+
+.empty-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
   margin-bottom: 8rpx;
 }
 
-.empty-selected .empty-hint {
-  font-size: 24rpx;
-  color: var(--text-hint);
+.empty-hint {
+  font-size: 26rpx;
+  color: #999;
 }
 
-/* 路线统计 */
-.route-summary {
+/* ==================== 路线统计卡片 ==================== */
+.summary-card {
   display: flex;
   align-items: center;
-  padding: 28rpx 32rpx;
-  background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
-  margin: 16rpx 32rpx;
-  border-radius: var(--radius);
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
 }
 
 .summary-item {
@@ -197,39 +283,46 @@
 .summary-value {
   font-size: 36rpx;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: #1a1a1a;
   display: block;
 }
 
 .summary-label {
   font-size: 22rpx;
-  color: var(--primary);
+  color: #999;
 }
 
 .summary-divider {
   width: 1rpx;
   height: 48rpx;
-  background: rgba(46,125,50,0.2);
+  background: #f0f0f0;
 }
 
-/* 已规划景点列表 */
-.planned-stops {
+/* ==================== 已规划路线列表 ==================== */
+.stops-list-card {
   flex: 1;
-  padding: 8rpx 32rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+  padding: 0 28rpx;
 }
 
 .planned-stop {
   display: flex;
   align-items: center;
-  padding: 16rpx 0;
-  transition: background 0.2s;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.planned-stop:last-child {
+  border-bottom: none;
 }
 
 .planned-stop.current {
-  background: #F1F8E9;
-  margin: 0 -32rpx;
-  padding: 16rpx 32rpx;
-  border-radius: 8rpx;
+  background: #f0faf1;
+  margin: 0 -28rpx;
+  padding: 24rpx 28rpx;
 }
 
 .stop-marker {
@@ -244,57 +337,58 @@
   width: 16rpx;
   height: 16rpx;
   border-radius: 50%;
-  background: var(--primary-light);
-  border: 3rpx solid #FFFFFF;
-  box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.15);
+  background: #3CB371;
+  border: 3rpx solid #fff;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.15);
 }
 
 .stop-dot.start {
   width: 22rpx;
   height: 22rpx;
-  background: var(--accent);
+  background: #FF9800;
 }
 
 .stop-dot.end {
   width: 22rpx;
   height: 22rpx;
-  background: var(--primary);
+  background: #2E8B57;
 }
 
 .stop-line {
   width: 2rpx;
   flex: 1;
   min-height: 32rpx;
-  background: #DDDDDD;
+  background: #e0e0e0;
   margin: 4rpx 0;
 }
 
 .stop-content {
   flex: 1;
+  min-width: 0;
 }
 
 .stop-title {
   font-size: 28rpx;
-  font-weight: 500;
+  color: #333;
   display: block;
   margin-bottom: 4rpx;
 }
 
 .stop-meta {
   font-size: 22rpx;
-  color: var(--text-hint);
+  color: #999;
 }
 
 .stop-order {
   font-size: 28rpx;
-  color: var(--text-hint);
+  color: #999;
   font-weight: 600;
+  flex-shrink: 0;
 }
 
-/* 底部操作 */
+/* ==================== 底部操作 ==================== */
 .panel-footer {
-  padding: 20rpx 32rpx;
-  border-top: 1rpx solid var(--border);
+  padding: 0;
 }
 
 .footer-row {
@@ -303,10 +397,34 @@
 
 .route-name-input {
   width: 100%;
-  height: 72rpx;
-  background: var(--bg-page);
-  border-radius: 40rpx;
+  height: 80rpx;
+  background: #fff;
+  border-radius: 16rpx;
   padding: 0 28rpx;
   font-size: 28rpx;
   box-sizing: border-box;
+}
+
+/* ==================== 统一按钮 ==================== */
+.plan-btn {
+  width: 100%;
+  height: 80rpx;
+  background: #2E8B57;
+  color: #fff;
+  border-radius: 36rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+.plan-btn::after {
+  border: none;
+}
+
+.plan-btn[disabled] {
+  background: #bbb;
+  color: #fff;
 }

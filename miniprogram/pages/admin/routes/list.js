@@ -1,6 +1,7 @@
 // pages/admin/routes/list.js - 路线列表管理（无刷新局部更新 + 推荐开关）
 Page({
-  data: { routes: [], loading: true, isAndroid: false },
+  data: { routes: [], loading: true, isAndroid: false
+    backIcon: '<', },
 
   onShow: function () {
     this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android' });

@@ -1,5 +1,19 @@
-<!-- pages/routes/plan/plan.wxml - 路线规划页（核心功能） -->
+<!-- pages/routes/plan/plan.wxml - 路线规划页 -->
 <view class="plan-page">
+
+  <!-- ==================== 自定义导航栏 ==================== -->
+  <view class="nav-container">
+    <view class="nav-left">
+      <view class="nav-back" bindtap="goBack">
+        <text class="back-icon">{{backIcon}}</text>
+      </view>
+    </view>
+    <view class="nav-center">
+      <text class="nav-title">路线规划</text>
+    </view>
+    <view class="nav-right"></view>
+  </view>
+
   <!-- 地图区域 -->
   <view class="plan-map-wrap">
     <map-route
@@ -12,7 +26,6 @@
       currentIndex="{{currentStopIndex}}"
       bindstopchange="onStopChange"
     />
-    <!-- 加载提示 -->
     <view class="map-loading" wx:if="{{routeCalculating}}">
       <text>正在计算最优路线...</text>
     </view>
@@ -20,54 +33,65 @@
 
   <!-- 底部操作区 -->
   <view class="plan-bottom safe-bottom">
+
     <!-- 坐标缺失警告 -->
     <view class="coord-warning" wx:if="{{missingCoordNames.length > 0 && !routeCalculated}}">
       <text class="coord-warning-icon">⚠️</text>
       <text class="coord-warning-text">以下景点尚未录入坐标，路线规划将受影响：{{missingCoordNames.join('、')}}</text>
     </view>
 
-    <!-- 未规划状态：显示已选景点列表 -->
+    <!-- ====== 未规划状态 ====== -->
     <view class="plan-panel" wx:if="{{!routeCalculated}}">
-      <view class="panel-header">
-        <text class="panel-title">选择景点（{{selectedAttractions.length}}个）</text>
-        <text class="panel-action" bindtap="onAddAttraction">+ 添加景点</text>
+      <!-- 标题卡片 -->
+      <view class="panel-card">
+        <view class="panel-header">
+          <text class="panel-title">选择景点（{{selectedAttractions.length}}个）</text>
+          <text class="panel-action" bindtap="onAddAttraction">+ 添加景点</text>
+        </view>
       </view>
 
-      <scroll-view class="selected-list" scroll-y wx:if="{{selectedAttractions.length > 0}}">
+      <!-- 已选景点列表 -->
+      <scroll-view class="selected-list-card" scroll-y wx:if="{{selectedAttractions.length > 0}}">
         <view class="selected-item" wx:for="{{selectedAttractions}}" wx:key="_id">
           <view class="selected-order">{{index + 1}}</view>
           <view class="selected-info">
             <text class="selected-name">{{item.name}}</text>
             <text class="selected-address text-ellipsis">{{item.address}}</text>
           </view>
-          <view class="selected-actions">
-            <text class="selected-delete" bindtap="onRemoveAttraction" data-index="{{index}}">✕</text>
-            <text class="selected-drag">☰</text>
-          </view>
+          <view class="selected-delete" bindtap="onRemoveAttraction" data-index="{{index}}">✕</view>
+          <text class="selected-drag">☰</text>
         </view>
       </scroll-view>
 
-      <view class="empty-selected" wx:if="{{selectedAttractions.length === 0}}">
-        <text class="empty-icon">🗺️</text>
-        <text class="empty-text">请添加要游览的景点</text>
+      <!-- 空状态 -->
+      <view class="empty-card" wx:if="{{selectedAttractions.length === 0}}">
+        <view class="empty-icon-wrap">
+          <text class="empty-icon">🗺️</text>
+        </view>
+        <text class="empty-title">请添加要游览的景点</text>
         <text class="empty-hint">至少选择2个景点才能规划路线</text>
       </view>
 
+      <!-- 底部按钮 -->
       <view class="panel-footer">
-        <button class="btn btn-primary btn-block" bindtap="onPlanRoute" disabled="{{selectedAttractions.length < 2}}">
+        <button class="plan-btn" bindtap="onPlanRoute" disabled="{{selectedAttractions.length < 2}}">
           {{selectedAttractions.length < 2 ? '至少选择2个景点' : '开始智能规划路线'}}
         </button>
       </view>
     </view>
 
-    <!-- 已规划状态：显示路线详情 -->
+    <!-- ====== 已规划状态 ====== -->
     <view class="plan-panel" wx:if="{{routeCalculated}}">
-      <view class="panel-header">
-        <text class="panel-title">最优路线</text>
-        <text class="panel-action" bindtap="onResetRoute">重新规划</text>
+      <!-- 标题卡片 -->
+      <view class="panel-card">
+        <view class="panel-header">
+          <text class="panel-title">最优路线</text>
+          <text class="panel-action" bindtap="onResetRoute">重新规划</text>
+        </view>
       </view>
 
-      <view class="route-summary">
+      <!-- 路线统计卡片 -->
+      <view class="summary-card">
         <view class="summary-item">
           <text class="summary-value">{{plannedStops.length}}</text>
           <text class="summary-label">景点数</text>
@@ -84,8 +108,8 @@
         </view>
       </view>
 
-      <!-- 有序景点列表 -->
-      <scroll-view class="planned-stops" scroll-y>
+      <!-- 路线景点列表 -->
+      <scroll-view class="stops-list-card" scroll-y>
         <view class="planned-stop {{index === currentStopIndex ? 'current' : ''}}"
           wx:for="{{plannedStops}}" wx:key="id"
           data-index="{{index}}"
@@ -107,7 +131,7 @@
         <view class="footer-row">
           <input class="route-name-input" placeholder="给路线起个名字..." value="{{routeName}}" bindinput="onRouteNameInput"/>
         </view>
-        <button class="btn btn-primary btn-block" bindtap="onSaveRoute">保存路线</button>
+        <button class="plan-btn" bindtap="onSaveRoute">保存路线</button>
       </view>
     </view>
   </view>

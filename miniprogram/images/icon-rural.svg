@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <!-- 远山（中） -->
+  <polyline points="6,32 20,12 34,32" fill="none" stroke="#2E8B57" stroke-width="2" stroke-linejoin="round"/>
+  <!-- 远山（左） -->
+  <polyline points="2,32 12,18 22,32" fill="none" stroke="#2E8B57" stroke-width="1.5" stroke-linejoin="round" opacity="0.5"/>
+  <!-- 房屋 -->
+  <rect x="22" y="23" width="10" height="9" fill="none" stroke="#2E8B57" stroke-width="2"/>
+  <polyline points="22,23 27,17 32,23" fill="none" stroke="#2E8B57" stroke-width="2" stroke-linejoin="round"/>
+</svg>

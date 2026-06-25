@@ -1,4 +1,4 @@
-<!-- custom-tab-bar/index.wxml - 自定义底部导航栏 -->
+<!-- custom-tab-bar/index.wxml - 底部导航栏 -->
 <view class="tab-bar">
   <view
     class="tab-bar-item"
@@ -8,14 +8,16 @@
     data-path="{{item.pagePath}}"
     data-index="{{index}}"
   >
-    <!-- 图标 + 选中时绿色椭圆外框 -->
-    <view class="tab-icon-wrap {{selected === index ? 'tab-icon-wrap-active' : ''}}">
+    <!-- 图标区：选中时填充绿色圆角背景 -->
+    <view class="tab-icon-box {{selected === index ? 'tab-icon-box-active' : ''}}">
       <image
-        class="tab-icon"
+        class="tab-icon {{selected === index ? 'tab-icon-active' : ''}}"
         src="{{selected === index ? item.selectedIconPath : item.iconPath}}"
         mode="aspectFit"
       />
     </view>
+
+    <!-- 文字 -->
     <text class="tab-text {{selected === index ? 'tab-text-active' : ''}}">
       {{item.text}}
     </text>

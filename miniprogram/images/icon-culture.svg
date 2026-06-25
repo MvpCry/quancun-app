@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <!-- 古建筑屋顶（歇山顶） -->
+  <polyline points="4,18 12,5 20,8 28,5 36,18" fill="none" stroke="#2E8B57" stroke-width="2" stroke-linejoin="round"/>
+  <line x1="2" y1="18" x2="38" y2="18" stroke="#2E8B57" stroke-width="2"/>
+  <!-- 柱子 -->
+  <line x1="10" y1="18" x2="10" y2="34" stroke="#2E8B57" stroke-width="2"/>
+  <line x1="20" y1="18" x2="20" y2="34" stroke="#2E8B57" stroke-width="2"/>
+  <line x1="30" y1="18" x2="30" y2="34" stroke="#2E8B57" stroke-width="2"/>
+  <!-- 地面线 -->
+  <line x1="4" y1="34" x2="36" y2="34" stroke="#2E8B57" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

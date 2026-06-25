@@ -1,8 +1,8 @@
 /* ====== 自定义导航栏（左箭头+居中标题+右胶囊）====== */
-.nav-container{width:100%;background:#207c30;box-sizing:border-box;padding-top:calc(env(safe-area-inset-top) + 36rpx);padding-bottom:16rpx;min-height:140rpx;display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;}
+.nav-container{width:100%;background:#2E8B57;box-sizing:border-box;padding-top:calc(env(safe-area-inset-top) + 36rpx);padding-bottom:16rpx;min-height:140rpx;display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;}
 .nav-container.android{padding-top:calc(env(safe-area-inset-top) + 40rpx)!important;align-items:center}
 .nav-left{width:100rpx;flex-shrink:0;display:flex;align-items:center;padding-left:30rpx}.nav-center{flex:1;display:flex;justify-content:center;align-items:center}.nav-right{width:180rpx;flex-shrink:0}.nav-title{font-size:36rpx;color:#fff;font-weight:600;padding:12rpx 0;white-space:nowrap}
-.nav-back{width:40rpx;height:40rpx;font-size:40rpx;line-height:40rpx;color:#fff;display:flex;align-items:center;justify-content:center}
+
 
 /* ====== 顶部区域（卡片式） ====== */
 .top-bar{
@@ -20,15 +20,15 @@
 }
 .top-title-left{display:flex;align-items:center;gap:10rpx}
 .top-icon{font-size:36rpx}
-.top-title{font-size:38rpx;font-weight:700;color:#1B5E20;white-space:nowrap}
+.top-title{font-size:38rpx;font-weight:700;color:#228B22;white-space:nowrap}
 .top-count{font-size:24rpx;color:#999;white-space:nowrap}
 
 /* 操作按钮行 */
 .top-actions{display:flex;align-items:center;gap:16rpx;margin-bottom:22rpx}
-.btn-add{padding:16rpx 36rpx;background:#2E7D32;color:#FFF;border-radius:40rpx;font-size:28rpx;font-weight:600;border:none;box-shadow:0 2px 8px rgba(46,125,50,.25)}
+.btn-add{padding:16rpx 36rpx;background:#2E8B57;color:#FFF;border-radius:40rpx;font-size:28rpx;font-weight:600;border:none;box-shadow:0 2px 8px rgba(46,125,50,.25)}
 .btn-add::after{border:none}
 
-.btn-batch{padding:16rpx 28rpx;background:#FFF;color:#2E7D32;border:1.5rpx solid #2E7D32;border-radius:40rpx;font-size:26rpx}
+.btn-batch{padding:16rpx 28rpx;background:#FFF;color:#2E8B57;border:1.5rpx solid #2E8B57;border-radius:40rpx;font-size:26rpx}
 .btn-batch::after{border:none}
 .btn-batch.active{background:#FF9800;color:#FFF;border-color:#FF9800}
 
@@ -43,14 +43,14 @@
 }
 .search-icon{font-size:28rpx;margin-right:10rpx;flex-shrink:0}
 .search-input{flex:1;height:68rpx;font-size:26rpx;border:none;background:transparent}
-.search-btn{padding:14rpx 28rpx;background:#2E7D32;color:#FFF;border-radius:12rpx;font-size:26rpx;flex-shrink:0}
+.search-btn{padding:14rpx 28rpx;background:#2E8B57;color:#FFF;border-radius:12rpx;font-size:26rpx;flex-shrink:0}
 
 /* ====== Loading ====== */
 .loading-state{text-align:center;padding:120rpx 0;color:#999;font-size:28rpx}
 
 /* ====== 面包屑 ====== */
 .breadcrumb{display:flex;align-items:center;padding:16rpx 0;margin-bottom:12rpx;flex-wrap:wrap}
-.bc-item{font-size:26rpx;color:#2E7D32}
+.bc-item{font-size:26rpx;color:#2E8B57}
 .bc-root{font-weight:600}
 .bc-sep{color:#CCC;margin:0 6rpx;font-size:24rpx}
 .bc-active{color:#333;font-weight:600}
@@ -105,7 +105,7 @@
 .card-meta{font-size:22rpx;color:#999;display:flex;gap:20rpx}
 .card-actions{display:flex;flex-direction:column;gap:10rpx;flex-shrink:0}
 .act{font-size:24rpx;padding:8rpx 16rpx;border-radius:8rpx;text-align:center}
-.act.edit{color:#2E7D32;background:#E8F5E9}
+.act.edit{color:#2E8B57;background:#E8F5E9}
 .act.del{color:#E53935;background:#FFEBEE}
 .act.featured-on{color:#FF9800;background:#FFF3E0}
 .act.featured-off{color:#999;background:#F5F5F5}
@@ -119,7 +119,7 @@
 
 /* ====== 未知空提示 ====== */
 .unknown-empty{padding:12rpx 20rpx;text-align:center}
-.empty-hint-text{font-size:22rpx;color:#4CAF50}
+.empty-hint-text{font-size:22rpx;color:#3CB371}
 
 /* ====== 树形空状态 ====== */
 .tree-empty-state{text-align:center;padding:60rpx 0}
@@ -128,22 +128,22 @@
 /* ====== 搜索结果区域路径标签 ====== */
 .search-path-tags{display:flex;flex-wrap:wrap;align-items:center;gap:8rpx;margin-bottom:16rpx;padding:12rpx 0}
 .path-tag-hint{font-size:22rpx;color:#999}
-.path-tag{font-size:20rpx;color:#2E7D32;background:#E8F5E9;padding:4rpx 12rpx;border-radius:6rpx;max-width:60vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.path-tag{font-size:20rpx;color:#2E8B57;background:#E8F5E9;padding:4rpx 12rpx;border-radius:6rpx;max-width:60vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ====== 批量选择复选框 ====== */
 .card-check{padding:0 12rpx;flex-shrink:0}
 .checkbox{width:40rpx;height:40rpx;border-radius:50%;border:2rpx solid #CCC;display:flex;align-items:flex-end;justify-content:space-between;font-size:24rpx;color:#FFF;transition:all .15s}
-.checkbox.checked{background:#2E7D32;border-color:#2E7D32}
+.checkbox.checked{background:#2E8B57;border-color:#2E8B57}
 
 /* 选中卡片高亮 */
-.card-selected{background:#F1F8E9;box-shadow:0 0 0 2rpx #4CAF50 inset}
+.card-selected{background:#F1F8E9;box-shadow:0 0 0 2rpx #3CB371 inset}
 
 /* ====== 底部批量操作栏 ====== */
 .batch-bar{position:fixed;bottom:0;left:0;right:0;background:#FFF;display:flex;align-items:center;padding:16rpx 24rpx;box-shadow:0 -2px 12px rgba(0,0,0,.08);gap:16rpx;z-index:100}
 .batch-left{display:flex;align-items:center;gap:10rpx}
 .batch-label{font-size:24rpx;color:#666}
 .batch-count{font-size:26rpx;color:#333;font-weight:600;flex:1;text-align:center}
-.batch-btn{padding:14rpx 28rpx;background:#2E7D32;color:#FFF;border-radius:40rpx;font-size:26rpx;border:none}
+.batch-btn{padding:14rpx 28rpx;background:#2E8B57;color:#FFF;border-radius:40rpx;font-size:26rpx;border:none}
 .batch-btn::after{border:none}
 
 /* ====== 批量修正弹窗 ====== */
@@ -161,5 +161,5 @@
 .modal-btns{display:flex;gap:20rpx;margin-top:24rpx}
 .btn-cancel{flex:1;padding:18rpx 0;background:#F5F5F5;color:#666;border-radius:44rpx;font-size:28rpx;border:none;text-align:center}
 .btn-cancel::after{border:none}
-.btn-confirm{flex:1;padding:18rpx 0;background:#2E7D32;color:#FFF;border-radius:44rpx;font-size:28rpx;border:none;text-align:center}
+.btn-confirm{flex:1;padding:18rpx 0;background:#2E8B57;color:#FFF;border-radius:44rpx;font-size:28rpx;border:none;text-align:center}
 .btn-confirm::after{border:none}

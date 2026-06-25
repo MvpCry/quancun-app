@@ -1,4 +1,6 @@
-<!-- pages/index/index.wxml - 首页 -->
+<!-- pages/index/index.wxml - 首页（乡村绿主题） -->
+
+<!-- ==================== 导航栏 ==================== -->
 <view class="nav-container {{isAndroid ? 'android' : ''}}">
   <view class="nav-left"></view>
   <view class="nav-center">
@@ -6,21 +8,25 @@
   </view>
   <view class="nav-right"></view>
 </view>
-<view class="container">
-  <!-- 搜索栏 -->
-  <view class="search-bar">
-    <view class="search-input">
+
+<!-- ==================== 页面主体 ==================== -->
+<view class="page-body">
+
+  <!-- ===== 搜索区 ===== -->
+  <view class="search-wrap">
+    <view class="search-box">
       <text class="search-icon">🔍</text>
-      <input class="search-field" placeholder="搜索景点、路线..." value="{{searchKeyword}}" bindinput="onSearchInput" bindconfirm="onSearch" confirm-type="search"/>
+      <input class="search-input" placeholder="搜索景点、路线..." value="{{searchKeyword}}" bindinput="onSearchInput" bindconfirm="onSearch" confirm-type="search"/>
       <text class="search-clear" wx:if="{{searchKeyword}}" bindtap="onClearSearch">✕</text>
     </view>
-    <button class="search-btn" bindtap="onSearch" size="mini">搜索</button>
+    <view class="search-btn" bindtap="onSearch">搜索</view>
   </view>
 
-  <!-- 轮播Banner -->
-  <swiper class="banner-swiper" indicator-dots indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#FFFFFF" autoplay circular interval="4000">
+  <!-- ===== 轮播 Banner ===== -->
+  <swiper class="banner-swiper" indicator-dots="{{true}}" indicator-color="rgba(255,255,255,0.4)" indicator-active-color="#ffffff" autoplay="{{true}}" circular="{{true}}" interval="{{4000}}">
     <swiper-item wx:for="{{banners}}" wx:key="id">
       <image class="banner-image" src="{{item.image}}" mode="aspectFill" binderror="onImageError" bindtap="onBannerTap" data-id="{{item.id}}" data-type="{{item.type}}"/>
+      <view class="banner-overlay"></view>
       <view class="banner-info">
         <text class="banner-title">{{item.title}}</text>
         <text class="banner-desc">{{item.desc}}</text>
@@ -28,38 +34,80 @@
     </swiper-item>
   </swiper>
 
-  <!-- 分类导航 -->
-  <view class="category-nav">
-    <view class="category-item" wx:for="{{categories}}" wx:key="id" bindtap="onCategoryTap" data-category="{{item.id}}" hover-class="category-item-hover">
-      <view class="category-icon-wrap" catchtap="onCategoryTap" data-category="{{item.id}}">
-        <image class="category-icon-img" src="{{item.icon}}" mode="aspectFit"/>
+  <!-- ===== 分类区 ===== -->
+  <view class="category-card">
+    <view class="category-list">
+      <view class="category-item" wx:for="{{categories}}" wx:key="id" bindtap="onCategoryTap" data-category="{{item.id}}" hover-class="category-item-active">
+        <view class="icon-wrap">
+          <image class="icon-img" src="{{item.icon}}" mode="aspectFit"/>
+        </view>
+        <text class="category-name">{{item.name}}</text>
       </view>
-      <text class="category-name" catchtap="onCategoryTap" data-category="{{item.id}}">{{item.name}}</text>
     </view>
   </view>
 
-  <!-- 推荐路线 -->
-  <view class="page-section">
-    <view class="section-title">
-      <text class="title">推荐路线</text>
-      <text class="more" bindtap="onMoreRoutes">更多 ›</text>
+  <!-- ===== 推荐路线 ===== -->
+  <view class="section-wrap" wx:if="{{recommendRoutes.length > 0}}">
+    <view class="section-head">
+      <text class="section-head-title">推荐路线</text>
+      <text class="section-head-more" bindtap="onMoreRoutes">更多 ›</text>
     </view>
-    <view class="route-list">
-      <route-card wx:for="{{recommendRoutes}}" wx:key="_id" route="{{item}}" bindtap="onRouteTap" data-id="{{item._id}}"/>
+    <view class="route-card" wx:for="{{recommendRoutes}}" wx:key="_id" bindtap="onRouteTap" data-id="{{item._id}}">
+      <!-- 封面图 -->
+      <view class="rc-cover">
+        <image class="rc-cover-img" src="{{item.coverImage || item.images[0]}}" mode="aspectFill" binderror="onImageError"/>
+        <view class="rc-cover-mask"></view>
+        <view class="rc-cover-info">
+          <text class="rc-cover-name">{{item.name}}</text>
+          <view class="rc-cover-tags" wx:if="{{item.tags && item.tags.length > 0}}">
+            <text class="rc-cover-tag" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+          </view>
+        </view>
+      </view>
+      <!-- 内容区 -->
+      <view class="rc-body">
+        <text class="rc-desc">{{item.description || ''}}</text>
+        <view class="rc-meta">
+          <text class="rc-meta-item"><text class="rc-meta-icon meta-green">📍</text>{{item.attractionCount || 0}}个景点</text>
+          <text class="rc-meta-item"><text class="rc-meta-icon meta-gray">📏</text>{{item.totalDistance || '--'}}km</text>
+          <text class="rc-meta-item"><text class="rc-meta-icon meta-gray">⏱</text>{{item.estimatedTime || '--'}}h</text>
+          <text class="rc-meta-item rc-meta-like"><text class="rc-meta-icon meta-red">♥</text>{{item.likeCount || 0}}</text>
+        </view>
+      </view>
     </view>
   </view>
 
-  <!-- 精选景点 -->
-  <view class="page-section">
-    <view class="section-title">
-      <text class="title">精选景点</text>
-      <text class="more" bindtap="onMoreAttractions">更多 ›</text>
+  <!-- ===== 精选景点 ===== -->
+  <view class="section-wrap" wx:if="{{featuredAttractions.length > 0}}">
+    <view class="section-head">
+      <text class="section-head-title">精选景点</text>
+      <text class="section-head-more" bindtap="onMoreAttractions">更多 ›</text>
     </view>
-    <view class="attraction-grid">
-      <attraction-card wx:for="{{featuredAttractions}}" wx:key="_id" attraction="{{item}}" bindtap="onAttractionTap" data-id="{{item._id}}"/>
-    </view>
+    <scroll-view class="attr-scroll" scroll-x="{{true}}" enable-flex="{{true}}" show-scrollbar="{{false}}">
+      <!-- 右侧留白占位 -->
+      <view class="attr-scroll-spacer"></view>
+      <view class="attr-card" wx:for="{{featuredAttractions}}" wx:key="_id" bindtap="onAttractionTap" data-id="{{item._id}}" hover-class="attr-card-active">
+        <view class="attr-cover">
+          <image class="attr-cover-img" src="{{item.coverImage || item.images[0]}}" mode="aspectFill" binderror="onImageError"/>
+          <view class="attr-cover-placeholder" wx:if="{{!item.coverImage && (!item.images || item.images.length === 0)}}"></view>
+        </view>
+        <view class="attr-body">
+          <text class="attr-name">{{item.name}}</text>
+          <text class="attr-intro">{{item.introduction || '暂无简介'}}</text>
+          <view class="attr-meta">
+            <text class="attr-rating">★ {{item.rating || '--'}}</text>
+            <text class="attr-reviews">{{item.reviewCount || 0}}条评论</text>
+          </view>
+          <view class="attr-footer">
+            <text class="attr-address">{{item.address || '暂无地址'}}</text>
+            <text class="attr-price" wx:if="{{item.ticketPrice > 0}}">¥{{item.ticketPrice}}</text>
+            <text class="attr-price free" wx:else>免费</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
   </view>
 
   <!-- 底部安全区 -->
-  <view class="safe-bottom" style="height: 40rpx;"></view>
+  <view class="safe-bottom"></view>
 </view>

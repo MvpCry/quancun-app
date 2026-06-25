@@ -33,13 +33,13 @@ App({
     _coordResolveCache: {},    // 地址→坐标内存缓存（同会话去重）
     pendingRouteTag: '',        // 首页分类点击→路线Tab传参（switchTab 不支持 URL 参数）
 
-    // 景点分类配置（图标使用本地图片替代 emoji）
+    // 景点分类配置（SVG 线条图标，绿色主题统一）
     categories: [
-      { id: 'red', name: '红游', icon: '/images/category-red.png' },
-      { id: 'rural', name: '乡村游', icon: '/images/category-rural.png' },
-      { id: 'family', name: '亲子游', icon: '/images/category-family.png' },
-      { id: 'culture', name: '文化游', icon: '/images/category-culture.png' },
-      { id: 'diy', name: '自制游', icon: '/images/category-diy.png' }
+      { id: 'red', name: '红游', icon: '/images/icon-red.svg' },
+      { id: 'rural', name: '乡村游', icon: '/images/icon-rural.svg' },
+      { id: 'family', name: '亲子游', icon: '/images/icon-family.svg' },
+      { id: 'culture', name: '文化游', icon: '/images/icon-culture.svg' },
+      { id: 'diy', name: '自制游', icon: '/images/icon-diy.svg' }
     ],
     // 路线标签（id 必须与路线文档 tags 数组中的值一致，否则云函数 _.in() 过滤不会命中）
     routeTags: [

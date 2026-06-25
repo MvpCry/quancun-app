@@ -1,14 +1,14 @@
 /* 自定义导航栏（左箭头+居中标题+右胶囊）*/
-.nav-container{width:100%;background:#207c30;box-sizing:border-box;padding-top:calc(env(safe-area-inset-top) + 36rpx);padding-bottom:16rpx;min-height:140rpx;display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;}
+.nav-container{width:100%;background:#2E8B57;box-sizing:border-box;padding-top:calc(env(safe-area-inset-top) + 36rpx);padding-bottom:16rpx;min-height:140rpx;display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;}
 .nav-container.android{padding-top:calc(env(safe-area-inset-top) + 40rpx)!important;align-items:center}
 .nav-left{width:100rpx;flex-shrink:0;display:flex;align-items:center;padding-left:30rpx}.nav-center{flex:1;display:flex;justify-content:center;align-items:center}.nav-right{width:180rpx;flex-shrink:0}.nav-title{font-size:36rpx;color:#fff;font-weight:600;padding:12rpx 0;white-space:nowrap}
-.nav-back{width:40rpx;height:40rpx;font-size:40rpx;line-height:40rpx;color:#fff;display:flex;align-items:center;justify-content:center}
+
 
 .admin-header{padding:32rpx 0 24rpx}.admin-title{font-size:40rpx;font-weight:700;display:block}.admin-sub{font-size:26rpx;color:#999;margin-top:8rpx;display:block}
 
 .stat-grid{display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:32rpx}
 .stat-card{width:49%;padding:28rpx 20rpx;border-radius:12rpx;background:#FFF;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:16rpx;box-sizing:border-box}
-.stat-card.reviews{border-left:6rpx solid #2E7D32}.stat-card.violations{border-left:6rpx solid #FF9800}.stat-card.reports{border-left:6rpx solid #E53935}.stat-card.bans{border-left:6rpx solid #9C27B0}
+.stat-card.reviews{border-left:6rpx solid #2E8B57}.stat-card.violations{border-left:6rpx solid #FF9800}.stat-card.reports{border-left:6rpx solid #E53935}.stat-card.bans{border-left:6rpx solid #9C27B0}
 .num{font-size:44rpx;font-weight:700;display:block}.label{font-size:24rpx;color:#666;margin-top:4rpx;display:block}.sub{font-size:20rpx;color:#999;margin-top:6rpx;display:block}
 
 .menu-grid{display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:32rpx}

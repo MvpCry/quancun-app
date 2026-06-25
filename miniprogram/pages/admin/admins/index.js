@@ -6,6 +6,7 @@ Page({
     adminTotal: 0,
     loading: true,
     isAndroid: false,
+    backIcon: '<',
 
     // 搜索结果
     searchKeyword: '',

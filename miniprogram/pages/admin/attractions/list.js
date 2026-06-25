@@ -15,6 +15,7 @@ Page({
     keyword: '',
 
     isAndroid: false,
+    backIcon: '<',
     // 批量修正
     batchMode: false,
     selectedIds: [],

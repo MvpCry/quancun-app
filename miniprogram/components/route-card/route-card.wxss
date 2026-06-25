@@ -160,7 +160,7 @@
   padding: 12rpx 28rpx;
   font-size: 24rpx;
   color: #FFFFFF;
-  background: linear-gradient(135deg, #2E7D32, #4CAF50);
+  background: linear-gradient(135deg, #2E8B57, #3CB371);
   border-radius: 36rpx;
   line-height: 1.4;
 }

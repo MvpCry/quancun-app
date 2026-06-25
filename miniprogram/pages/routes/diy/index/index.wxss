@@ -69,8 +69,8 @@
 
 .chip-btn.active {
   background: #E8F5E9;
-  color: #2E7D32;
-  border-color: #2E7D32;
+  color: #2E8B57;
+  border-color: #2E8B57;
   font-weight: 600;
 }
 
@@ -97,7 +97,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #2E7D32, #43A047);
+  background: linear-gradient(135deg, #2E8B57, #3CB371);
   color: #FFFFFF;
 }
 
@@ -107,8 +107,8 @@
 
 .btn-outline {
   background: #FFF;
-  color: #2E7D32;
-  border: 2rpx solid #2E7D32;
+  color: #2E8B57;
+  border: 2rpx solid #2E8B57;
   font-size: 26rpx;
   padding: 16rpx 28rpx;
   border-radius: 32rpx;
@@ -146,7 +146,7 @@
 
 .selected-count {
   font-size: 26rpx;
-  color: #2E7D32;
+  color: #2E8B57;
   font-weight: 500;
 }
 
@@ -159,7 +159,7 @@
 }
 
 .stop-card.selected {
-  border: 2rpx solid #2E7D32;
+  border: 2rpx solid #2E8B57;
   background: #F8FFF8;
 }
 
@@ -178,7 +178,7 @@
 }
 
 .stop-order-badge.checked {
-  background: #2E7D32;
+  background: #2E8B57;
   color: #FFF;
 }
 
@@ -214,7 +214,7 @@
 
 .stop-tag {
   font-size: 20rpx;
-  color: #2E7D32;
+  color: #2E8B57;
   background: #E8F5E9;
   padding: 2rpx 12rpx;
   border-radius: 8rpx;

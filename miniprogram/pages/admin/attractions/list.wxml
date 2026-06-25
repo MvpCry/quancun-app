@@ -1,7 +1,7 @@
 <!-- pages/admin/attractions/list.wxml - 省→市→区/县 三级树形（批量修正）-->
 <view class="nav-container {{isAndroid ? 'android' : ''}}">
   <view class="nav-left">
-    <view class="nav-back" bindtap="onNavBack">←</view>
+    <view class="nav-back" bindtap="onNavBack"><text class="back-icon">{{backIcon}}</text></view>
   </view>
   <view class="nav-center">
     <text class="nav-title">景点管理</text>

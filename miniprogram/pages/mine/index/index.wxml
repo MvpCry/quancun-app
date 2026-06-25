@@ -1,128 +1,171 @@
-<!-- pages/mine/index/index.wxml - 我的页面 -->
-<view class="nav-container {{isAndroid ? 'android' : ''}}">
-  <view class="nav-left"></view>
-  <view class="nav-center">
-    <text class="nav-title">我的</text>
-  </view>
-  <view class="nav-right"></view>
-</view>
-<view class="container">
-  <!-- 用户信息卡 -->
-  <view class="user-card card">
-    <view class="user-info" wx:if="{{isLogin}}">
-      <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"/>
-      <view class="user-text">
-        <text class="user-name">{{userInfo.nickName || '游客'}}</text>
-        <text class="user-desc">探索乡村美景，从这里开始</text>
-      </view>
-      <text class="edit-btn">✎</text>
-    </view>
-    <view class="user-info" wx:else bindtap="onLogin">
-      <view class="avatar-placeholder">
-        <text>👤</text>
-      </view>
-      <view class="user-text">
-        <text class="user-name">点击登录</text>
-        <text class="user-desc">登录后享受更多功能</text>
-      </view>
-      <text class="login-arrow">›</text>
+<!-- pages/mine/index/index.wxml - 我的页面（现代布局） -->
+
+<!-- ==================== 主页面 ==================== -->
+<view class="page-mine" wx:if="{{!activeTab}}">
+
+  <!-- ===== 绿色头部区域（导航栏 + 用户信息 + 弧形过渡） ===== -->
+  <view class="header-area {{isAndroid ? 'android' : ''}}">
+    <!-- 导航栏 -->
+    <view class="nav-bar">
+      <text class="nav-title">我的</text>
     </view>
 
-    <!-- 统计数据 -->
-    <view class="user-stats" wx:if="{{isLogin}}">
-      <view class="stat" bindtap="onTabTap" data-tab="favorites">
-        <text class="stat-num">{{favoriteCount}}</text>
-        <text class="stat-label">收藏</text>
-      </view>
-      <view class="stat" bindtap="onTabTap" data-tab="routes">
-        <text class="stat-num">{{myRouteCount}}</text>
-        <text class="stat-label">我的路线</text>
-      </view>
-      <view class="stat" bindtap="onTabTap" data-tab="reviews">
-        <text class="stat-num">{{myReviewCount}}</text>
-        <text class="stat-label">我的评价</text>
+    <!-- 用户信息（绿色背景上） -->
+    <view class="user-header" wx:if="{{isLogin}}">
+      <view class="user-row">
+        <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" bindtap="onLogin"/>
+        <view class="user-meta">
+          <text class="nickname">{{userInfo.nickName || '游客'}}</text>
+          <text class="bio">探索乡村美景，从这里开始</text>
+        </view>
+        <view class="edit-btn" bindtap="onLogin">编辑资料</view>
       </view>
     </view>
+
+    <view class="user-header" wx:else>
+      <view class="user-row" bindtap="onLogin">
+        <view class="avatar-placeholder">
+          <text class="avatar-placeholder-icon">👤</text>
+        </view>
+        <view class="user-meta">
+          <text class="nickname">点击登录</text>
+          <text class="bio">登录后享受更多功能</text>
+        </view>
+        <text class="login-arrow">›</text>
+      </view>
+    </view>
+
   </view>
 
-  <!-- 功能列表 -->
-  <view class="menu-section card">
-    <view class="menu-item" bindtap="onTabTap" data-tab="favorites">
-      <text class="menu-icon">❤️</text>
-      <text class="menu-text">我的收藏</text>
-      <text class="menu-badge" wx:if="{{favoriteCount > 0}}">{{favoriteCount}}</text>
-      <text class="menu-arrow">›</text>
+  <!-- ===== 数据统计卡片（负margin上叠） ===== -->
+  <view class="stats-card" wx:if="{{isLogin}}">
+    <view class="stat-item" bindtap="onTabTap" data-tab="favorites" hover-class="stat-active">
+      <text class="stat-num">{{favoriteCount}}</text>
+      <text class="stat-label">收藏</text>
     </view>
-    <view class="menu-item" bindtap="onTabTap" data-tab="routes">
-      <text class="menu-icon">🗺️</text>
-      <text class="menu-text">我的路线</text>
-      <text class="menu-badge" wx:if="{{myRouteCount > 0}}">{{myRouteCount}}</text>
-      <text class="menu-arrow">›</text>
+    <view class="stat-divider"></view>
+    <view class="stat-item" bindtap="onTabTap" data-tab="routes" hover-class="stat-active">
+      <text class="stat-num">{{myRouteCount}}</text>
+      <text class="stat-label">我的路线</text>
     </view>
-    <view class="menu-item" bindtap="onTabTap" data-tab="reviews">
-      <text class="menu-icon">💬</text>
-      <text class="menu-text">我的评价</text>
-      <text class="menu-badge" wx:if="{{myReviewCount > 0}}">{{myReviewCount}}</text>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="onTabTap" data-tab="history">
-      <text class="menu-icon">🕐</text>
-      <text class="menu-text">浏览历史</text>
-      <text class="menu-arrow">›</text>
+    <view class="stat-divider"></view>
+    <view class="stat-item" bindtap="onTabTap" data-tab="reviews" hover-class="stat-active">
+      <text class="stat-num">{{myReviewCount}}</text>
+      <text class="stat-label">我的评价</text>
     </view>
   </view>
 
-  <view class="menu-section card">
-    <view class="menu-item" bindtap="onNavigateTo" data-url="/pages/routes/plan/plan">
-      <text class="menu-icon">📍</text>
-      <text class="menu-text">规划路线</text>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="onAbout">
-      <text class="menu-icon">ℹ️</text>
-      <text class="menu-text">关于去俺村</text>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="onFeedback">
-      <text class="menu-icon">📝</text>
-      <text class="menu-text">意见反馈</text>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="onSyncData">
-      <text class="menu-icon">🔄</text>
-      <text class="menu-text">数据同步</text>
-      <text class="menu-desc">更新坐标和路线数据</text>
-      <text class="menu-arrow">›</text>
+  <!-- ===== 操作按钮区 ===== -->
+  <view class="action-row" wx:if="{{isLogin}}">
+    <view class="action-btn action-btn-primary" hover-class="action-btn-primary-active">关注</view>
+    <view class="action-btn action-btn-secondary" hover-class="action-btn-secondary-active" bindtap="onFeedback">私信</view>
+    <view class="action-btn-more" hover-class="action-btn-more-active" bindtap="onAbout">
+      <text class="more-dots">⋯</text>
     </view>
   </view>
 
-  <!-- 退出登录 -->
-  <view class="logout-section" wx:if="{{isLogin}}">
-    <button class="btn btn-outline btn-block" bindtap="onLogout">退出登录</button>
+  <!-- ===== 功能菜单：常用功能 ===== -->
+  <view class="menu-group">
+    <text class="menu-group-title">常用功能</text>
+    <view class="menu-card">
+      <view class="menu-item" bindtap="onTabTap" data-tab="favorites" hover-class="menu-item-active">
+        <view class="menu-icon-box menu-icon-green">
+          <text class="menu-icon-symbol">☆</text>
+        </view>
+        <text class="menu-text">我的收藏</text>
+        <text class="menu-badge" wx:if="{{favoriteCount > 0}}">{{favoriteCount}}</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="onTabTap" data-tab="routes" hover-class="menu-item-active">
+        <view class="menu-icon-box menu-icon-green">
+          <text class="menu-icon-symbol">✦</text>
+        </view>
+        <text class="menu-text">我的路线</text>
+        <text class="menu-badge" wx:if="{{myRouteCount > 0}}">{{myRouteCount}}</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="onTabTap" data-tab="reviews" hover-class="menu-item-active">
+        <view class="menu-icon-box menu-icon-green">
+          <text class="menu-icon-symbol">"</text>
+        </view>
+        <text class="menu-text">我的评价</text>
+        <text class="menu-badge" wx:if="{{myReviewCount > 0}}">{{myReviewCount}}</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item menu-item-last" bindtap="onTabTap" data-tab="history" hover-class="menu-item-active">
+        <view class="menu-icon-box menu-icon-green">
+          <text class="menu-icon-symbol">◷</text>
+        </view>
+        <text class="menu-text">浏览历史</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
   </view>
 
-  <view class="admin-entry" bindlongpress="onAdminEntry">
-    <text class="admin-entry-text">去俺村 v1.0.0</text>
+  <!-- ===== 功能菜单：系统服务 ===== -->
+  <view class="menu-group">
+    <text class="menu-group-title">系统服务</text>
+    <view class="menu-card">
+      <view class="menu-item" bindtap="onNavigateTo" data-url="/pages/routes/plan/plan" hover-class="menu-item-active">
+        <view class="menu-icon-box menu-icon-green">
+          <text class="menu-icon-symbol">◎</text>
+        </view>
+        <text class="menu-text">规划路线</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="onAbout" hover-class="menu-item-active">
+        <view class="menu-icon-box menu-icon-green">
+          <text class="menu-icon-symbol">ⓘ</text>
+        </view>
+        <text class="menu-text">关于去俺村</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="onFeedback" hover-class="menu-item-active">
+        <view class="menu-icon-box menu-icon-green">
+          <text class="menu-icon-symbol">✎</text>
+        </view>
+        <text class="menu-text">意见反馈</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item menu-item-last" bindtap="onSyncData" hover-class="menu-item-active">
+        <view class="menu-icon-box menu-icon-green">
+          <text class="menu-icon-symbol">↻</text>
+        </view>
+        <text class="menu-text">数据同步</text>
+        <text class="menu-desc">更新坐标和路线数据</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
   </view>
+
+  <!-- ===== 底部区域 ===== -->
+  <view class="footer-area">
+    <view class="logout-btn" wx:if="{{isLogin}}" bindtap="onLogout" hover-class="logout-btn-active">退出登录</view>
+    <view class="version-text" bindlongpress="onAdminEntry">去俺村 v1.0.0</view>
+  </view>
+
+  <!-- 安全区适配 -->
   <view class="safe-bottom" style="height: 40rpx;"></view>
 </view>
 
-<!-- 我的子页弹层 -->
+<!-- ==================== Tab 子页弹层（保持不变） ==================== -->
 <view class="tab-content" wx:if="{{activeTab}}">
-  <view class="nav-container {{isAndroid ? 'android' : ''}}">
-    <view class="nav-left">
-      <view class="nav-back" bindtap="onCloseTab">←</view>
+  <view class="tab-nav {{isAndroid ? 'android' : ''}}">
+    <view class="tab-nav-left" bindtap="onCloseTab">
+      <view class="nav-back">
+        <text class="back-icon">{{backIcon}}</text>
+      </view>
     </view>
-    <view class="nav-center">
-      <text class="nav-title">{{activeTab === 'favorites' ? '我的收藏' : activeTab === 'routes' ? '我的路线' : activeTab === 'reviews' ? '我的评价' : '浏览历史'}}</text>
+    <view class="tab-nav-center">
+      <text class="tab-nav-title">{{activeTab === 'favorites' ? '我的收藏' : activeTab === 'routes' ? '我的路线' : activeTab === 'reviews' ? '我的评价' : '浏览历史'}}</text>
     </view>
-    <view class="nav-right"></view>
+    <view class="tab-nav-right"></view>
   </view>
 
   <!-- 收藏列表 -->
   <view class="tab-body" wx:if="{{activeTab === 'favorites'}}">
     <block wx:if="{{tabList.length > 0}}">
-      <view class="fav-item" wx:for="{{tabList}}" wx:key="_id" bindtap="onFavItemTap" data-item="{{item}}">
+      <view class="fav-item" wx:for="{{tabList}}" wx:key="_id" bindtap="onFavItemTap" data-item="{{item}}" hover-class="fav-item-active">
         <image class="fav-image" src="{{item.coverImage || item.images[0]}}" mode="aspectFill"/>
         <view class="fav-info">
           <text class="fav-name">{{item.name}}</text>
@@ -132,7 +175,9 @@
       </view>
     </block>
     <view class="empty-state" wx:else>
-      <view class="empty-circle">💝</view>
+      <view class="empty-icon-circle">
+        <text class="empty-icon-text">☆</text>
+      </view>
       <text class="empty-title">还没有收藏</text>
       <text class="empty-desc">去发现感兴趣的景点和路线吧</text>
     </view>
@@ -141,10 +186,14 @@
   <!-- 我的路线列表 -->
   <view class="tab-body" wx:if="{{activeTab === 'routes'}}">
     <block wx:if="{{tabList.length > 0}}">
-      <route-card wx:for="{{tabList}}" wx:key="_id" route="{{item}}" bindtap="onRouteTap" data-id="{{item._id}}"/>
+      <view class="card-wrap" wx:for="{{tabList}}" wx:key="_id">
+        <route-card route="{{item}}" bindtap="onRouteTap" data-id="{{item._id}}"/>
+      </view>
     </block>
     <view class="empty-state" wx:else>
-      <view class="empty-circle">🗺️</view>
+      <view class="empty-icon-circle">
+        <text class="empty-icon-text">✦</text>
+      </view>
       <text class="empty-title">还没有路线</text>
       <text class="empty-desc">规划一条属于自己的旅行路线</text>
       <button class="empty-btn" bindtap="onCreateRoute">去创建路线</button>
@@ -162,12 +211,14 @@
         <text class="review-card-content">{{item.content}}</text>
         <view class="review-card-bottom">
           <text class="review-card-time">{{item.createTime}}</text>
-          <text class="review-card-del" bindtap="onDeleteReview" data-id="{{item._id}}" data-name="{{item.attractionName}}">删除</text>
+          <text class="review-card-del" bindtap="onDeleteReview" data-id="{{item._id}}" data-name="{{item.attractionName}}" hover-class="review-card-del-active">删除</text>
         </view>
       </view>
     </block>
     <view class="empty-state" wx:else>
-      <view class="empty-circle">💬</view>
+      <view class="empty-icon-circle">
+        <text class="empty-icon-text">"</text>
+      </view>
       <text class="empty-title">还没有评价</text>
       <text class="empty-desc">游览过景点后写下你的感受吧</text>
     </view>
@@ -176,10 +227,14 @@
   <!-- 浏览历史列表 -->
   <view class="tab-body" wx:if="{{activeTab === 'history'}}">
     <block wx:if="{{tabList.length > 0}}">
-      <attraction-card wx:for="{{tabList}}" wx:key="_id" attraction="{{item}}" bindtap="onAttractionTap" data-id="{{item._id}}"/>
+      <view class="card-wrap" wx:for="{{tabList}}" wx:key="_id">
+        <attraction-card attraction="{{item}}" bindtap="onAttractionTap" data-id="{{item._id}}"/>
+      </view>
     </block>
     <view class="empty-state" wx:else>
-      <view class="empty-circle">🕐</view>
+      <view class="empty-icon-circle">
+        <text class="empty-icon-text">◷</text>
+      </view>
       <text class="empty-title">暂无记录</text>
       <text class="empty-desc">浏览过的景点会出现在这里</text>
     </view>

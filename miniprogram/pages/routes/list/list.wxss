@@ -1,27 +1,73 @@
-/* pages/routes/list/list.wxss */
+/* pages/routes/list/list.wxss - 路线列表样式（森林绿统一规范） */
 
-/* 自定义导航栏 */
-.nav-container{width:100%;background:#207c30;box-sizing:border-box;padding-top:calc(env(safe-area-inset-top) + 36rpx);padding-bottom:16rpx;min-height:140rpx;display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;}
-.nav-container.android{padding-top:calc(env(safe-area-inset-top) + 40rpx)!important;align-items:center}
-.nav-left{width:100rpx;flex-shrink:0;display:flex;align-items:center;padding-left:30rpx}.nav-center{flex:1;display:flex;justify-content:center;align-items:center}.nav-right{width:180rpx;flex-shrink:0}.nav-title{font-size:36rpx;color:#fff;font-weight:600;padding:12rpx 0;white-space:nowrap}
+/* ==================== 自定义导航栏 ==================== */
+.nav-container {
+  width: 100%;
+  background: linear-gradient(180deg, #2E8B57 0%, #3CB371 100%);
+  border-radius: 0 0 48rpx 48rpx;
+  box-sizing: border-box;
+  padding-top: calc(env(safe-area-inset-top) + 36rpx);
+  padding-bottom: 16rpx;
+  min-height: 140rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  overflow: hidden;
+}
 
+.nav-container.android {
+  padding-top: calc(env(safe-area-inset-top) + 40rpx) !important;
+  align-items: center;
+}
+
+.nav-left {
+  width: 100rpx;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding-left: 30rpx;
+}
+
+.nav-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-right {
+  width: 180rpx;
+  flex-shrink: 0;
+}
+
+.nav-title {
+  font-size: 34rpx;
+  color: #fff;
+  font-weight: 600;
+  padding: 12rpx 0;
+  white-space: nowrap;
+}
+
+/* ==================== 顶部标题区 ==================== */
 .section-header {
   padding: 24rpx 0 16rpx;
 }
 
 .section-header-title {
-  font-size: 40rpx;
+  font-size: 36rpx;
   font-weight: 700;
+  color: #1a1a1a;
   display: block;
   margin-bottom: 8rpx;
 }
 
 .section-header-desc {
-  font-size: 26rpx;
-  color: var(--text-hint);
+  font-size: 24rpx;
+  color: #999;
 }
 
-/* 标签筛选 */
+/* ==================== 标签筛选 ==================== */
 .tag-filter {
   white-space: nowrap;
   padding: 12rpx 0 24rpx;
@@ -29,46 +75,55 @@
 
 .tag-chip {
   display: inline-block;
-  padding: 12rpx 28rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  padding: 0 28rpx;
   margin-right: 16rpx;
-  border-radius: 32rpx;
+  border-radius: 28rpx;
   font-size: 26rpx;
-  background: #FFFFFF;
-  color: var(--text-secondary);
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04);
+  background: #fff;
+  color: #666;
+  border: 1rpx solid #e0e0e0;
   transition: all 0.2s;
 }
 
 .tag-chip.active {
-  background: var(--primary);
-  color: #FFFFFF;
+  background: #2E8B57;
+  color: #fff;
+  border-color: #2E8B57;
 }
 
-/* 路线列表 */
+/* ==================== 路线列表 ==================== */
 .route-list {
   padding-top: 8rpx;
 }
 
-/* 空状态扩展 */
+/* ==================== 空状态扩展 ==================== */
 .empty-desc {
   font-size: 24rpx;
-  color: var(--text-hint);
+  color: #999;
   margin-top: 12rpx;
 }
 
-/* 悬浮按钮 */
+/* ==================== 悬浮按钮 ==================== */
 .fab {
   position: fixed;
   right: 40rpx;
   bottom: 160rpx;
   display: flex;
   align-items: center;
-  background: var(--primary);
-  color: #FFFFFF;
-  border-radius: 48rpx;
-  padding: 18rpx 32rpx;
-  box-shadow: 0 8rpx 24rpx rgba(46,125,50,0.35);
+  background: #2E8B57;
+  color: #fff;
+  border-radius: 36rpx;
+  height: 80rpx;
+  padding: 0 32rpx;
+  box-shadow: 0 8rpx 24rpx rgba(46, 139, 87, 0.3);
   z-index: 50;
+}
+
+.fab:active {
+  background: #228B22;
+  box-shadow: 0 4rpx 16rpx rgba(46, 139, 87, 0.2);
 }
 
 .fab-icon {

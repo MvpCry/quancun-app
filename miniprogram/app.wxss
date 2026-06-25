@@ -1,20 +1,21 @@
-/* 去俺村 - 全局样式 */
+/* 去俺村 - 全局样式（森林绿主题） */
 
 /* ========== 颜色变量 ========== */
 page {
-  --primary: #2E7D32;
-  --primary-light: #4CAF50;
-  --primary-dark: #1B5E20;
+  --primary: #2E8B57;
+  --primary-light: #3CB371;
+  --primary-dark: #228B22;
   --accent: #FF9800;
   --accent-light: #FFB74D;
-  --text-primary: #333333;
+  --text-primary: #1a1a1a;
   --text-secondary: #666666;
   --text-hint: #999999;
   --bg-page: #F5F5F5;
   --bg-white: #FFFFFF;
-  --border: #E8E8E8;
-  --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  --radius: 12rpx;
+  --border: #f0f0f0;
+  --shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+  --radius: 16rpx;
+  --radius-lg: 24rpx;
 
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: 28rpx;
@@ -38,8 +39,7 @@ page {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16rpx 0;
-  margin-bottom: 20rpx;
+  padding: 24rpx 0 20rpx;
 }
 
 .section-title .title {
@@ -70,7 +70,7 @@ page {
 /* ========== 卡片样式 ========== */
 .card {
   background: var(--bg-white);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   overflow: hidden;
   margin-bottom: 24rpx;
@@ -83,7 +83,7 @@ page {
 /* ========== 标签样式 ========== */
 .tag {
   display: inline-block;
-  padding: 6rpx 16rpx;
+  padding: 4rpx 12rpx;
   border-radius: 8rpx;
   font-size: 22rpx;
   margin-right: 12rpx;
@@ -91,7 +91,7 @@ page {
 }
 
 .tag-primary {
-  background: rgba(46, 125, 50, 0.1);
+  background: #e8f5e9;
   color: var(--primary);
 }
 
@@ -110,7 +110,7 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 44rpx;
+  border-radius: 36rpx;
   font-size: 28rpx;
   padding: 20rpx 40rpx;
   border: none;
@@ -216,6 +216,24 @@ page {
   padding: 32rpx;
   color: var(--text-hint);
   font-size: 26rpx;
+}
+
+/* ========== 全局返回按钮 ========== */
+.nav-back {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 16rpx;
+}
+
+.back-icon {
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: 600;
+  line-height: 1;
+  margin-left: -2rpx;
 }
 
 /* ========== 安全区域 ========== */

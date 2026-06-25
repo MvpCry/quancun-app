@@ -1,7 +1,7 @@
 <!-- pages/admin/attractions/edit.wxml - 新增/编辑景点（结构化区域字段 + 地图搜点）-->
 <view class="nav-container {{isAndroid ? 'android' : ''}}">
   <view class="nav-left">
-    <view class="nav-back" bindtap="onNavBack">←</view>
+    <view class="nav-back" bindtap="onNavBack"><text class="back-icon">{{backIcon}}</text></view>
   </view>
   <view class="nav-center">
     <text class="nav-title">{{isEdit ? '编辑景点' : '新增景点'}}</text>

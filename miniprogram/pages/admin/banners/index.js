@@ -7,6 +7,7 @@ Page({
     loading: true,
     keyword: '',
     isAndroid: false
+    backIcon: '<',
   },
 
   onLoad: function () { this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android' }); this.loadList(); },

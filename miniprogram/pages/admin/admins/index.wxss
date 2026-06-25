@@ -1,10 +1,10 @@
 /* pages/admin/admins/index.wxss */
 
 /* 自定义导航栏（左箭头+居中标题+右胶囊）*/
-.nav-container{width:100%;background:#207c30;box-sizing:border-box;padding-top:calc(env(safe-area-inset-top) + 36rpx);padding-bottom:16rpx;min-height:140rpx;display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;}
+.nav-container{width:100%;background:#2E8B57;box-sizing:border-box;padding-top:calc(env(safe-area-inset-top) + 36rpx);padding-bottom:16rpx;min-height:140rpx;display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;}
 .nav-container.android{padding-top:calc(env(safe-area-inset-top) + 40rpx)!important;align-items:center}
 .nav-left{width:100rpx;flex-shrink:0;display:flex;align-items:center;padding-left:30rpx}.nav-center{flex:1;display:flex;justify-content:center;align-items:center}.nav-right{width:180rpx;flex-shrink:0}.nav-title{font-size:36rpx;color:#fff;font-weight:600;padding:12rpx 0;white-space:nowrap}
-.nav-back{width:40rpx;height:40rpx;font-size:40rpx;line-height:40rpx;color:#fff;display:flex;align-items:center;justify-content:center}
+
 
 /* pages/admin/admins/index.wxss */
 
@@ -13,7 +13,7 @@
 .top-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:22rpx}
 .top-title-left{display:flex;align-items:center;gap:10rpx}
 .top-icon{font-size:36rpx}
-.top-title{font-size:38rpx;font-weight:700;color:#1B5E20;white-space:nowrap}
+.top-title{font-size:38rpx;font-weight:700;color:#228B22;white-space:nowrap}
 .top-count{font-size:24rpx;color:#999;white-space:nowrap}
 
 /* 搜索栏 */
@@ -28,7 +28,7 @@
 /* 按钮 */
 .btn-sm{padding:14rpx 24rpx;border-radius:40rpx;font-size:26rpx;border:none;flex-shrink:0}
 .btn-sm::after{border:none}
-.green{background:#2E7D32;color:#FFF}
+.green{background:#2E8B57;color:#FFF}
 .gray{background:#666;color:#FFF}
 
 /* 搜索结果 */
@@ -41,7 +41,7 @@
 .user-info{flex:1;overflow:hidden}
 .user-name{font-size:28rpx;font-weight:500;display:block}
 .user-openid{font-size:22rpx;color:#BBB;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.already-admin{font-size:24rpx;color:#2E7D32;flex-shrink:0;padding:8rpx 16rpx;background:#E8F5E9;border-radius:20rpx}
+.already-admin{font-size:24rpx;color:#2E8B57;flex-shrink:0;padding:8rpx 16rpx;background:#E8F5E9;border-radius:20rpx}
 
 /* 管理员列表 */
 .admin-list{background:#FFF;border-radius:12rpx;box-shadow:0 2px 8px rgba(0,0,0,.06);overflow:hidden}
@@ -51,7 +51,7 @@
 .admin-info{flex:1;overflow:hidden}
 .admin-name{font-size:28rpx;font-weight:500;display:block}
 .admin-time{font-size:22rpx;color:#BBB;display:block}
-.admin-tag{font-size:22rpx;color:#2E7D32;background:#E8F5E9;padding:6rpx 16rpx;border-radius:20rpx;margin-right:12rpx;flex-shrink:0}
+.admin-tag{font-size:22rpx;color:#2E8B57;background:#E8F5E9;padding:6rpx 16rpx;border-radius:20rpx;margin-right:12rpx;flex-shrink:0}
 .remove-btn{font-size:26rpx;color:#E53935;padding:8rpx 16rpx;flex-shrink:0}
 
 /* 空状态 */

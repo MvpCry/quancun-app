@@ -1,6 +1,6 @@
 <view class="nav-container {{isAndroid ? 'android' : ''}}">
   <view class="nav-left">
-    <view class="nav-back" bindtap="onNavBack">←</view>
+    <view class="nav-back" bindtap="onNavBack"><text class="back-icon">{{backIcon}}</text></view>
   </view>
   <view class="nav-center">
     <text class="nav-title">{{isEdit ? '编辑路线' : '新增路线'}}</text>

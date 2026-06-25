@@ -1,8 +1,8 @@
 /* 自定义导航栏（左箭头+居中标题+右胶囊）*/
-.nav-container{width:100%;background:#207c30;box-sizing:border-box;padding-top:calc(env(safe-area-inset-top) + 36rpx);padding-bottom:16rpx;min-height:140rpx;display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;}
+.nav-container{width:100%;background:#2E8B57;box-sizing:border-box;padding-top:calc(env(safe-area-inset-top) + 36rpx);padding-bottom:16rpx;min-height:140rpx;display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;}
 .nav-container.android{padding-top:calc(env(safe-area-inset-top) + 40rpx)!important;align-items:center}
 .nav-left{width:100rpx;flex-shrink:0;display:flex;align-items:center;padding-left:30rpx}.nav-center{flex:1;display:flex;justify-content:center;align-items:center}.nav-right{width:180rpx;flex-shrink:0}.nav-title{font-size:36rpx;color:#fff;font-weight:600;padding:12rpx 0;white-space:nowrap}
-.nav-back{width:40rpx;height:40rpx;font-size:40rpx;line-height:40rpx;color:#fff;display:flex;align-items:center;justify-content:center}
+
 
 .container{padding:24rpx;padding-bottom:160rpx}
 .form-grp{margin-bottom:28rpx}.label{font-size:28rpx;font-weight:600;display:block;margin-bottom:10rpx;color:#333}
@@ -14,7 +14,7 @@
 .cover-area{width:100%;height:260rpx;border-radius:12rpx;overflow:hidden;background:#FAFAFA;border:2rpx dashed #DDD;display:flex;align-items:flex-end;justify-content:space-between}.cover-img{width:100%;height:100%}.cover-placeholder{display:flex;flex-direction:column;align-items:center;gap:10rpx;color:#999}.cover-icon{font-size:48rpx}
 
 /* 标签芯片 */
-.chip-grid{display:flex;flex-wrap:wrap;gap:14rpx}.chip{padding:14rpx 28rpx;border-radius:40rpx;font-size:26rpx;background:#F5F5F5;color:#666}.chip.active{background:#E8F5E9;color:#2E7D32;font-weight:600;border:2rpx solid #2E7D32}
+.chip-grid{display:flex;flex-wrap:wrap;gap:14rpx}.chip{padding:14rpx 28rpx;border-radius:40rpx;font-size:26rpx;background:#F5F5F5;color:#666}.chip.active{background:#E8F5E9;color:#2E8B57;font-weight:600;border:2rpx solid #2E8B57}
 
 /* 已选排序条 */
 .selected-bar{margin-bottom:16rpx;padding:20rpx;background:#F9FBE9;border-radius:12rpx;border-left:6rpx solid #8BC34A}
@@ -27,8 +27,8 @@
 /* 景点多选列表 */
 .attraction-pick-list{background:#FFF;border-radius:12rpx;box-shadow:0 2px 8px rgba(0,0,0,.06);max-height:600rpx;overflow-y:auto}
 .pick-item{display:flex;align-items:center;gap:14rpx;padding:18rpx 20rpx;border-bottom:1rpx solid #F5F5F5}.pick-item:last-child{border-bottom:none}.pick-item.picked{background:#F1F8E9}
-.pick-check{width:40rpx;height:40rpx;border:2rpx solid #DDD;border-radius:8rpx;display:flex;align-items:flex-end;justify-content:space-between;flex-shrink:0;font-size:24rpx}.pick-check.checked{background:#2E7D32;border-color:#2E7D32;color:#FFF}
+.pick-check{width:40rpx;height:40rpx;border:2rpx solid #DDD;border-radius:8rpx;display:flex;align-items:flex-end;justify-content:space-between;flex-shrink:0;font-size:24rpx}.pick-check.checked{background:#2E8B57;border-color:#2E8B57;color:#FFF}
 .pick-info{flex:1;min-width:0}.pick-name{font-size:28rpx;font-weight:500;display:block}.pick-addr{font-size:22rpx;color:#999;display:block;margin-top:2rpx}
 .pick-cat{font-size:20rpx;padding:4rpx 12rpx;background:#F5F5F5;border-radius:8rpx;color:#999;flex-shrink:0}
 
-.btn-bar{padding:24rpx 0}.btn-save{width:100%;padding:20rpx 0;font-size:30rpx;color:#FFF;background:#2E7D32;border-radius:44rpx;border:none;text-align:center}.btn-save::after{border:none}.btn-save[disabled]{background:#CCC}
+.btn-bar{padding:24rpx 0}.btn-save{width:100%;padding:20rpx 0;font-size:30rpx;color:#FFF;background:#2E8B57;border-radius:44rpx;border:none;text-align:center}.btn-save::after{border:none}.btn-save[disabled]{background:#CCC}

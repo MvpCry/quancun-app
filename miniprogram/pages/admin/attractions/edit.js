@@ -2,6 +2,7 @@
 Page({
   data: {
     isEdit: false, id: '', saving: false,
+    backIcon: '<',
     form: {
       name: '', address: '', category: 'rural', tags: '',
       openTime: '', ticketPrice: 0, introduction: '',

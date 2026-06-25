@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "路线规划",
+  "navigationStyle": "custom",
   "disableScroll": true,
   "usingComponents": {
     "map-route": "/components/map-route/map-route"

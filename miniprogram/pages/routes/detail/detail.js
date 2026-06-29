@@ -5,29 +5,46 @@ var mapService = require('../../../utils/map-service.js');
 
 Page({
   data: {
+    isAndroid: false,
+    backIcon: '<',
     routeId: '',
     route: { attractions: [] },
     mapStops: [],
     routePolylines: [],
     currentStopIndex: 0,
     isFavorited: false,
-    loading: true
+    loading: true,
+    loadError: ''            // 加载错误信息（空=无错误）
   },
 
   onLoad: function (options) {
-    if (!options.id) {
-      wx.showToast({ title: '缺少路线ID', icon: 'none' });
+    var sysInfo = wx.getSystemInfoSync();
+    this.setData({ isAndroid: sysInfo.platform === 'android' });
+
+    if (!options || !options.id) {
+      this.setData({ loading: false, loadError: '缺少路线ID参数' });
       return;
     }
-    this.setData({ routeId: options.id });
+    this.setData({ routeId: options.id, loading: true, loadError: '' });
     this.loadRoute(options.id);
   },
 
-  // ========== 主加载：云优先 ==========
+  onShow: function () {
+    // 保持简洁：不做复杂重载逻辑（参考景点详情页的 onShow 模式）
+  },
+
+  onNavBack: function () {
+    wx.navigateBack({ delta: 1 });
+  },
+
+  onRetry: function () {
+    this.loadRoute(this.data.routeId);
+  },
+
+  // ========== 主加载：云优先 → 缓存回退 → 本地兜底 ==========
   loadRoute: async function (id) {
     var that = this;
-
-    that.setData({ loading: true });
+    that.setData({ loading: true, loadError: '' });
 
     // 1. 尝试云函数获取详情
     if (wx.cloud) {
@@ -41,8 +58,9 @@ Page({
           await that.renderRoute(res.result.route);
           return;
         }
+        console.warn('云函数未返回路线数据:', res.result);
       } catch (err) {
-        console.error('云函数获取路线详情失败:', err);
+        console.error('云函数调用失败:', err);
       }
     }
 
@@ -68,9 +86,11 @@ Page({
       }
     }
 
-    // 4. 未找到
-    that.setData({ loading: false });
-    wx.showToast({ title: '路线不存在', icon: 'none' });
+    // 4. 所有来源都未找到
+    that.setData({
+      loading: false,
+      loadError: '路线不存在或已被删除'
+    });
   },
 
   // 渲染路线数据
@@ -207,26 +227,74 @@ Page({
     // 触发分享
   },
 
+  // 开始导航 → 起点→途经点→终点 串联整条路线
   onNavigateAll: function () {
     var stops = this.data.route.attractions;
     if (!stops || stops.length === 0) {
       wx.showToast({ title: '暂无景点信息', icon: 'none' });
       return;
     }
-    var names = stops.map(function (s, i) { return (i + 1) + '. ' + s.name; });
+
+    // 筛出有坐标的站点（保持路线原始顺序）
+    var valid = stops.filter(function (s) {
+      return s.location && s.location.latitude;
+    });
+
+    if (valid.length === 0) {
+      wx.showToast({ title: '暂无可用坐标，无法导航', icon: 'none' });
+      return;
+    }
+
+    // 单景点：直接 openLocation
+    if (valid.length === 1) {
+      wx.openLocation({
+        latitude: valid[0].location.latitude,
+        longitude: valid[0].location.longitude,
+        name: valid[0].name,
+        address: this.data.route.name,
+        scale: 16
+      });
+      return;
+    }
+
+    // 多景点串联：起点=第一个景点，终点=最后一个景点，途经点=中间所有景点
+    var start = valid[0];
+    var end = valid[valid.length - 1];
+    var waypoints = valid.slice(1, -1);
+
+    // 途经点格式：lat,lng;lat,lng;...
+    var passesStr = waypoints.map(function (s) {
+      return s.location.latitude + ',' + s.location.longitude;
+    }).join(';');
+
+    // 路线描述（显示完整游览顺序）
+    var routeDesc = valid.map(function (s, i) {
+      return (i + 1) + '.' + s.name;
+    }).join(' → ');
+
     var that = this;
-    wx.showActionSheet({
-      itemList: names,
-      success: function (res) {
-        var stop = stops[res.tapIndex];
-        if (stop.location && stop.location.latitude) {
-          wx.openLocation({
-            latitude: stop.location.latitude,
-            longitude: stop.location.longitude,
-            name: stop.name,
-            scale: 16
-          });
-        }
+    // 尝试跳转腾讯地图小程序进行多点路线规划
+    wx.navigateToMiniProgram({
+      appId: 'wx7643d5f831302ab0',
+      path: 'modules/route/pages/index/index' +
+        '?type=drive' +
+        '&from=' + encodeURIComponent(start.name) +
+        '&fromcoord=' + start.location.latitude + ',' + start.location.longitude +
+        '&to=' + encodeURIComponent(end.name) +
+        '&tocoord=' + end.location.latitude + ',' + end.location.longitude +
+        (passesStr ? '&passes=' + encodeURIComponent(passesStr) : ''),
+      success: function () {
+        console.log('已打开腾讯地图：' + routeDesc);
+      },
+      fail: function () {
+        // 腾讯地图不可用 → 打开微信内置地图导航到起点，并在 address 显示完整路线
+        wx.openLocation({
+          latitude: start.location.latitude,
+          longitude: start.location.longitude,
+          name: start.name + '（第1站/' + valid.length + '站）',
+          address: that.data.route.name + '\n游览顺序：' + routeDesc,
+          scale: 16
+        });
       }
     });
   },

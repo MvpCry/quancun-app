@@ -6,7 +6,7 @@ Page({
     form: {
       name: '', address: '', category: 'rural', tags: '',
       openTime: '', ticketPrice: 0, introduction: '',
-      images: [], location: null,
+      images: [], location: {},
       rating: 4.5,
       // 区域结构化字段
       province: '山东省',
@@ -60,7 +60,7 @@ Page({
             category: a.category || 'rural', tags: (a.tags || []).join('、'),
             openTime: a.openTime || '', ticketPrice: a.ticketPrice || 0,
             introduction: a.introduction || '', images: a.images || [],
-            location: a.location || null,
+            location: (a.location && a.location.latitude) ? a.location : {},
             rating: a.rating || 4.5,
             province: a.province || '山东省',
             city: a.city || '泰安市',
@@ -298,7 +298,7 @@ Page({
       ticketPrice: f.ticketPrice,
       introduction: f.introduction.trim(),
       images: f.images,
-      location: f.location,
+      location: (f.location && f.location.latitude) ? { latitude: f.location.latitude, longitude: f.location.longitude } : {},
       rating: f.rating
     };
 

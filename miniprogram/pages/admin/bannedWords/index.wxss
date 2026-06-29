@@ -1,5 +1,5 @@
 /* 自定义导航栏（左箭头+居中标题+右胶囊）*/
-.nav-container{width:100%;background:#2E8B57;box-sizing:border-box;padding-top:calc(env(safe-area-inset-top) + 36rpx);padding-bottom:16rpx;min-height:140rpx;display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;}
+.nav-container{width:100%;border-radius:0 0 48rpx 48rpx;background:linear-gradient(180deg, #2E8B57 0%, #3CB371 100%);box-sizing:border-box;padding-top:calc(env(safe-area-inset-top) + 36rpx);padding-bottom:16rpx;min-height:140rpx;display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;}
 .nav-container.android{padding-top:calc(env(safe-area-inset-top) + 40rpx)!important;align-items:center}
 .nav-left{width:100rpx;flex-shrink:0;display:flex;align-items:center;padding-left:30rpx}.nav-center{flex:1;display:flex;justify-content:center;align-items:center}.nav-right{width:180rpx;flex-shrink:0}.nav-title{font-size:36rpx;color:#fff;font-weight:600;padding:12rpx 0;white-space:nowrap}
 
@@ -14,10 +14,10 @@
 
 /* 添加栏 */
 .add-bar{display:flex;gap:12rpx;margin-bottom:16rpx}.add-input{flex:1;padding:16rpx 24rpx;background:#FFF;border-radius:40rpx;font-size:28rpx;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.btn-sm{padding:14rpx 24rpx;border-radius:40rpx;font-size:26rpx;border:none;flex-shrink:0}.btn-sm::after{border:none}.green{background:#2E8B57;color:#FFF}.gray{background:#666;color:#FFF}
+.btn-sm{padding:14rpx 24rpx;border-radius:40rpx;font-size:26rpx;border:none;flex-shrink:0}.btn-sm::after{border:none}.green{background:linear-gradient(180deg, #2E8B57 0%, #3CB371 100%);color:#FFF}.gray{background:#666;color:#FFF}
 
 /* 批量区 */
-.batch-area{background:#FFF;border-radius:12rpx;padding:20rpx;margin-bottom:16rpx;box-shadow:0 2px 8px rgba(0,0,0,.06)}.batch-textarea{width:100%;min-height:160rpx;font-size:26rpx;padding:12rpx;background:#FAFAFA;border-radius:12rpx}.batch-actions{display:flex;gap:16rpx;margin-top:16rpx;justify-content:flex-end}
+.batch-area{background:#FFF;border-radius:12rpx;padding:20rpx;margin-bottom:16rpx;box-shadow:0 2px 8px rgba(0,0,0,.06)}.batch-textarea{width:100%;border-radius:0 0 48rpx 48rpx;min-height:160rpx;font-size:26rpx;padding:12rpx;background:#FAFAFA;border-radius:12rpx}.batch-actions{display:flex;gap:16rpx;margin-top:16rpx;justify-content:flex-end}
 
 /* 搜索栏 */
 .search-bar{margin:0}

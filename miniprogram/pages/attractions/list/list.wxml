@@ -72,7 +72,7 @@
         attraction="{{item}}"
         showFavorite="{{!selectMode}}"
         data-id="{{item._id}}"
-        bindtap="onAttractionTap"
+        
         bindfavorite="onFavoriteTap"
       />
     </view>

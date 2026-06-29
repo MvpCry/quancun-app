@@ -6,7 +6,7 @@ Page({
     total: 0,
     loading: true,
     keyword: '',
-    isAndroid: false
+    isAndroid: false,
     backIcon: '<',
   },
 

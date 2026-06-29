@@ -1,0 +1,9 @@
+{
+  "name": "adminUpload",
+  "version": "1.0.0",
+  "description": "HTTP触发器：远程上传图片并关联到景点",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

@@ -6,7 +6,7 @@ Page({
     stats: null,
     loading: true,
     isAdmin: false,
-    isAndroid: false
+    isAndroid: false,
     backIcon: '<',
   },
 

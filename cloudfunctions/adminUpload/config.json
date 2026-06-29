@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "openapi": []
+  },
+  "triggers": [
+    {
+      "name": "httpUpload",
+      "type": "http",
+      "config": {
+        "path": "/upload",
+        "method": ["POST"]
+      }
+    }
+  ]
+}

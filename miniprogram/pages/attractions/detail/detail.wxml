@@ -1,6 +1,36 @@
 <!-- pages/attractions/detail/detail.wxml - 景点详情页 -->
-<!-- 布局顺序：名称 → 评分 → 开放时间 → 图片轮播 → 简介 → 地图 → 评论 -->
+<!-- 布局顺序：导航栏 → 加载中 → 错误 → 名称 → 评分 → 开放时间 → 图片轮播 → 简介 → 地图 → 评论 -->
+
+<!-- ==================== 导航栏 ==================== -->
+<view class="nav-container {{isAndroid ? 'android' : ''}}">
+  <view class="nav-left">
+    <view class="nav-back" bindtap="onNavBack">
+      <text class="back-icon">{{backIcon}}</text>
+    </view>
+  </view>
+  <view class="nav-center">
+    <text class="nav-title">{{attraction.name || '景点详情'}}</text>
+  </view>
+  <view class="nav-right"></view>
+</view>
+
 <view class="container">
+
+  <!-- ========== 0. 加载中 ========== -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">正在加载景点信息...</text>
+  </view>
+
+  <!-- ========== 0. 加载失败 ========== -->
+  <view class="error-state" wx:elif="{{loadError}}">
+    <text class="error-icon">😞</text>
+    <text class="error-text">{{loadError}}</text>
+    <button class="error-retry-btn" bindtap="onRetry">重新加载</button>
+    <button class="error-back-btn" bindtap="onNavBack">返回列表</button>
+  </view>
+
+  <block wx:else>
   <!-- ========== 1. 名称 ========== -->
   <view class="name-section">
     <text class="detail-name">{{attraction.name}}</text>
@@ -187,4 +217,5 @@
     </view>
     <button class="bottom-btn btn-primary" bindtap="onAddToRoute">加入路线规划</button>
   </view>
+  </block>
 </view>

@@ -4,6 +4,8 @@ var format = require('../../../utils/format.js');
 
 Page({
   data: {
+    isAndroid: false,
+    backIcon: '<',
     attractionId: '',
     attraction: { images: [], location: {} },
     currentImageIndex: 0,
@@ -15,6 +17,8 @@ Page({
     reviewPage: 1,
     hasMore: false,
     loading: true,
+    loadError: '',        // 加载错误信息（空=无错误）
+    loadRetryCount: 0,    // 重试次数
 
     // 写评价
     isLogin: false,
@@ -26,15 +30,16 @@ Page({
   },
 
   onLoad: function (options) {
-    if (!options.id) {
-      wx.showToast({ title: '缺少景点ID', icon: 'none' });
+    var sysInfo = wx.getSystemInfoSync();
+    this.setData({ isAndroid: sysInfo.platform === 'android' });
+
+    if (!options || !options.id) {
+      this.setData({ loading: false, loadError: '缺少景点ID参数' });
       return;
     }
-    this.setData({ attractionId: options.id });
+    this.setData({ attractionId: options.id, loading: true, loadError: '', loadRetryCount: 0 });
     this.loadAttraction(options.id);
     this.checkLoginState();
-
-    // 记录浏览历史
     this.recordHistory(options.id);
   },
 
@@ -54,11 +59,10 @@ Page({
     });
   },
 
-  // ========== 主加载：云优先 ==========
+  // ========== 主加载：云优先 → 缓存回退 → 本地兜底 ==========
   loadAttraction: async function (id) {
     var that = this;
-
-    that.setData({ loading: true });
+    that.setData({ loading: true, loadError: '' });
 
     // 1. 尝试云函数获取详情
     if (wx.cloud) {
@@ -73,12 +77,13 @@ Page({
           if (!attraction.introduction) {
             attraction.introduction = attraction.description || '';
           }
-
           await that.renderAttraction(attraction, res.result.reviews || [], res.result.reviewTotal || 0, res.result.hasMore || false);
           return;
         }
+        // 云函数返回了但没有 attraction（如返回 error）
+        console.warn('云函数未返回景点数据:', res.result);
       } catch (err) {
-        console.error('云函数获取景点详情失败:', err);
+        console.error('云函数调用失败:', err);
       }
     }
 
@@ -108,9 +113,21 @@ Page({
       }
     }
 
-    // 4. 未找到
-    that.setData({ loading: false });
-    wx.showToast({ title: '景点不存在', icon: 'none' });
+    // 4. 所有来源都未找到
+    that.setData({
+      loading: false,
+      loadError: '景点不存在或已被删除'
+    });
+  },
+
+  // 重新加载
+  onRetry: function () {
+    this.loadAttraction(this.data.attractionId);
+  },
+
+  // 返回列表
+  onNavBack: function () {
+    wx.navigateBack({ delta: 1 });
   },
 
   // 渲染景点数据

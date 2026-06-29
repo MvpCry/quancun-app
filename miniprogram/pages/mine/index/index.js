@@ -217,7 +217,7 @@ Page({
 
   // 景点点击
   onAttractionTap: function (e) {
-    var id = e.detail ? e.detail.id : e.currentTarget.dataset.id;
+    var id = e.currentTarget.dataset.id;
     wx.navigateTo({ url: '/pages/attractions/detail/detail?id=' + id });
   },
 

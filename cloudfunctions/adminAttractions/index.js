@@ -70,6 +70,11 @@ exports.main = async (event, context) => {
         if (data.district && validDistricts.indexOf(data.district) === -1) {
           return { success: false, error: '区/县不合法，可选：' + validDistricts.join('、') };
         }
+        // 规范化 location：禁止 null 入库（null 会导致后续 update 深度合并报错）
+        var normalizedLocation = (data.location && data.location.latitude)
+          ? { latitude: data.location.latitude, longitude: data.location.longitude }
+          : {};
+
         const addRes = await db.collection('attractions').add({
           data: {
             ...data,
@@ -79,6 +84,7 @@ exports.main = async (event, context) => {
             district: data.district || '',
             town: data.town || '',
             village: data.village || '',
+            location: normalizedLocation,
             rating: 0,
             reviewCount: 0,
             createTime: db.serverDate(),
@@ -95,6 +101,13 @@ exports.main = async (event, context) => {
           return { success: false, error: '区/县不合法，可选：' + validDistricts.join('、') };
         }
         const { id, ...updateData } = data;
+        // 规范化 location：禁止 null 入库
+        if ('location' in updateData) {
+          var loc = updateData.location;
+          updateData.location = (loc && loc.latitude)
+            ? { latitude: loc.latitude, longitude: loc.longitude }
+            : {};
+        }
         await db.collection('attractions')
           .doc(id)
           .update({
@@ -258,6 +271,27 @@ exports.main = async (event, context) => {
         }
 
         return { success: true, count: results.length, ids: results };
+      }
+
+      case 'fixNullLocations': {
+        // 批量修复 location: null → location: {}（防止后续 update 时深度合并报错）
+        var allRes = await db.collection('attractions').limit(500).get();
+        var list = allRes.data;
+        var fixed = 0;
+        var errors = [];
+        for (var i = 0; i < list.length; i++) {
+          if (list[i].location === null) {
+            try {
+              await db.collection('attractions').doc(list[i]._id).update({
+                data: { location: {}, updateTime: db.serverDate() }
+              });
+              fixed++;
+            } catch (e) {
+              errors.push({ name: list[i].name, _id: list[i]._id, error: e.message });
+            }
+          }
+        }
+        return { success: true, total: list.length, fixed: fixed, errors: errors };
       }
 
       default:

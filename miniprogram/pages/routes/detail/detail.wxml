@@ -1,5 +1,35 @@
 <!-- pages/routes/detail/detail.wxml - 路线详情页 -->
+
+<!-- ==================== 导航栏 ==================== -->
+<view class="nav-container {{isAndroid ? 'android' : ''}}">
+  <view class="nav-left">
+    <view class="nav-back" bindtap="onNavBack">
+      <text class="back-icon">{{backIcon}}</text>
+    </view>
+  </view>
+  <view class="nav-center">
+    <text class="nav-title">{{route.name || '路线详情'}}</text>
+  </view>
+  <view class="nav-right"></view>
+</view>
+
 <view class="container">
+
+  <!-- ========== 0. 加载中 ========== -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">正在加载路线信息...</text>
+  </view>
+
+  <!-- ========== 0. 加载失败 ========== -->
+  <view class="error-state" wx:elif="{{loadError}}">
+    <text class="error-icon">😞</text>
+    <text class="error-text">{{loadError}}</text>
+    <button class="error-retry-btn" bindtap="onRetry">重新加载</button>
+    <button class="error-back-btn" bindtap="onNavBack">返回列表</button>
+  </view>
+
+  <block wx:else>
   <!-- 路线地图（至少2个有效坐标才展示） -->
   <view class="detail-map-section" wx:if="{{hasMapData}}">
     <map-route
@@ -81,11 +111,6 @@
     </view>
   </view>
 
-  <!-- 操作按钮 -->
-  <view class="action-buttons">
-    <button class="btn btn-accent btn-block" bindtap="onNavigateAll">🧭 开始导航</button>
-  </view>
-
   <!-- 底部操作栏 -->
   <view class="detail-bottom-bar safe-bottom">
     <view class="bottom-action" bindtap="onToggleFavorite">
@@ -98,4 +123,5 @@
     </view>
     <button class="btn btn-primary flex-1" bindtap="onNavigateAll">开始导航</button>
   </view>
+  </block>
 </view>

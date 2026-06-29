@@ -171,7 +171,8 @@ Page({
 
   // 路线点击
   onRouteTap: function (e) {
-    var id = e.detail ? e.detail.id : e.currentTarget.dataset.id;
+    // 统一从 currentTarget.dataset 取 id（外层 view 的 data-id）
+    var id = e.currentTarget.dataset.id;
     wx.navigateTo({ url: '/pages/routes/detail/detail?id=' + id });
   },
 

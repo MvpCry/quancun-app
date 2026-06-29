@@ -174,7 +174,9 @@ Page({
 
   // ========== 景点点击 ==========
   onAttractionTap: function (e) {
-    var id = e.detail ? e.detail.id : e.currentTarget.dataset.id;
+    // 统一从 currentTarget.dataset 取 id（外层 view 的 data-id）
+    // 不能依赖 e.detail.id：原生 tap 事件的 detail 是触摸坐标，没有 id 字段
+    var id = e.currentTarget.dataset.id;
 
     // 选择模式：切换选中状态
     if (this.data.selectMode) {

@@ -1,5 +1,5 @@
 /* ====== 自定义导航栏（左箭头+居中标题+右胶囊）====== */
-.nav-container{width:100%;background:#2E8B57;box-sizing:border-box;padding-top:calc(env(safe-area-inset-top) + 36rpx);padding-bottom:16rpx;min-height:140rpx;display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;}
+.nav-container{width:100%;border-radius:0 0 48rpx 48rpx;background:linear-gradient(180deg, #2E8B57 0%, #3CB371 100%);box-sizing:border-box;padding-top:calc(env(safe-area-inset-top) + 36rpx);padding-bottom:16rpx;min-height:140rpx;display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;}
 .nav-container.android{padding-top:calc(env(safe-area-inset-top) + 40rpx)!important;align-items:center}
 .nav-left{width:100rpx;flex-shrink:0;display:flex;align-items:center;padding-left:30rpx}.nav-center{flex:1;display:flex;justify-content:center;align-items:center}.nav-right{width:180rpx;flex-shrink:0}.nav-title{font-size:36rpx;color:#fff;font-weight:600;padding:12rpx 0;white-space:nowrap}
 
@@ -25,7 +25,7 @@
 
 /* 操作按钮行 */
 .top-actions{display:flex;align-items:center;gap:16rpx;margin-bottom:22rpx}
-.btn-add{padding:16rpx 36rpx;background:#2E8B57;color:#FFF;border-radius:40rpx;font-size:28rpx;font-weight:600;border:none;box-shadow:0 2px 8px rgba(46,125,50,.25)}
+.btn-add{padding:16rpx 36rpx;background:linear-gradient(180deg, #2E8B57 0%, #3CB371 100%);color:#FFF;border-radius:40rpx;font-size:28rpx;font-weight:600;border:none;box-shadow:0 2px 8px rgba(46,125,50,.25)}
 .btn-add::after{border:none}
 
 .btn-batch{padding:16rpx 28rpx;background:#FFF;color:#2E8B57;border:1.5rpx solid #2E8B57;border-radius:40rpx;font-size:26rpx}
@@ -43,7 +43,7 @@
 }
 .search-icon{font-size:28rpx;margin-right:10rpx;flex-shrink:0}
 .search-input{flex:1;height:68rpx;font-size:26rpx;border:none;background:transparent}
-.search-btn{padding:14rpx 28rpx;background:#2E8B57;color:#FFF;border-radius:12rpx;font-size:26rpx;flex-shrink:0}
+.search-btn{padding:14rpx 28rpx;background:linear-gradient(180deg, #2E8B57 0%, #3CB371 100%);color:#FFF;border-radius:12rpx;font-size:26rpx;flex-shrink:0}
 
 /* ====== Loading ====== */
 .loading-state{text-align:center;padding:120rpx 0;color:#999;font-size:28rpx}
@@ -133,7 +133,7 @@
 /* ====== 批量选择复选框 ====== */
 .card-check{padding:0 12rpx;flex-shrink:0}
 .checkbox{width:40rpx;height:40rpx;border-radius:50%;border:2rpx solid #CCC;display:flex;align-items:flex-end;justify-content:space-between;font-size:24rpx;color:#FFF;transition:all .15s}
-.checkbox.checked{background:#2E8B57;border-color:#2E8B57}
+.checkbox.checked{background:linear-gradient(180deg, #2E8B57 0%, #3CB371 100%);border-color:#2E8B57}
 
 /* 选中卡片高亮 */
 .card-selected{background:#F1F8E9;box-shadow:0 0 0 2rpx #3CB371 inset}
@@ -143,7 +143,7 @@
 .batch-left{display:flex;align-items:center;gap:10rpx}
 .batch-label{font-size:24rpx;color:#666}
 .batch-count{font-size:26rpx;color:#333;font-weight:600;flex:1;text-align:center}
-.batch-btn{padding:14rpx 28rpx;background:#2E8B57;color:#FFF;border-radius:40rpx;font-size:26rpx;border:none}
+.batch-btn{padding:14rpx 28rpx;background:linear-gradient(180deg, #2E8B57 0%, #3CB371 100%);color:#FFF;border-radius:40rpx;font-size:26rpx;border:none}
 .batch-btn::after{border:none}
 
 /* ====== 批量修正弹窗 ====== */
@@ -154,12 +154,12 @@
 /* 弹窗内表单 */
 .modal-content .form-grp{margin-bottom:20rpx}
 .modal-content .label{font-size:26rpx;font-weight:600;display:block;margin-bottom:8rpx;color:#333}
-.modal-content .inp{width:100%;padding:16rpx 20rpx;background:#F9F9F9;border-radius:10rpx;font-size:26rpx;border:1rpx solid #E8E8E8}
+.modal-content .inp{width:100%;border-radius:0 0 48rpx 48rpx;padding:16rpx 20rpx;background:#F9F9F9;border-radius:10rpx;font-size:26rpx;border:1rpx solid #E8E8E8}
 .modal-content .picker-val{padding:16rpx 20rpx;background:#F9F9F9;border-radius:10rpx;font-size:26rpx;border:1rpx solid #E8E8E8;min-height:62rpx}
 .modal-content .picker-placeholder{color:#BBB}
 
 .modal-btns{display:flex;gap:20rpx;margin-top:24rpx}
 .btn-cancel{flex:1;padding:18rpx 0;background:#F5F5F5;color:#666;border-radius:44rpx;font-size:28rpx;border:none;text-align:center}
 .btn-cancel::after{border:none}
-.btn-confirm{flex:1;padding:18rpx 0;background:#2E8B57;color:#FFF;border-radius:44rpx;font-size:28rpx;border:none;text-align:center}
+.btn-confirm{flex:1;padding:18rpx 0;background:linear-gradient(180deg, #2E8B57 0%, #3CB371 100%);color:#FFF;border-radius:44rpx;font-size:28rpx;border:none;text-align:center}
 .btn-confirm::after{border:none}

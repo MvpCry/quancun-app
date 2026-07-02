@@ -434,10 +434,7 @@ Page({
     try {
       var checkRes = await wx.cloud.callFunction({
         name: 'checkContent',
-        data: {
-          content: content,
-          openid: ''  // 云函数自动获取，可不传
-        }
+        data: { content: content }
       });
 
       if (checkRes.result && !checkRes.result.isSafe) {
@@ -462,6 +459,7 @@ Page({
       });
 
       var result = res.result;
+      console.log('[addReview] _v=' + (result && result._v) + ' _path=' + (result && result._path), result);
       if (result && result.success) {
         wx.showToast({ title: '评价发布成功！', icon: 'success' });
         that.setData({

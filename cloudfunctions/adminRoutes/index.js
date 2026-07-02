@@ -48,6 +48,7 @@ exports.main = async (event, context) => {
             name: routeData.name || '',
             description: routeData.description || '',
             coverImage: routeData.coverImage || '',
+            isCustomCover: routeData.isCustomCover || false,
             tags: routeData.tags || [],
             attractions: routeData.attractions || [],
             totalDistance: routeData.totalDistance || 0,
@@ -62,7 +63,7 @@ exports.main = async (event, context) => {
         try {
           await cloud.callFunction({
             name: 'calcRouteDistance',
-            data: { _id: addRes._id }
+            data: { _id: addRes._id, estimatedTime: routeData.estimatedTime || 0 }
           });
         } catch (e) { console.warn('calcRouteDistance 调用失败:', e.message); }
         return { success: true, id: addRes._id };
@@ -74,6 +75,8 @@ exports.main = async (event, context) => {
         if (data.name !== undefined) updateData.name = data.name;
         if (data.description !== undefined) updateData.description = data.description;
         if (data.coverImage !== undefined) updateData.coverImage = data.coverImage;
+        if (data.isCustomCover !== undefined) updateData.isCustomCover = data.isCustomCover;
+        if (data.estimatedTime !== undefined) updateData.estimatedTime = data.estimatedTime;
         if (data.tags !== undefined) updateData.tags = data.tags;
         if (data.attractions !== undefined) {
           updateData.attractions = data.attractions;
@@ -88,7 +91,7 @@ exports.main = async (event, context) => {
           try {
             await cloud.callFunction({
               name: 'calcRouteDistance',
-              data: { _id: id }
+              data: { _id: id, estimatedTime: data.estimatedTime || 0 }
             });
           } catch (e) { console.warn('calcRouteDistance 调用失败:', e.message); }
         }
@@ -113,7 +116,7 @@ exports.main = async (event, context) => {
 
       case 'listAttractions': {
         var res = await db.collection('attractions')
-          .field({ _id: true, name: true, address: true, category: true })
+          .field({ _id: true, name: true, address: true, category: true, images: true })
           .orderBy('name', 'asc')
           .limit(200)
           .get();

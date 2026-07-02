@@ -5,28 +5,135 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
 const db = cloud.database();
 const _ = db.command;
+const https = require('https');
+
+// ==========================================
+//  自定义敏感词检查
+// ==========================================
+async function checkBannedWords(content) {
+  try {
+    var res = await db.collection('bannedWords')
+      .where({ active: true })
+      .get();
+    var words = res.data;
+    var lowerContent = content.toLowerCase();
+    for (var i = 0; i < words.length; i++) {
+      if (lowerContent.indexOf(words[i].word.toLowerCase()) !== -1) {
+        return { blocked: true, hitWord: words[i].word };
+      }
+    }
+    return { blocked: false };
+  } catch (e) {
+    // 数据库查询失败不阻塞
+    console.warn('[addReview] 敏感词查询失败:', e.message || e);
+    return { blocked: false };
+  }
+}
 
 // ==========================================
 //  微信 msgSecCheck v2 内容审核
+//  策略：cloud.openapi → HTTP 直调 → 拒发
 // ==========================================
 async function checkMsgSec(content, openid) {
+  // 方案 1: cloud.openapi v2
   try {
     var result = await cloud.openapi.security.msgSecCheck({
       version: 2,
-      scene: 2,           // 2 = 评论场景
+      scene: 2,
       content: content,
       openid: openid
     });
-    // errcode === 0 表示通过，87014 表示命中违规
-    if (result && result.errcode !== 87014) {
-      return { blocked: false };
+    // v2 API: errcode===0 表示调用成功，实际判罚在 result.suggest
+    // suggest: "pass"=通过, "risky"=违规, "review"=存疑
+    if (result && result.errcode === 0) {
+      var suggest = (result.result && result.result.suggest) || 'pass';
+      if (suggest === 'risky' || suggest === 'review') {
+        return { blocked: true, suggest: suggest, label: result.result && result.result.label, _path: 'openapi-block' };
+      }
+      return { blocked: false, _path: 'openapi-ok' };
     }
-    return { blocked: true, errcode: result.errcode, errMsg: result.errmsg };
+    // errcode !== 0 或返回异常 → 降级到 HTTP 直调
+    throw new Error('msgSecCheck 返回异常: errcode=' + (result && result.errcode) + ' errmsg=' + (result && result.errmsg));
   } catch (err) {
-    // msgSecCheck 调用失败时降级放行（避免阻塞正常用户）
-    console.warn('[addReview] msgSecCheck 调用异常，降级放行:', err.errMsg || err.message);
-    return { blocked: false, degraded: true };
+    console.warn('[addReview] cloud.openapi 失败，尝试 HTTP 直调:', err.errMsg || err.message);
   }
+
+  // 方案 2: HTTP 直调微信服务端 API
+  try {
+    var appid = cloud.getWXContext().APPID;
+    var secret = process.env.WX_APPSECRET || '';
+    if (!appid || !secret) {
+      throw new Error('未配置 WX_APPSECRET 环境变量');
+    }
+    var token = await getAccessToken(appid, secret);
+    var httpResult = await msgSecCheckHttp(content, openid, token);
+    httpResult._path = 'http-' + (httpResult.blocked ? 'block' : 'ok');
+    return httpResult;
+  } catch (err2) {
+    console.warn('[addReview] HTTP 直调失败:', err2.message || err2);
+  }
+
+  // 方案 3: 全部失败 → 拒绝发布（fail-closed）
+  console.error('[addReview] 内容安全检测全部方案失败，拒绝发布');
+  return { blocked: false, degraded: true, serviceDown: true, _path: 'all-failed' };
+}
+
+// ---------- 获取 access_token ----------
+function getAccessToken(appid, secret) {
+  return new Promise(function (resolve, reject) {
+    var url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' + appid + '&secret=' + secret;
+    https.get(url, function (res) {
+      var data = '';
+      res.on('data', function (chunk) { data += chunk; });
+      res.on('end', function () {
+        try {
+          var json = JSON.parse(data);
+          if (json.access_token) {
+            resolve(json.access_token);
+          } else {
+            reject(new Error('获取access_token失败: ' + (json.errmsg || 'unknown')));
+          }
+        } catch (e) {
+          reject(e);
+        }
+      });
+    }).on('error', reject);
+  });
+}
+
+// ---------- HTTP 直调 msgSecCheck v2 ----------
+function msgSecCheckHttp(content, openid, accessToken) {
+  return new Promise(function (resolve, reject) {
+    var postData = JSON.stringify({ version: 2, scene: 2, content: content, openid: openid });
+    var url = 'https://api.weixin.qq.com/wxa/msg_sec_check?access_token=' + accessToken;
+    var req = https.request(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(postData) }
+    }, function (res) {
+      var data = '';
+      res.on('data', function (chunk) { data += chunk; });
+      res.on('end', function () {
+        try {
+          var json = JSON.parse(data);
+          if (json.errcode === 0) {
+            var suggest = (json.result && json.result.suggest) || 'pass';
+            if (suggest === 'risky' || suggest === 'review') {
+              resolve({ blocked: true, suggest: suggest, label: json.result && json.result.label });
+            } else {
+              resolve({ blocked: false });
+            }
+          } else {
+            reject(new Error('msgSecCheck返回异常: ' + (json.errmsg || 'errcode=' + json.errcode)));
+          }
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+    req.on('error', reject);
+    req.write(postData);
+    req.end();
+  });
 }
 
 // ==========================================
@@ -202,7 +309,21 @@ exports.main = async (event, context) => {
       return { success: false, error: banMsg, code: 'BANNED' };
     }
 
-    // ========== ① 微信 msgSecCheck v2 内容审核 ==========
+    // ========== ① 自定义敏感词检查 ==========
+    var bannedResult = await checkBannedWords(cleanContent);
+    if (bannedResult.blocked) {
+      await recordViolation(openid, attractionId, cleanContent, 'bannedWord:' + bannedResult.hitWord, 'bannedWords');
+      await applyPunishment(openid);
+      console.warn('[addReview] 敏感词拦截 openid=' + openid + ' hitWord=' + bannedResult.hitWord);
+      return {
+        success: false,
+        error: '评论包含违规内容，请修改后发布',
+        code: 'CONTENT_UNSAFE',
+        _v: 3, _path: 'bannedWords-block'
+      };
+    }
+
+    // ========== ② 微信 msgSecCheck v2 内容审核 ==========
     var msgResult = await checkMsgSec(cleanContent, openid);
     if (msgResult.blocked) {
       await recordViolation(openid, attractionId, cleanContent, 'msgSecCheck:' + (msgResult.errcode || 'unknown'), 'msgSecCheck');
@@ -211,7 +332,16 @@ exports.main = async (event, context) => {
       return {
         success: false,
         error: '评论包含违规内容，请修改后发布',
-        code: 'CONTENT_UNSAFE'
+        code: 'CONTENT_UNSAFE',
+        _v: 3, _path: msgResult._path || ''
+      };
+    }
+    if (msgResult.serviceDown) {
+      return {
+        success: false,
+        error: '内容安全检测服务暂时不可用，请稍后重试',
+        code: 'SERVICE_DOWN',
+        _v: 3, _path: msgResult._path || ''
       };
     }
 
@@ -264,9 +394,9 @@ exports.main = async (event, context) => {
         }
       });
 
-    return { success: true };
+    return { success: true, _v: 3, _path: msgResult._path || '' };
   } catch (err) {
     console.error('addReview error:', err);
-    return { success: false, error: '发布失败，请稍后重试', code: 'SERVER_ERROR' };
+    return { success: false, error: '发布失败，请稍后重试', code: 'SERVER_ERROR', _v: 3 };
   }
 };

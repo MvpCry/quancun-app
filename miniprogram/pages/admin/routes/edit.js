@@ -1,18 +1,28 @@
-// pages/admin/routes/edit.js - 路线新增/编辑（景点多选编排）
+// pages/admin/routes/edit.js - 路线新增/编辑（封面图从已选景点中选取）
 Page({
   data: {
     isEdit: false, id: '', saving: false,
     isAndroid: false,
     backIcon: '<',
-    form: { name: '', description: '', coverImage: '', tags: {}, selectedAttractions: [] },
-    selectedNames: [],        // 与 selectedAttractions 对应的名称数组
-    allAttractions: [],       // 全部可选的景点
+    form: { name: '', description: '', coverImage: '', estimatedTime: 0, tags: {}, selectedAttractions: [] },
+    selectedNames: [],           // 与 selectedAttractions 对应的名称数组
+    allAttractions: [],          // 全部可选景点（含 images 数组）
+    attractionImages: [],        // 已选景点的所有图片 [{url, name}]
+    isCustomCover: false,        // 用户是否手动选了封面（非自动）
+    timeOptions: [
+      { label: '1小时', value: 1 }, { label: '2小时', value: 2 },
+      { label: '3小时', value: 3 }, { label: '4小时', value: 4 },
+      { label: '5小时', value: 5 }, { label: '6小时', value: 6 },
+      { label: '7小时', value: 7 }, { label: '8小时', value: 8 },
+      { label: '1天', value: 24 }, { label: '2天', value: 48 },
+      { label: '3天', value: 72 }
+    ],
+    timeIndex: -1,               // picker 当前选中索引
     tagOptions: [
       { key: '一日游', label: '一日游' }, { key: '两日游', label: '两日游' },
       { key: '乡村游', label: '乡村游' }, { key: '亲子游', label: '亲子游' },
       { key: '红色旅游', label: '红色旅游' }, { key: '文化旅游', label: '文化旅游' }
-    ],
-    uploading: false
+    ]
   },
 
   onLoad: function (options) {
@@ -27,151 +37,230 @@ Page({
     }
   },
 
-  // 加载全部景点（供多选）
+  // ==========================================
+  //  加载全部景点
+  // ==========================================
   loadAllAttractions: async function () {
     var that = this;
     try {
       var res = await wx.cloud.callFunction({ name: 'adminRoutes', data: { action: 'listAttractions' } });
       if (res.result && res.result.list) {
         that.setData({ allAttractions: res.result.list });
+        that.onAttractionsReady();
       }
     } catch (err) {
-      // 降级：尝试从 getAttractions 获取
       try {
         var res2 = await wx.cloud.callFunction({ name: 'getAttractions', data: { action: 'list', pageSize: 200 } });
         if (res2.result && res2.result.list) {
           that.setData({ allAttractions: res2.result.list });
+          that.onAttractionsReady();
         }
       } catch (e) { console.error('加载景点列表失败:', e); }
     }
   },
 
-  // 加载已有路线
+  onAttractionsReady: function () {
+    // 景点数据到达后，刷新名称（修复编辑回显时名字显示ID的乱码问题）
+    this.syncSelectedNames();
+    if (this.data.isEdit && !this.data.isCustomCover) {
+      this.detectCustomCover(this.data.form.coverImage);
+    }
+    this.updateCover();
+  },
+
+  // ==========================================
+  //  加载已有路线
+  // ==========================================
   loadRoute: async function (id) {
     var that = this;
     try {
       var res = await wx.cloud.callFunction({ name: 'adminRoutes', data: { action: 'getById', data: { id: id } } });
       if (res.result && res.result.route) {
         var r = res.result.route;
-        // 将 tags 数组 → {key:true} 映射
         var tagsMap = {};
         (r.tags || []).forEach(function (t) { tagsMap[t] = true; });
-        // 标记已选景点
         var selectedIds = [];
         (r.attractions || []).forEach(function (a) {
           selectedIds.push(a.attractionId || a._id || a);
         });
 
+        // 回显时间
+        var timeIdx = -1;
+        if (r.estimatedTime > 0) {
+          for (var ti = 0; ti < that.data.timeOptions.length; ti++) {
+            if (that.data.timeOptions[ti].value === r.estimatedTime) { timeIdx = ti; break; }
+          }
+        }
+
         that.setData({
           form: {
             name: r.name || '', description: r.description || '',
-            coverImage: r.coverImage || '', tags: tagsMap,
-            selectedAttractions: selectedIds
-          }
+            coverImage: r.coverImage || '', estimatedTime: r.estimatedTime || 0,
+            tags: tagsMap, selectedAttractions: selectedIds
+          },
+          timeIndex: timeIdx
         });
         that.syncSelectedNames();
+
+        if (r.isCustomCover === true) {
+          that.setData({ isCustomCover: true });
+        } else if (that.data.allAttractions.length > 0) {
+          that.detectCustomCover(r.coverImage);
+        }
       }
     } catch (err) { console.error('加载路线失败:', err); }
   },
 
-  // 表单输入
-  onInput: function (e) {
-    var f = e.currentTarget.dataset.field;
-    var form = this.data.form;
-    form[f] = e.detail.value;
-    this.setData({ form: form });
+  detectCustomCover: function (existingCover) {
+    if (!existingCover) return;
+    var autoCover = this.computeAutoCover();
+    if (!autoCover) return;
+    this.setData({ isCustomCover: existingCover !== autoCover });
   },
 
-  // 标签多选
+  // ==========================================
+  //  表单输入 / 标签
+  // ==========================================
+  onInput: function (e) {
+    var field = e.currentTarget.dataset.field;
+    this.setData({ ['form.' + field]: e.detail.value });
+  },
+
+  // ==========================================
+  //  游玩时间选择
+  // ==========================================
+  onTimeChange: function (e) {
+    var idx = parseInt(e.detail.value);
+    var opt = this.data.timeOptions[idx];
+    this.setData({
+      timeIndex: idx,
+      'form.estimatedTime': opt ? opt.value : 0
+    });
+  },
+
   onTagToggle: function (e) {
     var key = e.currentTarget.dataset.key;
-    var form = this.data.form;
-    form.tags[key] = !form.tags[key];
-    this.setData({ form: form });
+    var tags = this.data.form.tags;
+    tags[key] = !tags[key];
+    this.setData({ 'form.tags': tags });
   },
 
-  // 同步 selectedNames 数组
+  // ==========================================
+  //  同步已选景点名称 + 可选图片 + 触发封面联动
+  // ==========================================
   syncSelectedNames: function () {
     var that = this;
     var selected = that.data.form.selectedAttractions;
     var all = that.data.allAttractions;
-    var names = selected.map(function (id) {
-      for (var i = 0; i < all.length; i++) { if (all[i]._id === id) return all[i].name; }
-      return id;
+    var names = [];
+    var images = [];
+
+    selected.forEach(function (id) {
+      for (var i = 0; i < all.length; i++) {
+        if (all[i]._id === id) {
+          names.push(all[i].name);
+          if (all[i].images && all[i].images.length > 0) {
+            all[i].images.forEach(function (url) {
+              images.push({ url: url, name: all[i].name });
+            });
+          }
+          return;
+        }
+      }
+      // 没在列表里找到 → 用 ID 占位
+      if (names.length < selected.length) names.push(id);
     });
-    that.setData({ selectedNames: names });
+
+    that.setData({ selectedNames: names, attractionImages: images });
+    that.updateCover();
   },
 
-  // 景点勾选/取消（保持勾选顺序 = 游玩顺序）
+  // ==========================================
+  //  封面自动联动
+  //  自动规则：第一个有图的景点的第一张图
+  //  手动选择后 isCustomCover=true，不再自动更新
+  // ==========================================
+  updateCover: function () {
+    var that = this;
+    if (that.data.isCustomCover) return;
+    if (that.data.allAttractions.length === 0) return;
+
+    var autoCover = that.computeAutoCover();
+    if (autoCover !== that.data.form.coverImage) {
+      that.setData({ 'form.coverImage': autoCover });
+    }
+  },
+
+  // 计算自动封面
+  computeAutoCover: function () {
+    var selected = this.data.form.selectedAttractions;
+    var all = this.data.allAttractions;
+    for (var i = 0; i < selected.length; i++) {
+      for (var j = 0; j < all.length; j++) {
+        if (all[j]._id === selected[i]) {
+          if (all[j].images && all[j].images.length > 0) {
+            return all[j].images[0];
+          }
+          break;
+        }
+      }
+    }
+    return '';
+  },
+
+  // ==========================================
+  //  从景点图片中点选封面（标记为自定义）
+  // ==========================================
+  onPickAttractionImage: function (e) {
+    var url = e.currentTarget.dataset.url;
+    this.setData({
+      'form.coverImage': url,
+      isCustomCover: true
+    });
+  },
+
+  // ==========================================
+  //  景点勾选/取消
+  // ==========================================
   onAttractionToggle: function (e) {
     var id = e.currentTarget.dataset.id;
-    var form = this.data.form;
-    var selected = form.selectedAttractions.slice();
+    var selected = this.data.form.selectedAttractions.slice();
     var idx = selected.indexOf(id);
     if (idx >= 0) {
       selected.splice(idx, 1);
     } else {
       selected.push(id);
     }
-    form.selectedAttractions = selected;
-    this.setData({ form: form });
+    this.setData({ 'form.selectedAttractions': selected });
     this.syncSelectedNames();
   },
 
-  // 上移景点
+  // ==========================================
+  //  上移景点
+  // ==========================================
   onMoveUp: function (e) {
     var idx = e.currentTarget.dataset.index;
-    var form = this.data.form;
-    var selected = form.selectedAttractions.slice();
+    var selected = this.data.form.selectedAttractions.slice();
     if (idx > 0) {
       var tmp = selected[idx];
       selected[idx] = selected[idx - 1];
       selected[idx - 1] = tmp;
-      form.selectedAttractions = selected;
-      this.setData({ form: form });
+      this.setData({ 'form.selectedAttractions': selected });
       this.syncSelectedNames();
     }
   },
 
-  // 上传封面图
-  onChooseCover: function () {
-    var that = this;
-    wx.chooseMedia({
-      count: 1, mediaType: ['image'], sizeType: ['compressed'],
-      success: function (res) {
-        that.setData({ uploading: true });
-        wx.cloud.uploadFile({
-          cloudPath: 'routes/' + Date.now() + '.jpg',
-          filePath: res.tempFiles[0].tempFilePath,
-          success: function (r) {
-            var form = that.data.form;
-            form.coverImage = r.fileID;
-            that.setData({ form: form, uploading: false });
-            wx.showToast({ title: '上传成功', icon: 'success' });
-          },
-          fail: function () {
-            that.setData({ uploading: false });
-            wx.showToast({ title: '上传失败', icon: 'none' });
-          }
-        });
-      }
-    });
+  // ==========================================
+  //  恢复默认封面
+  // ==========================================
+  onResetCover: function () {
+    this.setData({ isCustomCover: false });
+    this.updateCover();
   },
 
-  // 获取已选景点的名称（用于显示）
-  getSelectedNames: function () {
-    var that = this;
-    var selected = that.data.form.selectedAttractions;
-    var all = that.data.allAttractions;
-    return selected.map(function (id) {
-      for (var i = 0; i < all.length; i++) {
-        if (all[i]._id === id) return all[i].name;
-      }
-      return id;
-    });
-  },
-
-  // 提交
+  // ==========================================
+  //  提交
+  // ==========================================
   onSubmit: async function () {
     var that = this;
     var f = that.data.form;
@@ -181,13 +270,11 @@ Page({
 
     that.setData({ saving: true });
 
-    // 构建 tags 数组
     var tags = [];
     Object.keys(f.tags).forEach(function (k) {
       if (f.tags[k]) tags.push(k);
     });
 
-    // 构建 attractions 数组（保持勾选顺序）
     var attractions = f.selectedAttractions.map(function (id, idx) {
       var name = '';
       var all = that.data.allAttractions;
@@ -201,8 +288,10 @@ Page({
       name: f.name.trim(),
       description: f.description.trim(),
       coverImage: f.coverImage,
+      estimatedTime: f.estimatedTime || 0,
       tags: tags,
-      attractions: attractions
+      attractions: attractions,
+      isCustomCover: that.data.isCustomCover
     };
 
     try {

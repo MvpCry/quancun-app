@@ -7,11 +7,37 @@
 .container{padding:24rpx;padding-bottom:160rpx}
 .form-grp{margin-bottom:28rpx}.label{font-size:28rpx;font-weight:600;display:block;margin-bottom:10rpx;color:#333}
 .inp{width:100%;border-radius:0 0 48rpx 48rpx;padding:18rpx 24rpx;background:#FFF;border-radius:12rpx;font-size:28rpx;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+
+/* 游玩时间选择器 */
+.time-picker-box{width:100%;padding:18rpx 24rpx;background:#FFF;border-radius:12rpx;font-size:28rpx;box-shadow:0 2px 8px rgba(0,0,0,.04);display:flex;justify-content:space-between;align-items:center}.time-picker-val{color:#333}.time-picker-arrow{font-size:22rpx;color:#999}
 .txa{width:100%;border-radius:0 0 48rpx 48rpx;min-height:160rpx;padding:18rpx 24rpx;background:#FFF;border-radius:12rpx;font-size:28rpx;box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .hint{font-size:22rpx;color:#999;margin-top:8rpx;display:block}
 
 /* 封面 */
-.cover-area{width:100%;border-radius:0 0 48rpx 48rpx;height:260rpx;border-radius:12rpx;overflow:hidden;background:#FAFAFA;border:2rpx dashed #DDD;display:flex;align-items:flex-end;justify-content:space-between}.cover-img{width:100%;border-radius:0 0 48rpx 48rpx;height:100%}.cover-placeholder{display:flex;flex-direction:column;align-items:center;gap:10rpx;color:#999}.cover-icon{font-size:48rpx}
+.cover-tag{font-size:20rpx;padding:2rpx 12rpx;border-radius:6rpx;margin-left:10rpx;vertical-align:middle}.cover-tag.auto{background:#E8F5E9;color:#2E8B57}.cover-tag.custom{background:#FFF3E0;color:#E65100}
+
+/* 封面预览 */
+.cover-preview{width:100%;height:260rpx;border-radius:12rpx;overflow:hidden;margin-top:8rpx}
+.cover-preview-img{width:100%;height:100%}
+
+/* 封面空状态 */
+.cover-empty{width:100%;height:160rpx;border-radius:12rpx;background:#FAFAFA;border:2rpx dashed #DDD;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8rpx;margin-top:8rpx}
+.cover-empty-icon{font-size:48rpx}.cover-empty-text{font-size:24rpx;color:#999}
+
+/* 恢复默认 */
+.cover-reset-bar{margin-top:12rpx;display:flex;align-items:center;justify-content:space-between;padding:14rpx 18rpx;background:#FFF8E1;border-radius:10rpx;border-left:4rpx solid #FF9800}
+.cover-reset-hint{font-size:22rpx;color:#E65100;flex:1}
+.cover-reset-btn{font-size:24rpx;color:#FF6F00;font-weight:600;padding:6rpx 16rpx;background:#FFF;border:1rpx solid #FF9800;border-radius:6rpx;flex-shrink:0}
+
+/* 景点图片选择网格 */
+.cover-picker{margin-top:16rpx}
+.cover-picker-title{font-size:24rpx;color:#666;display:block;margin-bottom:10rpx}
+.cover-picker-grid{display:flex;flex-wrap:wrap;gap:14rpx}
+.cover-picker-item{width:calc(33.33% - 10rpx);position:relative;border-radius:10rpx;overflow:hidden;border:3rpx solid transparent;box-sizing:border-box}
+.cover-picker-item.picked{border-color:#2E8B57}
+.cover-picker-img{width:100%;height:140rpx;display:block}
+.cover-picker-name{font-size:20rpx;color:#666;text-align:center;display:block;padding:6rpx 4rpx;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cover-picker-check{position:absolute;top:6rpx;right:6rpx;width:36rpx;height:36rpx;border-radius:50%;background:#2E8B57;color:#FFF;font-size:22rpx;display:flex;align-items:center;justify-content:center}
 
 /* 标签芯片 */
 .chip-grid{display:flex;flex-wrap:wrap;gap:14rpx}.chip{padding:14rpx 28rpx;border-radius:40rpx;font-size:26rpx;background:#F5F5F5;color:#666}.chip.active{background:#E8F5E9;color:#2E8B57;font-weight:600;border:2rpx solid #2E8B57}

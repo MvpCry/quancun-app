@@ -9,18 +9,52 @@
 </view>
 <scroll-view class="container" scroll-y>
   <!-- 路线名称 -->
-  <view class="form-grp"><text class="label">路线名称 *</text><input class="inp" value="{{form.name}}" bindinput="onInput" data-field="name" placeholder="如：泰安乡村一日游"/></view>
+  <view class="form-grp"><text class="label">路线名称 *</text><input class="inp" value="{{form.name}}" bindinput="onInput" data-field="name" placeholder="如：泰安乡村一日游" adjust-position="{{false}}"/></view>
 
-  <!-- 封面图 -->
-  <view class="form-grp"><text class="label">封面图</text>
-    <view class="cover-area" bindtap="onChooseCover">
-      <image class="cover-img" wx:if="{{form.coverImage}}" src="{{form.coverImage}}" mode="aspectFill"/>
-      <view class="cover-placeholder" wx:else><text class="cover-icon">{{uploading ? '⏳' : '📷'}}</text><text>{{uploading ? '上传中...' : '点击上传封面图'}}</text></view>
+  <!-- 封面图区域 -->
+  <view class="form-grp">
+    <text class="label">封面图
+      <text class="cover-tag auto" wx:if="{{!isCustomCover && form.coverImage}}">自动取首图</text>
+      <text class="cover-tag custom" wx:if="{{isCustomCover && form.coverImage}}">已手动选择</text>
+    </text>
+    <!-- 当前封面预览 -->
+    <view class="cover-preview" wx:if="{{form.coverImage}}">
+      <image class="cover-preview-img" src="{{form.coverImage}}" mode="aspectFill"/>
+    </view>
+    <view class="cover-empty" wx:else>
+      <text class="cover-empty-icon">🖼️</text>
+      <text class="cover-empty-text">勾选景点后自动取首图，或从下方手动选择</text>
+    </view>
+    <!-- 手动选择后显示恢复入口 -->
+    <view class="cover-reset-bar" wx:if="{{isCustomCover}}">
+      <text class="cover-reset-hint">已手动选择封面，景点顺序变化不会更换封面</text>
+      <text class="cover-reset-btn" bindtap="onResetCover">恢复自动</text>
+    </view>
+    <!-- 已选景点的图片选择区 -->
+    <view class="cover-picker" wx:if="{{attractionImages.length > 0}}">
+      <text class="cover-picker-title">从所选景点图片中选取封面：</text>
+      <view class="cover-picker-grid">
+        <view class="cover-picker-item {{form.coverImage === item.url ? 'picked' : ''}}" wx:for="{{attractionImages}}" wx:key="url" bindtap="onPickAttractionImage" data-url="{{item.url}}">
+          <image class="cover-picker-img" src="{{item.url}}" mode="aspectFill"/>
+          <text class="cover-picker-name text-ellipsis">{{item.name}}</text>
+          <view class="cover-picker-check" wx:if="{{form.coverImage === item.url}}">✓</view>
+        </view>
+      </view>
     </view>
   </view>
 
-  <!-- 简介 -->
-  <view class="form-grp"><text class="label">路线简介</text><textarea class="txa" value="{{form.description}}" bindinput="onInput" data-field="description" placeholder="路线详细介绍..." maxlength="500"/></view>
+  <!-- 游玩时间 -->
+  <view class="form-grp"><text class="label">游玩时间</text>
+    <picker mode="selector" range="{{timeOptions}}" range-key="label" value="{{timeIndex}}" bindchange="onTimeChange">
+      <view class="time-picker-box">
+        <text class="time-picker-val">{{form.estimatedTime > 0 ? (form.estimatedTime >= 24 ? (form.estimatedTime / 24 + '天') : form.estimatedTime + '小时') : '请选择游玩时长'}}</text>
+        <text class="time-picker-arrow">▼</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 路线简介 -->
+  <view class="form-grp"><text class="label">路线简介</text><textarea class="txa" value="{{form.description}}" bindinput="onInput" data-field="description" placeholder="路线详细介绍..." maxlength="500" adjust-position="{{false}}"/></view>
 
   <!-- 分类标签（多选） -->
   <view class="form-grp"><text class="label">分类标签（多选）*</text>
@@ -30,7 +64,7 @@
     <text class="hint">勾选的标签决定路线在首页哪个分类入口展示</text>
   </view>
 
-  <!-- 景点多选（核心） -->
+  <!-- 包含景点（多选排序） -->
   <view class="form-grp"><text class="label">包含景点（按游玩顺序勾选）*</text>
     <text class="hint" style="margin-bottom:12rpx">勾选顺序 = 游玩先后顺序，已选 {{form.selectedAttractions.length}} 个</text>
 

@@ -12,7 +12,8 @@ Page({
     backIcon: '<',
     myReviewCount: 0,
     activeTab: '',
-    tabList: []
+    tabList: [],
+    isAdmin: false
   },
 
   onLoad: function () {
@@ -27,9 +28,30 @@ Page({
     this.checkLoginState();
     if (this.data.isLogin) {
       this.loadUserStats();
+      this.checkAdminStatus();
     }
     if (this.data.activeTab) {
       this.loadTabData(this.data.activeTab);
+    }
+  },
+
+  // 检查管理员身份（缓存到 globalData，避免每次 onShow 都请求）
+  checkAdminStatus: async function () {
+    var app = getApp();
+    // 已缓存过 → 直接用
+    if (app.globalData._adminChecked) {
+      this.setData({ isAdmin: !!app.globalData.isAdmin });
+      return;
+    }
+    if (!wx.cloud) return;
+    try {
+      var res = await wx.cloud.callFunction({ name: 'getAdminStats', data: {} });
+      var isAdmin = !!(res.result && res.result.success);
+      app.globalData.isAdmin = isAdmin;
+      app.globalData._adminChecked = true;
+      this.setData({ isAdmin: isAdmin });
+    } catch (e) {
+      // 云函数不可用 → 非管理员
     }
   },
 
@@ -81,6 +103,7 @@ Page({
       that.checkLoginState();
       if (that.data.isLogin) {
         that.loadUserStats();
+        that.checkAdminStatus();
       }
     });
   },
@@ -90,26 +113,66 @@ Page({
     var that = this;
     var app = getApp();
 
-    wx.showModal({
-      title: '提示',
-      content: '确定要退出登录吗？',
-      success: function (modalRes) {
-        if (modalRes.confirm) {
-          wx.removeStorageSync('userInfo');
-          app.globalData.userInfo = null;
-          app.globalData.isLogin = false;
-          app.refreshCache('all');
-          that.setData({
-            isLogin: false,
-            userInfo: {},
-            favoriteCount: 0,
-            myRouteCount: 0,
-            myReviewCount: 0
+    wx.showActionSheet({
+      itemList: ['仅退出登录', '退出并清除云端数据'],
+      success: function (sheetRes) {
+        if (sheetRes.tapIndex === 1) {
+          // 清除云端数据
+          wx.showModal({
+            title: '确认清除',
+            content: '将删除你在云端的评论、收藏、路线和用户信息，此操作不可恢复。确定继续吗？',
+            confirmText: '确认清除',
+            confirmColor: '#E53935',
+            success: function (modalRes) {
+              if (modalRes.confirm) {
+                if (wx.cloud) {
+                  wx.showLoading({ title: '清除中...' });
+                  wx.cloud.callFunction({
+                    name: 'getProfile',
+                    data: { action: 'deleteAccount' },
+                    success: function () {
+                      wx.hideLoading();
+                      that.doLogout();
+                    },
+                    fail: function () {
+                      wx.hideLoading();
+                      that.doLogout();
+                    }
+                  });
+                } else {
+                  that.doLogout();
+                }
+              }
+            }
           });
-          wx.showToast({ title: '已退出登录', icon: 'success' });
+        } else if (sheetRes.tapIndex === 0) {
+          that.doLogout();
         }
+      },
+      fail: function () {
+        // 用户取消 → 不做任何操作
       }
     });
+  },
+
+  // 执行本地退出
+  doLogout: function () {
+    var app = getApp();
+    wx.removeStorageSync('userInfo');
+    app.globalData.userInfo = null;
+    app.globalData.isLogin = false;
+    app.globalData.isAdmin = false;
+    app.globalData._adminChecked = false;
+    app.refreshCache('all');
+    this.setData({
+      isLogin: false,
+      userInfo: {},
+      favoriteCount: 0,
+      myRouteCount: 0,
+      myReviewCount: 0,
+      isAdmin: false
+    });
+    wx.showToast({ title: '已退出登录', icon: 'success' });
   },
 
   // 点击功能tab
@@ -232,6 +295,7 @@ Page({
     wx.navigateTo({ url: url });
   },
 
+  // 进入后台管理（仅管理员可见入口）
   onAdminEntry: function () {
     wx.navigateTo({ url: '/pages/admin/dashboard/index' });
   },
@@ -240,19 +304,27 @@ Page({
   onAbout: function () {
     wx.showModal({
       title: '关于去俺村',
-      content: '去俺村是一款乡村旅游路线串联小程序，帮助游客发现最美乡村景点，智能规划最优游览路线，让每一次出游都更加便捷高效。\n\n版本：1.0.0',
+      content: '去俺村是一款乡村旅游路线串联小程序，帮助游客发现最美乡村景点，智能规划最优游览路线，让每一次出游都更加便捷高效。',
       showCancel: false
     });
   },
 
   // 意见反馈
   onFeedback: function () {
+    var that = this;
     wx.showModal({
       title: '意见反馈',
       editable: true,
       placeholderText: '请输入你的建议或遇到的问题...',
       success: function (res) {
         if (res.confirm && res.content) {
+          // 保存反馈到云端
+          if (wx.cloud) {
+            wx.cloud.callFunction({
+              name: 'getProfile',
+              data: { action: 'addFeedback', content: res.content }
+            }).catch(function () {});
+          }
           wx.showToast({ title: '感谢反馈！', icon: 'success' });
         }
       }

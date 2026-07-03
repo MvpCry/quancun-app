@@ -1,21 +1,66 @@
 // app.js - 去俺村小程序入口
 App({
   onLaunch: function () {
-    // 初始化云开发环境
+    // 初始化云开发环境（不涉及用户数据，可以提前执行）
     if (!wx.cloud) {
       console.error('请使用 2.2.3 或以上的基础库以使用云能力');
     } else {
       wx.cloud.init({
         env: 'cloud1-d6gmuaxy558d92f62',
-        traceUser: true,
+        traceUser: false,
       });
     }
 
-    // 获取用户 openid
-    this.getOpenId();
+    // 隐私协议检查 → 同意后才初始化用户相关模块
+    var that = this;
+    var agreed = wx.getStorageSync('_privacyAgreed');
+    if (agreed) {
+      // 已同意 → 正常初始化
+      this.initAfterAgreement();
+    } else {
+      // 未同意 → 弹窗等用户确认
+      // 注册隐私授权处理（基础库 2.32.3+）
+      if (wx.onNeedPrivacyAuthorization) {
+        wx.onNeedPrivacyAuthorization(function (resolve) {
+          that._privacyResolve = resolve;
+          that.showPrivacyModal();
+        });
+      }
+      this.showPrivacyModal();
+    }
+  },
 
-    // 首次启动：检查云数据库是否需要导入初始数据
+  // 隐私协议同意后才执行的数据初始化
+  initAfterAgreement: function () {
+    this.getOpenId();
     this.checkAndImportData();
+  },
+
+  showPrivacyModal: function () {
+    var that = this;
+    wx.showModal({
+      title: '用户协议与隐私政策',
+      content: '去俺村是一款乡村旅游路线串联小程序。\n\n我们收集以下信息用于提供服务：\n• 微信头像和昵称 — 用于个人资料展示\n• 位置信息 — 用于路线规划和导航\n• 评价和收藏 — 用于个性化推荐\n\n未经您的授权，我们不会将数据用于其他目的或分享给第三方。\n\n点击"同意"即表示您同意上述隐私政策及服务条款。',
+      confirmText: '同意',
+      cancelText: '拒绝',
+      success: function (res) {
+        if (res.confirm) {
+          wx.setStorageSync('_privacyAgreed', true);
+          if (that._privacyResolve) {
+            that._privacyResolve({ event: 'agree' });
+            that._privacyResolve = null;
+          }
+          // 同意后才收集用户数据
+          that.initAfterAgreement();
+        } else {
+          if (that._privacyResolve) {
+            that._privacyResolve({ event: 'disagree' });
+            that._privacyResolve = null;
+          }
+          wx.showToast({ title: '需同意协议才能使用', icon: 'none' });
+        }
+      }
+    });
   },
 
   // 全局数据（所有页面共享的缓存）

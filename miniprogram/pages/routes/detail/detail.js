@@ -284,7 +284,7 @@ Page({
         '&tocoord=' + end.location.latitude + ',' + end.location.longitude +
         (passesStr ? '&passes=' + encodeURIComponent(passesStr) : ''),
       success: function () {
-        console.log('已打开腾讯地图：' + routeDesc);
+        // 已打开腾讯地图导航
       },
       fail: function () {
         // 腾讯地图不可用 → 打开微信内置地图导航到起点，并在 address 显示完整路线

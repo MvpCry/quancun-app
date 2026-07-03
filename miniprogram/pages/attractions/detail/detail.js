@@ -459,7 +459,6 @@ Page({
       });
 
       var result = res.result;
-      console.log('[addReview] _v=' + (result && result._v) + ' _path=' + (result && result._path), result);
       if (result && result.success) {
         wx.showToast({ title: '评价发布成功！', icon: 'success' });
         that.setData({

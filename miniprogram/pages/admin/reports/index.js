@@ -2,19 +2,26 @@
 var format = require('../../../utils/format.js');
 Page({
   data: {
-    reports: [], violations: [], bans: [],
-    total: 0, loading: true, isAndroid: false,
+    reports: [], violations: [], bans: [], reviews: [],
+    total: 0, reviewsTotal: 0, loading: true, isAndroid: false,
     backIcon: '<',
-    activeTab: 'pending'  // pending | handled | violations | bans
+    activeTab: 'pending'  // reviews | pending | handled | violations | bans
   },
-  onLoad: function () { this.setData({ isAndroid: wx.getSystemInfoSync().platform === 'android' }); this.loadData(); },
+  onLoad: function (options) {
+    this.setData({
+      isAndroid: wx.getSystemInfoSync().platform === 'android',
+      activeTab: (options && options.tab) || 'pending'
+    });
+    this.loadData();
+  },
   onTabChange: function (e) {
     this.setData({ activeTab: e.currentTarget.dataset.tab });
     this.loadData();
   },
   loadData: function () {
     var tab = this.data.activeTab;
-    if (tab === 'violations') this.loadViolations();
+    if (tab === 'reviews') this.loadAllReviews();
+    else if (tab === 'violations') this.loadViolations();
     else if (tab === 'bans') this.loadBans();
     else this.loadReports();
   },
@@ -96,5 +103,31 @@ Page({
 
   onNavBack: function () {
     wx.navigateBack();
+  },
+
+  // === 全部评论 ===
+  loadAllReviews: async function (page) {
+    var that = this; page = page || 1; that.setData({ loading: true });
+    try {
+      var res = await wx.cloud.callFunction({ name: 'handleReport', data: { action: 'listAllReviews', page: page, pageSize: 20 } });
+      var reviews = ((res.result && res.result.list) || []).map(function (r) {
+        r.createTime = format.formatDate(r.createTime);
+        return r;
+      });
+      that.setData({ reviews: reviews, reviewsTotal: (res.result && res.result.total) || 0, loading: false });
+    } catch (err) { that.setData({ loading: false }); }
+  },
+
+  onDeleteReviewOnly: function (e) {
+    var that = this, reviewId = e.currentTarget.dataset.reviewId;
+    wx.showModal({ title: '删除评论', content: '确定删除该评论？', confirmText: '删除', confirmColor: '#E53935',
+      success: async function (r) { if (r.confirm) {
+        try {
+          await wx.cloud.callFunction({ name: 'handleReport', data: { action: 'deleteReviewOnly', reviewId: reviewId } });
+          wx.showToast({ title: '已删除', icon: 'success' });
+          that.loadAllReviews();
+        } catch (err) { wx.showToast({ title: '删除失败', icon: 'none' }); }
+      }}
+    });
   }
 });

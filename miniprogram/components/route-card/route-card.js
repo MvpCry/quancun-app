@@ -7,11 +7,14 @@ Component({
       observer: function (newVal) {
         if (newVal && newVal.attractions) {
           var that = this;
-          var stops = newVal.attractions.map(function (stop) {
+          var len = newVal.attractions.length;
+          var stops = newVal.attractions.map(function (stop, i) {
+            var isEnd = i === len - 1;
             return {
               attractionId: stop.attractionId,
               order: stop.order,
               name: stop.name,
+              displayName: stop.name + (isEnd ? '（终点）' : '（第' + (i + 1) + '站）'),
               location: stop.location,
               shortLocation: that.extractShortLocation(stop.address || ''),
               address: stop.address || ''

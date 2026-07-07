@@ -8,6 +8,7 @@ Page({
     isAdmin: false,
     isAndroid: false,
     backIcon: '<',
+    myOpenid: ''
   },
 
   onLoad: function () {
@@ -31,8 +32,6 @@ Page({
       if (res.result && res.result.success) {
         that.setData({ stats: res.result.stats, isAdmin: true, loading: false });
       } else {
-        that.setData({ loading: false, isAdmin: false });
-
         // 如果本地没有 openid，调云函数获取
         if (!myOpenid) {
           try {
@@ -43,16 +42,10 @@ Page({
             }
           } catch (e) {}
         }
-
-        wx.showModal({
-          title: '无权限',
-          content: '你不是管理员。\n\n你的 openid：\n' + (myOpenid || '获取失败，请先登录') + '\n\n请在云数据库 admins 集合中添加此 openid',
-          showCancel: false,
-          success: function () { wx.navigateBack(); }
-        });
+        that.setData({ loading: false, isAdmin: false, myOpenid: myOpenid || '获取失败，请先登录' });
       }
     } catch (err) {
-      that.setData({ loading: false });
+      that.setData({ loading: false, isAdmin: false, myOpenid: '获取失败，请先登录' });
     }
   },
 
@@ -76,5 +69,10 @@ Page({
 
   onNavBack: function () {
     wx.navigateBack();
+  },
+
+  onStatTap: function (e) {
+    var tab = e.currentTarget.dataset.tab;
+    wx.navigateTo({ url: '/pages/admin/reports/index?tab=' + tab });
   }
 });

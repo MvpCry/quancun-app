@@ -55,7 +55,7 @@
         <view class="selected-item" wx:for="{{selectedAttractions}}" wx:key="_id">
           <view class="selected-order">{{index + 1}}</view>
           <view class="selected-info">
-            <text class="selected-name">{{item.name}}</text>
+            <text class="selected-name">{{item.displayName || item.name}}</text>
             <text class="selected-address text-ellipsis">{{item.address}}</text>
           </view>
           <view class="selected-delete" bindtap="onRemoveAttraction" data-index="{{index}}">✕</view>
@@ -119,7 +119,7 @@
             <view class="stop-line" wx:if="{{index < plannedStops.length - 1}}"></view>
           </view>
           <view class="stop-content">
-            <text class="stop-title">{{item.name}}</text>
+            <text class="stop-title">{{item.displayName || item.name}}</text>
             <text class="stop-meta" wx:if="{{item.distance}}">距上一站 {{item.distance}}km</text>
           </view>
           <view class="stop-order">{{index + 1}}</view>

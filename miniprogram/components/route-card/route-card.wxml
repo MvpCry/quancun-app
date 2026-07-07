@@ -34,7 +34,7 @@
     <view class="route-attractions-preview" wx:if="{{formattedStops.length > 0}}">
       <view class="route-stop" wx:for="{{formattedStops}}" wx:for-item="stop" wx:key="attractionId">
         <view class="stop-dot"></view>
-        <text class="stop-name text-ellipsis">{{stop.name}}<text class="stop-location" wx:if="{{stop.shortLocation}}">（{{stop.shortLocation}}）</text></text>
+        <text class="stop-name text-ellipsis">{{stop.displayName || stop.name}}<text class="stop-location" wx:if="{{stop.shortLocation}}">（{{stop.shortLocation}}）</text></text>
         <view class="stop-line" wx:if="{{index < formattedStops.length - 1}}"></view>
       </view>
     </view>

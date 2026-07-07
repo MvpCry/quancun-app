@@ -212,6 +212,46 @@ function parsePolyline(polyline) {
 }
 
 /**
+ * 带途经点的驾车路线（单次 API 调用，起点→途经点1→途经点2→...→终点）
+ * @param {Object} from - {latitude, longitude} 起点
+ * @param {Array} waypoints - [{latitude, longitude}, ...] 途经点（包含终点）
+ * @param {String} mode - driving | walking | bicycling
+ * @returns {Promise<{distance, duration, polyline}>}
+ */
+function drivingRouteWithWaypoints(from, waypoints, mode) {
+  mode = mode || 'driving';
+  var endpoint = '/ws/direction/v1/' + mode + '/';
+
+  var params = {
+    from: from.latitude + ',' + from.longitude,
+    to: waypoints[waypoints.length - 1].latitude + ',' + waypoints[waypoints.length - 1].longitude,
+    output: 'json',
+    policy: mode === 'driving' ? 'LEAST_TIME' : undefined
+  };
+
+  // 途经点（除最后一个终点外）
+  if (waypoints.length > 1) {
+    var passes = [];
+    for (var i = 0; i < waypoints.length - 1; i++) {
+      passes.push(waypoints[i].latitude + ',' + waypoints[i].longitude);
+    }
+    params.waypoints = passes.join(';');
+  }
+
+  return request(endpoint, params).then(function (result) {
+    if (result.routes && result.routes.length > 0) {
+      var route = result.routes[0];
+      return {
+        distance: route.distance,
+        duration: route.duration,
+        polyline: parsePolyline(route.polyline)
+      };
+    }
+    throw { code: -3, message: '未找到路线' };
+  });
+}
+
+/**
  * 多路径驾车路线（用于路线串联）
  * @param {Array} stops - [{latitude, longitude}, ...]
  * @returns {Promise<Array>} [{distance, duration, polyline}, ...]
@@ -340,6 +380,7 @@ module.exports = {
   reverseGeocoder: reverseGeocoder,
   placeSearch: placeSearch,
   drivingRoute: drivingRoute,
+  drivingRouteWithWaypoints: drivingRouteWithWaypoints,
   multiDrivingRoutes: multiDrivingRoutes,
   distanceMatrix: distanceMatrix,
   nearbySearch: nearbySearch,

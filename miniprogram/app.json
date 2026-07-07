@@ -64,10 +64,7 @@
       "desc": "你的位置信息将用于路线规划和导航"
     }
   },
-  "requiredPrivateInfos": [
-    "getLocation",
-    "chooseLocation"
-  ],
+  "requiredPrivateInfos": [],
   "style": "v2",
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents",

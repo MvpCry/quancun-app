@@ -61,31 +61,15 @@ exports.main = async (event, context) => {
       }
 
       case 'recommend': {
-        // 推荐路线：优先查 recommended 字段，无则回退按收藏排序
+        // 推荐路线：只返回后台标记为 recommended 的路线
         const recRes = await db.collection('routes')
           .where({ recommended: true })
           .orderBy('createTime', 'desc')
           .limit(limit)
           .get();
 
-        if (recRes.data.length > 0) {
-          return {
-            list: recRes.data.map(route => ({
-              ...route,
-              attractionCount: route.attractions ? route.attractions.length : 0
-            }))
-          };
-        }
-
-        // 回退：按收藏数排序
-        const res = await db.collection('routes')
-          .orderBy('likeCount', 'desc')
-          .orderBy('createTime', 'desc')
-          .limit(limit)
-          .get();
-
         return {
-          list: res.data.map(route => ({
+          list: recRes.data.map(route => ({
             ...route,
             attractionCount: route.attractions ? route.attractions.length : 0
           }))

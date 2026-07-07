@@ -85,7 +85,7 @@ Component({
         width: 48,
         height: 42,
         callout: {
-          content: `${index + 1}. ${stop.name}`,
+          content: stop.displayName || stop.name,
           color: '#333333',
           fontSize: 13,
           borderRadius: 8,

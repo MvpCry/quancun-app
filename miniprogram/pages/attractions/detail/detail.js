@@ -17,8 +17,8 @@ Page({
     reviewPage: 1,
     hasMore: false,
     loading: true,
-    loadError: '',        // 加载错误信息（空=无错误）
-    loadRetryCount: 0,    // 重试次数
+    loadError: '',
+    loadRetryCount: 0,
 
     // 写评价
     isLogin: false,
@@ -205,19 +205,20 @@ Page({
     });
   },
 
+  // 导航前往：定位到景点位置
   onNavigate: function () {
     var loc = this.data.attraction.location;
     if (!loc || !loc.latitude) {
       wx.showToast({ title: '暂无位置信息', icon: 'none' });
       return;
     }
-    wx.openLocation({
-      latitude: loc.latitude,
-      longitude: loc.longitude,
-      name: this.data.attraction.name,
-      address: this.data.attraction.address || '',
-      scale: 16
+
+    var mapCtx = wx.createMapContext('detailMap');
+    mapCtx.moveToLocation({
+      latitude: Number(loc.latitude),
+      longitude: Number(loc.longitude)
     });
+    this.setData({ scale: 16 });
   },
 
   onOpenMap: function () { this.onNavigate(); },

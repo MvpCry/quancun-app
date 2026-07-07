@@ -81,7 +81,7 @@
         </view>
         <view class="stop-body">
           <view class="stop-name-row">
-            <text class="stop-name">{{item.name}}</text>
+            <text class="stop-name">{{item.displayName || item.name}}</text>
             <text class="stop-location-tag" wx:if="{{item.address}}">（{{item.address}}）</text>
           </view>
           <view class="stop-meta" wx:if="{{item.tags && item.tags.length > 0}}">

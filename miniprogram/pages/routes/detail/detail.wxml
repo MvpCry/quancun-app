@@ -30,8 +30,27 @@
   </view>
 
   <block wx:else>
-  <!-- 路线地图（至少2个有效坐标才展示） -->
-  <view class="detail-map-section" wx:if="{{hasMapData}}">
+
+  <!-- 导航 map（导航模式下显示，替换原路线地图） -->
+  <view class="nav-map-section" wx:if="{{showNavResult || isPlanning}}">
+    <map
+      id="routeMap"
+      class="detail-map-nav"
+      latitude="{{markers[0].latitude || 36.2}}"
+      longitude="{{markers[0].longitude || 117.1}}"
+      scale="10"
+      markers="{{markers}}"
+      polyline="{{polyline}}"
+      show-location
+      show-compass
+    />
+    <view class="route-loading-overlay" wx:if="{{isPlanning}}">
+      <text>计算线路中...</text>
+    </view>
+  </view>
+
+  <!-- 原始路线地图（非导航模式） -->
+  <view class="detail-map-section" wx:elif="{{hasMapData}}">
     <map-route
       id="detailMapRoute"
       stops="{{mapStops}}"
@@ -86,7 +105,7 @@
     </view>
   </view>
 
-  <!-- 景点列表（有序） -->
+  <!-- 景点列表 -->
   <view class="stops-card card">
     <view class="card-header">
       <text class="card-title">途经景点</text>
@@ -103,7 +122,7 @@
           <view class="stop-marker-line" wx:if="{{index < route.attractions.length - 1}}"></view>
         </view>
         <view class="stop-content-wrap">
-          <text class="stop-title">{{item.name}}</text>
+          <text class="stop-title">{{item.displayName || item.name}}</text>
           <text class="stop-distance" wx:if="{{item.distanceFromPrev}}">距上站 {{item.distanceFromPrev}}km</text>
         </view>
         <text class="stop-arrow">›</text>
@@ -111,8 +130,29 @@
     </view>
   </view>
 
-  <!-- 底部操作栏 -->
-  <view class="detail-bottom-bar safe-bottom">
+  <!-- 导航结果浮层 -->
+  <view class="nav-result-panel" wx:if="{{showNavResult}}">
+    <view class="nav-result-header">
+      <view class="nav-modes">
+        <view class="mode {{navMode === 'driving' ? 'active' : ''}}"
+              data-mode="driving" bindtap="switchNavMode">驾车</view>
+        <view class="mode {{navMode === 'walking' ? 'active' : ''}}"
+              data-mode="walking" bindtap="switchNavMode">步行</view>
+        <view class="mode {{navMode === 'bicycling' ? 'active' : ''}}"
+              data-mode="bicycling" bindtap="switchNavMode">骑行</view>
+      </view>
+      <view class="close-btn" bindtap="closeNavResult">✕</view>
+    </view>
+    <view class="nav-result-body">
+      <text class="nav-time">{{navInfo.duration}}</text>
+      <text class="nav-distance">{{navInfo.distance}}</text>
+    </view>
+  </view>
+
+  <view style="height: 140rpx;"></view>
+
+  <!-- 底部操作栏：未计算线路 -->
+  <view class="detail-bottom-bar safe-bottom" wx:if="{{!showNavResult}}">
     <view class="bottom-action" bindtap="onToggleFavorite">
       <text>{{isFavorited ? '❤️' : '🤍'}}</text>
       <text class="bottom-label">收藏</text>
@@ -121,7 +161,19 @@
       <text>📤</text>
       <text class="bottom-label">分享</text>
     </view>
-    <button class="btn btn-primary flex-1" bindtap="onNavigateAll">开始导航</button>
+    <button class="btn btn-primary flex-1 {{isPlanning ? 'loading' : ''}}" bindtap="onNavigateAll">
+      {{isPlanning ? '计算中...' : '计算线路'}}
+    </button>
+  </view>
+
+  <!-- 底部操作栏：已计算线路 → 去导航 + 关闭 -->
+  <view class="detail-bottom-bar dual-mode safe-bottom" wx:if="{{showNavResult}}">
+    <view class="btn-navigate" bindtap="goToTencentMap">
+      <text>🧭 去导航</text>
+    </view>
+    <view class="btn-close" bindtap="closeNavResult">
+      <text>✕ 关闭</text>
+    </view>
   </view>
   </block>
 </view>

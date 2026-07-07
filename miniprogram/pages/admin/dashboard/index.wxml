@@ -1,4 +1,22 @@
 <!-- pages/admin/dashboard/index.wxml -->
+
+<!-- ========== 无权限全屏页 ========== -->
+<view wx:if="{{!loading && !isAdmin}}" class="forbidden-page">
+  <view class="forbidden-card">
+    <text class="forbidden-icon">🔒</text>
+    <text class="forbidden-title">无权限访问</text>
+    <text class="forbidden-desc">你不是管理员，无法查看后台数据</text>
+    <view class="forbidden-openid" wx:if="{{myOpenid}}">
+      <text class="forbidden-label">你的 openid：</text>
+      <text class="forbidden-value" selectable="true">{{myOpenid}}</text>
+    </view>
+    <text class="forbidden-hint">请联系管理员将你的 openid 添加到 admins 集合</text>
+    <button class="forbidden-btn" bindtap="onNavBack">返回</button>
+  </view>
+</view>
+
+<!-- ========== 正常管理后台 ========== -->
+<block wx:else>
 <view class="nav-container {{isAndroid ? 'android' : ''}}">
   <view class="nav-left">
     <view class="nav-back" bindtap="onNavBack"><text class="back-icon">{{backIcon}}</text></view>
@@ -18,10 +36,18 @@
 
   <block wx:elif="{{isAdmin && stats}}">
     <view class="stat-grid">
-      <view class="stat-card reviews"><text class="num">{{stats.reviews.total}}</text><text class="label">总评论</text><text class="sub">今日 +{{stats.reviews.today}}</text></view>
-      <view class="stat-card violations"><text class="num">{{stats.violations.week}}</text><text class="label">7日违规</text><text class="sub">今日 +{{stats.violations.today}}</text></view>
-      <view class="stat-card reports"><text class="num">{{stats.pendingReports}}</text><text class="label">待处理举报</text><text class="sub" wx:if="{{stats.pendingReports > 0}}" style="color:#E53935;">需要处理</text></view>
-      <view class="stat-card bans"><text class="num">{{stats.activeBans}}</text><text class="label">禁言中</text><text class="sub">正在执行</text></view>
+      <view class="stat-card reviews" bindtap="onStatTap" data-tab="reviews" hover-class="stat-card-hover">
+        <text class="num">{{stats.reviews.total}}</text><text class="label">总评论</text><text class="sub">今日 +{{stats.reviews.today}}</text><text class="stat-arrow">›</text>
+      </view>
+      <view class="stat-card violations" bindtap="onStatTap" data-tab="violations" hover-class="stat-card-hover">
+        <text class="num">{{stats.violations.week}}</text><text class="label">7日违规</text><text class="sub">今日 +{{stats.violations.today}}</text><text class="stat-arrow">›</text>
+      </view>
+      <view class="stat-card reports" bindtap="onStatTap" data-tab="pending" hover-class="stat-card-hover">
+        <text class="num">{{stats.pendingReports}}</text><text class="label">待处理举报</text><text class="sub" wx:if="{{stats.pendingReports > 0}}" style="color:#E53935;">需要处理</text><text class="stat-arrow">›</text>
+      </view>
+      <view class="stat-card bans" bindtap="onStatTap" data-tab="bans" hover-class="stat-card-hover">
+        <text class="num">{{stats.activeBans}}</text><text class="label">禁言中</text><text class="sub">正在执行</text><text class="stat-arrow">›</text>
+      </view>
     </view>
 
     <view class="section-title"><text>快捷管理</text></view>
@@ -57,3 +83,4 @@
   </block>
   <view class="safe-bottom" style="height:60rpx;"></view>
 </view>
+</block>

@@ -21,3 +21,17 @@
 .vl-list{display:flex;flex-direction:column;gap:12rpx}.vl-item{background:#FFF;border-radius:12rpx;padding:20rpx 24rpx;box-shadow:0 2px 8px rgba(0,0,0,.06)}.vl-header{display:flex;align-items:center;gap:12rpx;margin-bottom:10rpx}.vl-source{font-size:22rpx}.vl-source.keyword{color:#FF9800}.vl-source.msgSecCheck{color:#2196F3}.vl-word{font-size:22rpx;background:#FFEBEE;color:#E53935;padding:2rpx 12rpx;border-radius:8rpx}.vl-content{font-size:26rpx;color:#666;display:block;margin-bottom:8rpx;max-height:80rpx;overflow:hidden}.vl-time{font-size:22rpx;color:#999}
 /* 禁言 */
 .ban-list{display:flex;flex-direction:column;gap:12rpx}.ban-item{background:#FFF;border-radius:12rpx;padding:20rpx 24rpx;box-shadow:0 2px 8px rgba(0,0,0,.06)}.ban-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8rpx}.ban-user{font-size:26rpx;font-weight:500}.ban-tag{font-size:22rpx;padding:4rpx 14rpx;border-radius:12rpx;background:#FFF3E0;color:#FF9800}.ban-tag.week{background:#FFEBEE;color:#E53935}.ban-reason{font-size:24rpx;color:#666;display:block;margin-bottom:8rpx}.ban-footer{display:flex;justify-content:space-between;align-items:center}.ban-time{font-size:22rpx;color:#999}.lift-btn{padding:8rpx 20rpx;font-size:22rpx;background:#E8F5E9;color:#2E8B57;border-radius:20rpx;border:none}.lift-btn::after{border:none}
+
+.empty-state{text-align:center;padding:80rpx 0}.empty-text{font-size:28rpx;color:#999}
+.review-header-bar{padding:16rpx 0;margin-bottom:12rpx}.review-count-text{font-size:26rpx;color:#999}
+.review-list{display:flex;flex-direction:column;gap:16rpx}
+.review-card{background:#FFF;border-radius:12rpx;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:24rpx}
+.review-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12rpx}
+.review-user-info{display:flex;align-items:center;gap:12rpx}
+.review-user-name{font-size:26rpx;font-weight:600}
+.review-rating{font-size:24rpx;color:#FF9800}
+.review-attraction{font-size:22rpx;color:#2E8B57;background:#E8F5E9;padding:4rpx 12rpx;border-radius:8rpx}
+.review-content-text{font-size:26rpx;color:#666;line-height:1.6;display:block;margin-bottom:12rpx}
+.review-card-footer{display:flex;justify-content:space-between;align-items:center}
+.review-time{font-size:22rpx;color:#999}
+.act-btn.sm{padding:8rpx 24rpx;font-size:24rpx;width:auto;flex:none}

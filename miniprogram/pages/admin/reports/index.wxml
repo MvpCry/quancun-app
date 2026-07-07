@@ -19,11 +19,35 @@
   </view>
 
   <view class="tab-bar">
+    <view class="tab-item {{activeTab==='reviews'?'active':''}}" bindtap="onTabChange" data-tab="reviews">评论</view>
     <view class="tab-item {{activeTab==='pending'?'active':''}}" bindtap="onTabChange" data-tab="pending">待处理</view>
     <view class="tab-item {{activeTab==='handled'?'active':''}}" bindtap="onTabChange" data-tab="handled">已处理</view>
     <view class="tab-item {{activeTab==='violations'?'active':''}}" bindtap="onTabChange" data-tab="violations">违规记录</view>
     <view class="tab-item {{activeTab==='bans'?'active':''}}" bindtap="onTabChange" data-tab="bans">禁言列表</view>
   </view>
+
+  <!-- 评论列表 -->
+  <block wx:if="{{activeTab==='reviews'}}">
+    <view class="review-header-bar">
+      <text class="review-count-text">共 {{reviewsTotal}} 条评论</text>
+    </view>
+    <view class="review-list" wx:if="{{!loading && reviews.length>0}}">
+      <view class="review-card" wx:for="{{reviews}}" wx:key="_id">
+        <view class="review-card-header">
+          <view class="review-user-info">
+            <text class="review-user-name">{{item.userName || '匿名用户'}}</text>
+            <text class="review-rating">⭐{{item.rating}}</text>
+          </view>
+          <text class="review-attraction">{{item.attractionName}}</text>
+        </view>
+        <text class="review-content-text">{{item.content}}</text>
+        <view class="review-card-footer">
+          <text class="review-time">{{item.createTime}}</text>
+          <button class="act-btn del sm" bindtap="onDeleteReviewOnly" data-review-id="{{item._id}}">删除</button>
+        </view>
+      </view>
+    </view>
+  </block>
 
   <!-- 举报列表 -->
   <block wx:if="{{activeTab==='pending' || activeTab==='handled'}}">
@@ -79,9 +103,9 @@
     </view>
   </block>
 
-  <view class="empty-state" wx:if="{{!loading && reports.length===0 && violations.length===0 && bans.length===0}}">
+  <view class="empty-state" wx:if="{{!loading && reports.length===0 && violations.length===0 && bans.length===0 && reviews.length===0}}">
     <text class="empty-text">
-      {{activeTab==='pending'?'暂无待处理举报':''}}{{activeTab==='handled'?'暂无处理记录':''}}{{activeTab==='violations'?'暂无违规记录':''}}{{activeTab==='bans'?'暂无禁言用户':''}}
+      {{activeTab==='reviews'?'暂无评论':''}}{{activeTab==='pending'?'暂无待处理举报':''}}{{activeTab==='handled'?'暂无处理记录':''}}{{activeTab==='violations'?'暂无违规记录':''}}{{activeTab==='bans'?'暂无禁言用户':''}}
     </text>
   </view>
   <view class="safe-bottom" style="height:80rpx;"></view>

@@ -66,14 +66,6 @@ Page({
         } catch (e) { featured = []; }
       }
 
-      // 如果推荐路线为空，回退取全部路线
-      if (routes.length === 0) {
-        try {
-          var fallbackRoutes = await app.fetchRoutes({ limit: 20 });
-          routes = fallbackRoutes.list || [];
-        } catch (e) { routes = []; }
-      }
-
       // 如果 Banner 为空，从精选景点构建
       if (banners.length === 0) {
         banners = that.buildBanners(featured);

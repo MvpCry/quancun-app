@@ -283,3 +283,102 @@
   font-size: 20rpx;
   color: var(--text-hint);
 }
+
+/* ========== 导航 map ========== */
+.nav-map-section {
+  width: 100%;
+  height: 45vh;
+  position: relative;
+}
+.detail-map-nav {
+  width: 100%;
+  height: 100%;
+}
+.route-loading-overlay {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.6); color: #FFF; font-size: 26rpx;
+  padding: 16rpx 36rpx; border-radius: 28rpx; z-index: 10;
+}
+
+.btn.loading {
+  background: #CCC !important;
+}
+
+/* 底部双按钮 */
+.detail-bottom-bar.dual-mode {
+  gap: 24rpx;
+  padding: 20rpx 30rpx;
+}
+.btn-navigate {
+  flex: 1; height: 84rpx; background: #00C853; color: #FFF;
+  border-radius: 42rpx; display: flex; align-items: center; justify-content: center;
+  font-size: 30rpx; font-weight: 700;
+  box-shadow: 0 4rpx 12rpx rgba(0, 200, 83, 0.3);
+}
+.btn-close {
+  flex: 1; height: 84rpx; background: #F5F5F5; color: #666;
+  border-radius: 42rpx; display: flex; align-items: center; justify-content: center;
+  font-size: 30rpx;
+}
+
+/* ========== 导航结果浮层 ========== */
+.nav-result-panel {
+  position: fixed;
+  bottom: 140rpx;
+  left: 20rpx; right: 20rpx;
+  background: #FFF;
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 30rpx rgba(0,0,0,0.12);
+  z-index: 99;
+  overflow: hidden;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 30rpx 0;
+}
+
+.nav-modes {
+  display: flex;
+  gap: 40rpx;
+}
+
+.mode {
+  font-size: 28rpx;
+  color: #999;
+  padding: 16rpx 0;
+  border-bottom: 4rpx solid transparent;
+}
+
+.mode.active {
+  color: #2979FF;
+  border-bottom-color: #2979FF;
+  font-weight: 600;
+}
+
+.close-btn {
+  font-size: 32rpx;
+  color: #999;
+  padding: 10rpx;
+}
+
+.nav-result-body {
+  padding: 20rpx 30rpx 30rpx;
+  display: flex;
+  align-items: baseline;
+  gap: 16rpx;
+}
+
+.nav-time {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #333;
+}
+
+.nav-distance {
+  font-size: 28rpx;
+  color: #999;
+}

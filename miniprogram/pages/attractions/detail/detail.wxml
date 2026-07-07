@@ -89,7 +89,7 @@
       <text class="card-title">景点位置</text>
       <text class="nav-btn" bindtap="onNavigate">🧭 导航前往</text>
     </view>
-    <view class="map-wrap" bindtap="onOpenMap" wx:if="{{hasLocation}}">
+    <view class="map-wrap" wx:if="{{hasLocation}}">
       <map
         id="detailMap"
         class="detail-map"

@@ -105,6 +105,15 @@ Page({
       }
     }
 
+    // 加 displayName
+    if (foundList && foundList.length > 0) {
+      var flen = foundList.length;
+      foundList.forEach(function (s, i) {
+        var isEnd = i === flen - 1;
+        s.displayName = s.name + (isEnd ? '（终点）' : '（第' + (i + 1) + '站）');
+      });
+    }
+
     that.setData({ selectedAttractions: foundList || [] });
     that.checkMissingCoords(foundList || []);
   },
@@ -214,18 +223,9 @@ Page({
   // 实际规划逻辑（被 onPlanRoute 超时保护包裹）
   doPlanRoute: async function () {
     var that = this;
-    var currentLocation = null;
 
-    // 并行获取定位（3秒超时）
-    try {
-      var locRes = await that.withTimeout(wx.getLocation({ type: 'gcj02' }), 3000);
-      currentLocation = { latitude: locRes.latitude, longitude: locRes.longitude };
-    } catch (e) {
-      // 无定位也继续
-    }
-
-    // 尝试腾讯地图距离矩阵 + 本地Haversine回退（不浪费时间去试云函数）
-    var mapPlanResult = await that.planWithMapService(currentLocation);
+    // 只计算景点间距离，不加用户位置
+    var mapPlanResult = await that.planWithMapService(null);
     if (mapPlanResult) {
       that.setData({ routeCalculating: false });
       that.applyPlanResult(
@@ -396,11 +396,19 @@ Page({
   applyPlanResult: function (plannedStops, totalDistance, estimatedTime, routePolylines) {
     var that = this;
     routePolylines = routePolylines || [];
+    var len = plannedStops.length;
+
+    // 给每个 stop 加 displayName
+    plannedStops.forEach(function (s, i) {
+      var isEnd = i === len - 1;
+      s.displayName = s.name + (isEnd ? '（终点）' : '（第' + (i + 1) + '站）');
+    });
 
     var mapStops = plannedStops.map(function (stop, index) {
       return {
         id: stop.attractionId || stop.id,
         name: stop.name,
+        displayName: stop.displayName,
         latitude: (stop.location && stop.location.latitude) || 0,
         longitude: (stop.location && stop.location.longitude) || 0,
         distance: stop.distanceFromPrev,

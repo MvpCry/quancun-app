@@ -194,6 +194,43 @@ exports.main = async (event, context) => {
         return { list: bansRes.data };
       }
 
+      // ========== 全部评论列表 ==========
+      case 'listAllReviews': {
+        var rPage = event.page || 1;
+        var rPageSize = event.pageSize || 20;
+        var rSkip = (rPage - 1) * rPageSize;
+
+        var rCountRes = await db.collection('reviews').count();
+        var rListRes = await db.collection('reviews')
+          .orderBy('createTime', 'desc')
+          .skip(rSkip)
+          .limit(rPageSize)
+          .get();
+
+        // 补充景点名称
+        var list = [];
+        for (var i = 0; i < rListRes.data.length; i++) {
+          var review = rListRes.data[i];
+          try {
+            var attrRes = await db.collection('attractions')
+              .doc(review.attractionId)
+              .field({ name: true })
+              .get();
+            review.attractionName = attrRes.data ? attrRes.data.name : '未知景点';
+          } catch (e) {
+            review.attractionName = '未知景点';
+          }
+          list.push(review);
+        }
+
+        return {
+          list: list,
+          total: rCountRes.total,
+          page: rPage,
+          hasMore: rSkip + rPageSize < rCountRes.total
+        };
+      }
+
       // ========== 解除禁言 ==========
       case 'liftBan':
         if (!event.banId) return { success: false, error: '缺少禁言记录ID' };

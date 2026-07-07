@@ -94,9 +94,11 @@ Page({
       var maxCount = Math.ceil(that.data.hours / 1.5);
       villages = villages.slice(0, maxCount);
 
-      // 标记选中状态
-      villages = villages.map(function (v) {
+      // 标记选中状态 + displayName
+      var vlen = villages.length;
+      villages = villages.map(function (v, i) {
         v._selected = false;
+        v.displayName = v.name + (i === vlen - 1 ? '（终点）' : '（第' + (i + 1) + '站）');
         return v;
       });
 

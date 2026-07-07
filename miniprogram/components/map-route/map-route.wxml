@@ -34,7 +34,7 @@
       data-index="{{index}}"
       bindtap="onStopChipTap">
       <view class="stop-chip-order">{{index + 1}}</view>
-      <text class="stop-chip-name">{{stop.name}}</text>
+      <text class="stop-chip-name">{{stop.displayName || stop.name}}</text>
     </view>
   </scroll-view>
 </view>
